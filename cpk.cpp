@@ -21,41 +21,51 @@ bool cmdOptionExists(char** begin, char** end, const std::string& option)
     return std::find(begin, end, option) != end;
 }
 
-void installPackages(const std::vector<CPKPackage>& packages)
+void installPackages(const std::vector<CPKPackage>& packages, int level = 0)
 {
+    if(packages.size() == 0)
+        return;
+
     for(const auto& package : packages) 
     {
-        downloadFile(package.url.c_str(), "file");
-        switch(package.lang)
-        {
-            case CPP:
-                printf("cpp\n");
-                break;
-            default:
-                break;
-        }
+        printf("add deps for install = %s\n", package.name.c_str());
+        installPackageList.insert({package.name, (CPKPackage*)&package});
+        installPackages(package.dependencies, level + 1);
     }
-}
 
-void installPackagesArgs(const std::vector<std::string>& packages)
-{
-    for(const auto& package : packages) {
-        printf("package %s\n", package.c_str());
+    // install
+    if (level == 0) 
+    {
+        for (const auto& package : packages)
+        {
+            downloadFile(package.url.c_str(), "file");
+            switch(package.lang)
+            {
+                case CPP:
+                    printf("install %s\n", package.name);
+                    break;
+                default:
+                    break;
+            }
+        }
     }
 }
 
 int main(int argc, char *argv[]) {
     if(argc > 2) {
         if (strcmp(argv[1], "install") == 0) {
-            std::vector<std::string> packages;
+            std::vector<CPKPackage> packages;
             for (int i = 2; i < argc; i++)
             {
-                packages.push_back(argv[i]);
+                CPKPackage package;
+                package.name = argv[i];
+                package.url = "https://degitx.com/sitemap.xml";
+                packages.push_back(package);
             }
-            installPackagesArgs(packages);
+            installPackages(packages);
         }
     }
 
-    downloadFile("https://degitx.com/sitemap.xml", "sitemap.xml");
+    //downloadFile("https://degitx.com/sitemap.xml", "sitemap.xml");
     return 0;
 }

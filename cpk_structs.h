@@ -16,7 +16,6 @@ enum CPKBuildType
     CMAKE
 };
 
-
 struct CPKPackage
 {
     std::string name;
@@ -26,3 +25,5 @@ struct CPKPackage
     CPKLang lang;
     CPKBuildType buildType;
 };
+
+std::unordered_map<std::string, CPKPackage*> installPackageList;
