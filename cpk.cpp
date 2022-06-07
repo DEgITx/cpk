@@ -8,7 +8,7 @@ size_t write_data(void *ptr, size_t size, size_t nmemb, FILE *stream) {
     return written;
 }
 
-void downloadFile(char* url, char* output_file)
+void downloadFile(const char* url, const char* output_file)
 {
     CURL *curl;
     FILE *fp;
@@ -52,7 +52,50 @@ bool cmdOptionExists(char** begin, char** end, const std::string& option)
     return std::find(begin, end, option) != end;
 }
 
-void installPackages(const std::vector<std::string>& packages)
+enum CPKLang
+{
+    CPP = 1,
+    C,
+    RUST,
+    PYTHON,
+    JAVASCRIPT
+};
+
+enum CPKBuildType
+{
+    SIMPLE = 1,
+    CMAKE
+};
+
+
+struct CPKPackage
+{
+    std::string name;
+    std::string version;
+    std::string url;
+    std::vector<CPKPackage> dependencies;
+    CPKLang lang;
+    CPKBuildType buildType;
+};
+
+
+void installPackages(const std::vector<CPKPackage>& packages)
+{
+    for(const auto& package : packages) 
+    {
+        downloadFile(package.url.c_str(), "file");
+        switch(package.lang)
+        {
+            case CPP:
+                printf("cpp\n");
+                break;
+            default:
+                break;
+        }
+    }
+}
+
+void installPackagesArgs(const std::vector<std::string>& packages)
 {
     for(const auto& package : packages) {
         printf("package %s\n", package.c_str());
@@ -67,7 +110,7 @@ int main(int argc, char *argv[]) {
             {
                 packages.push_back(argv[i]);
             }
-            installPackages(packages);
+            installPackagesArgs(packages);
         }
     }
 
