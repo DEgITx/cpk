@@ -13,11 +13,14 @@ set(CURL_LIBRARIES libcurl)
 
 message(STATUS "${CURL_INCLUDE_DIR}")
 
+FILE(GLOB CPK_CPP_FLES src/*.cpp)
+FILE(GLOB CPK_H_FLES src/*.h)
+
 set(CPK_SOURCES
-    src/download.cpp
-    src/cpk_structs.h
+    ${CPK_CPP_FLES}
+    ${CPK_H_FLES}
 )
 
 include_directories(${CURL_INCLUDE_DIR})
-add_executable(cpk src/cpk.cpp ${CPK_SOURCES})
+add_executable(cpk ${CPK_SOURCES})
 target_link_libraries(cpk ${CURL_LIBRARIES})
