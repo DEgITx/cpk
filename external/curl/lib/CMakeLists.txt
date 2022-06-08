@@ -28,11 +28,14 @@ else()
   set(CURL_STATICLIB YES)
 endif()
 
+# CPK diff
 if(WIN32)
   set(CURL_LIBS ${CURL_LIBS} ws2_32)
 endif()
-
+set(CURL_LIBS ${CURL_LIBS} mbedtls)
 add_definitions(-DCURL_DISABLE_LDAP -DCURL_DISABLE_LDAPS)
+add_definitions(-DUSE_MBEDTLS)
+
 
 # Ugly (but functional) way to include "Makefile.inc" by transforming it (= regenerate it).
 function(transform_makefile_inc INPUT_FILE OUTPUT_FILE)

@@ -2,6 +2,17 @@
 #include <curl/curl.h>
 #include <string>
 
+void print_curl_protocols()
+{
+    printf("curl version: %s\n", curl_version());
+    const char *const *proto;
+    curl_version_info_data *curlinfo = curl_version_info(CURLVERSION_NOW);
+    for(proto = curlinfo->protocols; *proto; proto++)
+    {
+        printf("curl support protocol: %s\n", *proto);
+    }
+}
+
 size_t write_data(void *ptr, size_t size, size_t nmemb, FILE *stream) {
     size_t written = fwrite(ptr, size, nmemb, stream);
     return written;

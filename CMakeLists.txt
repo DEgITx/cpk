@@ -5,7 +5,9 @@ set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 
 #find_package(CURL REQUIRED)
+add_subdirectory(external/mbedtls/library)
 add_subdirectory(external/curl/lib)
+
 set(CURL_INCLUDE_DIR ${CMAKE_SOURCE_DIR}/external/curl/include)
 set(CURL_LIBRARIES libcurl)
 
