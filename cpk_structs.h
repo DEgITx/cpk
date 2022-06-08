@@ -1,5 +1,7 @@
 #include <string>
 #include <algorithm>
+#include <vector>
+#include <unordered_map>
 
 enum CPKLang
 {
@@ -21,6 +23,7 @@ struct CPKPackage
     std::string name;
     std::string version;
     std::string url;
+    size_t size;
     std::vector<CPKPackage> dependencies;
     CPKLang lang;
     CPKBuildType buildType;
