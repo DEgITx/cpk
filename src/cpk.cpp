@@ -43,7 +43,7 @@ void installPackages(const std::vector<CPKPackage>& packages, int level = 0)
             switch(package.lang)
             {
                 case CPP:
-                    printf("install %s\n", package.name);
+                    printf("install %s\n", package.name.c_str());
                     unzip("sitemap.zip", "sitemap.xml");
                     break;
                 default:
@@ -53,7 +53,7 @@ void installPackages(const std::vector<CPKPackage>& packages, int level = 0)
     }
 }
 
-int main(int argc, char *argv[]) {
+int cpk_main(int argc, char *argv[]) {
     if(argc > 2) {
         if (strcmp(argv[1], "install") == 0) {
             std::vector<CPKPackage> packages;

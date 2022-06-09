@@ -15,6 +15,7 @@ add_subdirectory(external/libzip/lib)
 set(CURL_INCLUDE_DIR 
     ${CMAKE_SOURCE_DIR}/external/curl/include
     ${CMAKE_SOURCE_DIR}/external/libzip/lib
+    ${CMAKE_SOURCE_DIR}/src
     ${CMAKE_BINARY_DIR}
 )
 set(CURL_LIBRARIES 
@@ -33,5 +34,5 @@ set(CPK_SOURCES
 )
 
 include_directories(${CURL_INCLUDE_DIR})
-add_executable(cpk ${CPK_SOURCES})
+add_executable(cpk main.cpp ${CPK_SOURCES})
 target_link_libraries(cpk ${CURL_LIBRARIES})
