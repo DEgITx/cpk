@@ -4,6 +4,14 @@ project(cpk VERSION 1.0)
 set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 
+set(WITH_TESTS True)
+if(WITH_TESTS)
+    enable_testing()
+    add_definitions(-DWITH_TESTS)
+    if(WITH_TESTS_CDASH)
+        include(CTest)
+    endif(WITH_TESTS_CDASH)
+endif(WITH_TESTS)
 add_definitions(-DZIP_STATIC)
 
 #find_package(CURL REQUIRED)
@@ -26,6 +34,7 @@ set(CURL_LIBRARIES
 message(STATUS "${CURL_INCLUDE_DIR}")
 
 FILE(GLOB CPK_CPP_FLES src/*.cpp)
+list(FILTER CPK_CPP_FLES EXCLUDE REGEX ".*_test.cpp$")
 FILE(GLOB CPK_H_FLES src/*.h)
 
 set(CPK_SOURCES
@@ -34,5 +43,17 @@ set(CPK_SOURCES
 )
 
 include_directories(${CURL_INCLUDE_DIR})
-add_executable(cpk main.cpp ${CPK_SOURCES})
-target_link_libraries(cpk ${CURL_LIBRARIES})
+add_library(cpkl STATIC ${CPK_SOURCES})
+target_link_libraries(cpkl ${CURL_LIBRARIES})
+add_executable(cpk main.cpp)
+target_link_libraries(cpk cpkl)
+
+FILE(GLOB TEST_FILES src/*_test.cpp)
+foreach(TEST_FILE ${TEST_FILES})
+    string(REGEX REPLACE ".+\/src\/(.+)(_test\\.cpp)" "\\1" TEST_NAME ${TEST_FILE})
+    add_executable(test_${TEST_NAME} ${TEST_FILE})
+    target_link_libraries(test_${TEST_NAME} cpkl)
+    set_property(TARGET test_${TEST_NAME} PROPERTY CXX_STANDARD 14)
+	set_property(TARGET test_${TEST_NAME} PROPERTY FOLDER "Tests")
+    ADD_TEST(test_${TEST_NAME} test_${TEST_NAME})
+endforeach()
