@@ -4,12 +4,23 @@ project(cpk VERSION 1.0)
 set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 
+add_definitions(-DZIP_STATIC)
+
 #find_package(CURL REQUIRED)
 add_subdirectory(external/mbedtls/library)
 add_subdirectory(external/curl/lib)
+add_subdirectory(external/zlib)
+add_subdirectory(external/libzip/lib)
 
-set(CURL_INCLUDE_DIR ${CMAKE_SOURCE_DIR}/external/curl/include)
-set(CURL_LIBRARIES libcurl)
+set(CURL_INCLUDE_DIR 
+    ${CMAKE_SOURCE_DIR}/external/curl/include
+    ${CMAKE_SOURCE_DIR}/external/libzip/lib
+    ${CMAKE_BINARY_DIR}
+)
+set(CURL_LIBRARIES 
+    libcurl
+    zip
+)
 
 message(STATUS "${CURL_INCLUDE_DIR}")
 

@@ -5,6 +5,7 @@
 
 #include "cpk_structs.h"
 #include "download.h"
+#include "archive.h"
 
 char* getCmdOption(char ** begin, char ** end, const std::string & option)
 {
@@ -43,6 +44,7 @@ void installPackages(const std::vector<CPKPackage>& packages, int level = 0)
             {
                 case CPP:
                     printf("install %s\n", package.name);
+                    unzip("sitemap.zip", "sitemap.xml");
                     break;
                 default:
                     break;
@@ -60,6 +62,7 @@ int main(int argc, char *argv[]) {
                 CPKPackage package;
                 package.name = argv[i];
                 package.url = "https://degitx.com/sitemap.xml";
+                package.lang = CPP;
                 packages.push_back(package);
             }
             installPackages(packages);
