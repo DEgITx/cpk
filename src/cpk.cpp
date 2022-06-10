@@ -44,7 +44,7 @@ void installPackages(const std::vector<CPKPackage>& packages, int level = 0)
             {
                 case CPP:
                     printf("install %s\n", package.name.c_str());
-                    unzip("sitemap.zip", "sitemap.xml");
+                    unzip("test_zip.zip", "sitemap.xml");
                     break;
                 default:
                     break;

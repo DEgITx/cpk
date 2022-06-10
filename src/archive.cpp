@@ -7,28 +7,27 @@ void unzip(const std::string& path, const std::string& outFile = "sitemap.xml")
     //Open the ZIP archive
     int err = 0;
     zip *z = zip_open(path.c_str(), 0, &err);
+    if (z == NULL) {
+        printf("error openning archive\n");
+        return;
+    }
 
-    //Search for the file of given name
-    struct zip_stat st;
-    zip_stat_init(&st);
-    zip_stat(z, outFile.c_str(), 0, &st);
-
-    //Alloc memory for its uncompressed contents
-    char *contents = new char[st.size];
-
-    //Read the compressed file
-    zip_file *f = zip_fopen(z, outFile.c_str(), 0);
-    zip_fread(f, contents, st.size);
-    zip_fclose(f);
-
+    int i, n = zip_get_num_entries(z, 0);
+    for (i = 0; i < n; ++i) {
+        const char* file_name = zip_get_name(z, i, 0);
+        struct zip_stat st;
+        zip_stat_init(&st);
+        zip_stat(z, file_name, 0, &st);
+        zip_file *f = zip_fopen(z, file_name, 0);
+        char *buffer = new char[st.size];
+        zip_fread(f, buffer, st.size);
+        zip_fclose(f);
+        FILE* saveFile = fopen (file_name, "wb");
+        fwrite (buffer, sizeof(char), st.size, saveFile);
+        fclose (saveFile);
+        delete[] buffer;
+        printf("unpacked %s\n", file_name);
+    }
     //And close the archive
     zip_close(z);
-
-    //save file
-    FILE* saveFile = fopen (outFile.c_str(), "wb");
-    fwrite (contents , sizeof(char), st.size, saveFile);
-    fclose (saveFile);
-
-    //delete allocated memory
-    delete[] contents;
 }
