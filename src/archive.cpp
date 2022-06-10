@@ -1,6 +1,9 @@
 
 #include <zip.h>
 #include <string>
+#include <string.h>
+#include <sys/stat.h>
+#include <sys/types.h>
 
 void unzip(const std::string& path, const std::string& outFile = "sitemap.xml")
 {
@@ -11,10 +14,24 @@ void unzip(const std::string& path, const std::string& outFile = "sitemap.xml")
         printf("error openning archive\n");
         return;
     }
+    printf("opened archive %s\n", path.c_str());
 
     int i, n = zip_get_num_entries(z, 0);
     for (i = 0; i < n; ++i) {
         const char* file_name = zip_get_name(z, i, 0);
+        if (strlen(file_name) > 0 && file_name[strlen(file_name) - 1] == '/') {
+            struct stat sb;
+            if (stat(file_name, &sb) == 0 && S_ISDIR(sb.st_mode)) {
+                continue;
+            }
+            printf("create dir %s\n", file_name);
+            int result = mkdir(file_name);
+            if (result == -1) {
+                printf("cant create %s\n", file_name);
+                break;
+            }
+            continue;
+        }
         struct zip_stat st;
         zip_stat_init(&st);
         zip_stat(z, file_name, 0, &st);
