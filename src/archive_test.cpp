@@ -11,7 +11,7 @@ void readline(char* file, char* buff)
 
 bool simple_test()
 {
-    unzip("test_zip.zip", "test_zip.txt");
+    UnZip("test_zip.zip", "test_zip.txt");
     char buff[255];
     readline("test_zip.txt", buff);
     if (strcmp("hello test 1", buff) != 0)
@@ -22,7 +22,7 @@ bool simple_test()
 
 bool dir_test()
 {
-    unzip("test_zip2.zip", "test_zip.txt");
+    UnZip("test_zip2.zip", "test_zip.txt");
     char buff[255];
     readline("test_zip_1.txt", buff);
     if (strcmp("hello test 1", buff) != 0)
@@ -36,9 +36,23 @@ bool dir_test()
     return true;
 }
 
+bool create_test()
+{
+    CreateZip({"1.txt", "2.txt"}, "cr_archive.zip");
+    return true;
+}
+
+bool create_subdir_test()
+{
+    CreateZip({"1.txt", "3/2.txt"}, "cr_archive.zip");
+    return true;
+}
+
 int main()
 {
-    if(!simple_test()) return -1;
-    if(!dir_test()) return -1;
+    // if(!simple_test()) return -1;
+    // if(!dir_test()) return -1;
+    // if(!create_test()) return -1;
+    if(!create_subdir_test()) return -1;
     return 0;
 }

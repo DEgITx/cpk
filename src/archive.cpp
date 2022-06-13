@@ -6,7 +6,7 @@
 #include <sys/types.h>
 #include <vector>
 
-void unzip(const std::string& path, const std::string& outFile = "sitemap.xml")
+void UnZip(const std::string& path, const std::string& outFile = "sitemap.xml")
 {
     //Open the ZIP archive
     int err = 0;
@@ -50,14 +50,22 @@ void unzip(const std::string& path, const std::string& outFile = "sitemap.xml")
     zip_close(z);
 }
 
-// void zip(const std::vector<std::string>& files, const std::string out_path) {
-//     //Open the ZIP archive
-//     int err = 0;
-//     zip* z = zip_open(out_path.c_str(), ZIP_CREATE, &err);
-//     zip_source_t* zs;
-//     for(const auto& file : files)
-//     {
-//         zs = zip_source_buffer(z, content.c_str(), content.length(), 0);
-//         zip_file_add(z, "test.txt", zs, ZIP_FL_OVERWRITE | ZIP_FL_ENC_UTF_8);
-//     }
-// }
+long GetFileSize(std::string filename)
+{
+    struct stat stat_buf;
+    int rc = stat(filename.c_str(), &stat_buf);
+    return rc == 0 ? stat_buf.st_size : -1;
+}
+
+void CreateZip(const std::vector<std::string>& files, const std::string out_path) {
+    //Open the ZIP archive
+    int err = 0;
+    zip *z = zip_open(out_path.c_str(), ZIP_CREATE, &err);
+    zip_source_t* zs;
+    for(const auto& file : files)
+    {
+        zs = zip_source_buffer(z, file.c_str(), GetFileSize(file.c_str()), 0);
+        zip_file_add(z, file.c_str(), zs, ZIP_FL_OVERWRITE | ZIP_FL_ENC_UTF_8);
+    }
+    zip_close(z);
+}
