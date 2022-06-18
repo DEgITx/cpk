@@ -18,7 +18,7 @@ size_t write_data(void *ptr, size_t size, size_t nmemb, FILE *stream) {
     return written;
 }
 
-void downloadFile(const char* url, const char* output_file)
+void DownloadFile(const char* url, const char* output_file)
 {
     CURL *curl;
     FILE *fp;
@@ -45,4 +45,35 @@ void downloadFile(const char* url, const char* output_file)
         curl_easy_cleanup(curl);
         fclose(fp);
     }
+}
+
+void SendPostRequest(const char* url, const std::string& jsonString = "{\"username\":\"bob\",\"password\":\"12345\"}")
+{
+    CURLcode ret;
+    CURL *curl;
+    struct curl_slist *slist1;
+
+    slist1 = NULL;
+    slist1 = curl_slist_append(slist1, "Content-Type: application/json");
+
+    curl = curl_easy_init();
+    if (!curl) {
+        return;
+    }
+    curl_easy_setopt(curl, CURLOPT_URL, url);
+    curl_easy_setopt(curl, CURLOPT_NOPROGRESS, 1L);
+    curl_easy_setopt(curl, CURLOPT_POSTFIELDS, jsonString.c_str());
+    curl_easy_setopt(curl, CURLOPT_USERAGENT, "curl/7.38.0");
+    curl_easy_setopt(curl, CURLOPT_HTTPHEADER, slist1);
+    curl_easy_setopt(curl, CURLOPT_MAXREDIRS, 50L);
+    curl_easy_setopt(curl, CURLOPT_CUSTOMREQUEST, "POST");
+    curl_easy_setopt(curl, CURLOPT_TCP_KEEPALIVE, 1L);
+
+    curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, 0L);
+    curl_easy_setopt(curl, CURLOPT_SSL_VERIFYHOST, 0L);
+
+    ret = curl_easy_perform(curl);
+
+    curl_easy_cleanup(curl);
+    curl_slist_free_all(slist1);
 }

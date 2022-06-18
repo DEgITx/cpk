@@ -22,7 +22,7 @@ bool cmdOptionExists(char** begin, char** end, const std::string& option)
     return std::find(begin, end, option) != end;
 }
 
-void installPackages(const std::vector<CPKPackage>& packages, int level = 0)
+void InstallPackages(const std::vector<CPKPackage>& packages, int level = 0)
 {
     if(packages.size() == 0)
         return;
@@ -31,7 +31,7 @@ void installPackages(const std::vector<CPKPackage>& packages, int level = 0)
     {
         printf("add deps for install = %s\n", package.name.c_str());
         installPackageList.insert({package.name, (CPKPackage*)&package});
-        installPackages(package.dependencies, level + 1);
+        InstallPackages(package.dependencies, level + 1);
     }
 
     // install
@@ -39,7 +39,7 @@ void installPackages(const std::vector<CPKPackage>& packages, int level = 0)
     {
         for (const auto& package : packages)
         {
-            downloadFile(package.url.c_str(), "file");
+            DownloadFile(package.url.c_str(), "file");
             switch(package.lang)
             {
                 case CPP:
@@ -51,6 +51,11 @@ void installPackages(const std::vector<CPKPackage>& packages, int level = 0)
             }
         }
     }
+}
+
+void PublishPacket()
+{
+    printf("out\n");
 }
 
 int cpk_main(int argc, char *argv[]) {
@@ -65,7 +70,12 @@ int cpk_main(int argc, char *argv[]) {
                 package.lang = CPP;
                 packages.push_back(package);
             }
-            installPackages(packages);
+            InstallPackages(packages);
+        }
+    }
+    if(argc == 2) {
+        if (strcmp(argv[1], "publish") == 0) {
+                PublishPacket();
         }
     }
 
