@@ -9,6 +9,7 @@
   "author": "Alexey Kasyanchuk <degitx@gmail.com>",
   "license": "MIT",
   "dependencies": {
-    "express": "^4.18.1"
+    "express": "^4.18.1",
+    "tagslog": "^1.1.2"
   }
 }

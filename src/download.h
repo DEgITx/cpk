@@ -1,4 +1,4 @@
 #pragma once
 
 void DownloadFile(const char* url, const char* output_file);
-void SendPostRequest(const std::string& jsonString);
+std::string SendPostRequest(const char* url, const std::string& jsonString);

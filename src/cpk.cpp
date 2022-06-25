@@ -55,7 +55,8 @@ void InstallPackages(const std::vector<CPKPackage>& packages, int level = 0)
 
 void PublishPacket()
 {
-    printf("out\n");
+    std::string response = SendPostRequest("http://127.0.0.1:9988/publish", "{\"package\": \"hi\"}");
+    printf("response %s", response.c_str());
 }
 
 int cpk_main(int argc, char *argv[]) {

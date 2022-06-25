@@ -13,7 +13,7 @@ void print_curl_protocols()
     }
 }
 
-size_t write_data(void *ptr, size_t size, size_t nmemb, FILE *stream) {
+size_t FileWriteData(void *ptr, size_t size, size_t nmemb, FILE *stream) {
     size_t written = fwrite(ptr, size, nmemb, stream);
     return written;
 }
@@ -28,7 +28,7 @@ void DownloadFile(const char* url, const char* output_file)
         printf("curl inited\n");
         fp = fopen(output_file, "wb");
         curl_easy_setopt(curl, CURLOPT_URL, url);
-        curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, write_data);
+        curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, FileWriteData);
         curl_easy_setopt(curl, CURLOPT_WRITEDATA, fp);
 
         curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, 0L);
@@ -47,18 +47,25 @@ void DownloadFile(const char* url, const char* output_file)
     }
 }
 
-void SendPostRequest(const char* url, const std::string& jsonString = "{\"username\":\"bob\",\"password\":\"12345\"}")
+size_t WriteStringData(char *contents, size_t size, size_t nmemb, void *userp)
+{
+    ((std::string*)userp)->append((char*)contents, size * nmemb);
+    return size * nmemb;
+}
+
+std::string SendPostRequest(const char* url, const std::string& jsonString = "{\"username\":\"bob\",\"password\":\"12345\"}")
 {
     CURLcode ret;
     CURL *curl;
     struct curl_slist *slist1;
+    std::string readBuffer;
 
     slist1 = NULL;
     slist1 = curl_slist_append(slist1, "Content-Type: application/json");
 
     curl = curl_easy_init();
     if (!curl) {
-        return;
+        return readBuffer;
     }
     curl_easy_setopt(curl, CURLOPT_URL, url);
     curl_easy_setopt(curl, CURLOPT_NOPROGRESS, 1L);
@@ -69,6 +76,9 @@ void SendPostRequest(const char* url, const std::string& jsonString = "{\"userna
     curl_easy_setopt(curl, CURLOPT_CUSTOMREQUEST, "POST");
     curl_easy_setopt(curl, CURLOPT_TCP_KEEPALIVE, 1L);
 
+    curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, WriteStringData);
+    curl_easy_setopt(curl, CURLOPT_WRITEDATA, &readBuffer);
+
     curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, 0L);
     curl_easy_setopt(curl, CURLOPT_SSL_VERIFYHOST, 0L);
 
@@ -76,4 +86,5 @@ void SendPostRequest(const char* url, const std::string& jsonString = "{\"userna
 
     curl_easy_cleanup(curl);
     curl_slist_free_all(slist1);
+    return readBuffer;
 }
