@@ -6,6 +6,7 @@
 #include "cpk_structs.h"
 #include "download.h"
 #include "archive.h"
+#include "global.h"
 
 char* getCmdOption(char ** begin, char ** end, const std::string & option)
 {
@@ -55,7 +56,17 @@ void InstallPackages(const std::vector<CPKPackage>& packages, int level = 0)
 
 void PublishPacket()
 {
-    std::string response = SendPostRequest("http://127.0.0.1:9988/publish", "{\"package\": \"hi\"}");
+    FILE* in_file = fopen("cr_archive.zip", "rb");
+    if (!in_file) {
+        perror("fopen");
+        exit(EXIT_FAILURE);
+    }
+
+    size_t in_size = CPKGetFileSize("cr_archive.zip");
+    const char* archive_content = (char*)malloc(in_size);
+    fread((void*)archive_content, in_size, 1, in_file);
+
+    std::string response = SendPostZip("http://127.0.0.1:9988/publish", "{\"package\": \"hi\"}", archive_content, in_size);
     printf("response %s", response.c_str());
 }
 
