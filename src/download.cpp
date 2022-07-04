@@ -53,7 +53,7 @@ size_t WriteStringData(char *contents, size_t size, size_t nmemb, void *userp)
     return size * nmemb;
 }
 
-std::string SendPostRequest(const char* url, const std::string& jsonString = "{\"username\":\"bob\",\"password\":\"12345\"}")
+std::string CreatePostRequest(const char* url, const char* contentType, const char* postData, size_t postDataLength = 0)
 {
     CURLcode ret;
     CURL *curl;
@@ -61,7 +61,7 @@ std::string SendPostRequest(const char* url, const std::string& jsonString = "{\
     std::string readBuffer;
 
     slist1 = NULL;
-    slist1 = curl_slist_append(slist1, "Content-Type: application/json");
+    slist1 = curl_slist_append(slist1, contentType);
 
     curl = curl_easy_init();
     if (!curl) {
@@ -69,7 +69,9 @@ std::string SendPostRequest(const char* url, const std::string& jsonString = "{\
     }
     curl_easy_setopt(curl, CURLOPT_URL, url);
     curl_easy_setopt(curl, CURLOPT_NOPROGRESS, 1L);
-    curl_easy_setopt(curl, CURLOPT_POSTFIELDS, jsonString.c_str());
+    curl_easy_setopt(curl, CURLOPT_POSTFIELDS, postData);
+    if (postDataLength > 0)
+        curl_easy_setopt(curl, CURLOPT_POSTFIELDSIZE_LARGE, postDataLength);
     curl_easy_setopt(curl, CURLOPT_USERAGENT, "curl/7.38.0");
     curl_easy_setopt(curl, CURLOPT_HTTPHEADER, slist1);
     curl_easy_setopt(curl, CURLOPT_MAXREDIRS, 50L);
@@ -87,4 +89,16 @@ std::string SendPostRequest(const char* url, const std::string& jsonString = "{\
     curl_easy_cleanup(curl);
     curl_slist_free_all(slist1);
     return readBuffer;
+}
+
+std::string SendPostRequest(const char* url, const std::string& jsonString = "{\"username\":\"bob\",\"password\":\"12345\"}")
+{
+    return CreatePostRequest(url, "Content-Type: application/json", jsonString.c_str());
+}
+
+std::string SendPostZip(const char* url, const std::string& jsonString = "{\"username\":\"bob\",\"password\":\"12345\"}", const char* fileData = NULL, size_t fileSize = 0)
+{
+    auto ret = CreatePostRequest(url, "Content-Type: application/json", jsonString.c_str());
+    CreatePostRequest(url, "Content-Type: application/zip", fileData, fileSize);
+    return ret;
 }
