@@ -6,6 +6,11 @@ require('tagslog')();
 
 server.listen(9988);
 app.use(express.json());
+app.use(express.raw({
+    inflate: true,
+    limit: '5mb',
+    type: 'application/zip'
+}));
 
 app.post('/publish', function (req, res) {
     logT('publish', 'publish', req.body);
