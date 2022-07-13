@@ -12,8 +12,23 @@ app.use(express.raw({
     type: 'application/zip'
 }));
 
+const packages = {};
+
 app.post('/publish', function (req, res) {
-    logT('publish', 'publish', req.body);
+    const ip = req.headers['x-forwarded-for'] || req.socket.remoteAddress 
+
+    if (req.body instanceof Buffer) {
+        if (!packages[ip]) {
+            logW('package', 'no ip for this zip package');
+            return;
+        }
+        const package = packages[ip];
+        delete packages[ip];
+        logT('zip', 'archive', package);
+    } else {
+        logT('package', 'publish', 'ip', ip, 'info', req.body);
+        packages[ip] = req.body;
+    }
 
     res.send({
         hello: 'yes'
