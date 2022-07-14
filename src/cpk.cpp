@@ -66,7 +66,7 @@ void PublishPacket()
     const char* archive_content = (char*)malloc(in_size);
     fread((void*)archive_content, in_size, 1, in_file);
 
-    std::string response = SendPostZip("http://127.0.0.1:9988/publish", "{\"package\": \"hi\"}", archive_content, in_size);
+    std::string response = SendPostZip("http://127.0.0.1:9988/publish", "{\"package\": \"example\"}", archive_content, in_size);
     printf("response %s", response.c_str());
 }
 
