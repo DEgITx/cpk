@@ -54,26 +54,33 @@ app.post('/publish', async function (req, res) {
     })
 });
 
-app.post('/get', async function (req, res) {
+app.post('/install', async function (req, res) {
     const ip = req.headers['x-forwarded-for'] || req.socket.remoteAddress 
     const request = req.body;
     if (!request) {
         return;
     }
-    if(!request.package) {
+    if(!request.packages || !Array.isArray(request.packages) || request.packages.length == 0) {
         return;
     }
 
-    const dbPackage = await (await redis.DB.packages)[request.package];
-    if (!dbPackage) {
-        logT('get', 'no such package', request.package);
+    const recursiveInstall = async (packageNames) => {
+        const packages = await Promise.all(packageNames.map(async (packageName) => (await redis.DB.packages)[packageName]));
+        return packages;
+    }
+    const packages = await recursiveInstall(request.packages);
+
+    logT("install", packages);
+
+    let pkg;
+    for(const package of packages)
+    {
+        pkg = {
+            package: package.package,
+            url: PACKAGES_DIR + package.package + "/" + 'package.zip',
+            version: '0.0.1'
+        };
     }
 
-    const package = {
-        package: request.package,
-        url: PACKAGES_DIR + package.package + "/" + 'package.zip',
-        version: '0.0.1'
-    }
-
-    res.send(package)
+    res.send(pkg)
 });

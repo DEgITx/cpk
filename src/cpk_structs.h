@@ -20,7 +20,7 @@ enum CPKBuildType
 
 struct CPKPackage
 {
-    std::string name;
+    std::string package;
     std::string version;
     std::string url;
     size_t size;
@@ -28,5 +28,3 @@ struct CPKPackage
     CPKLang lang;
     CPKBuildType buildType;
 };
-
-std::unordered_map<std::string, CPKPackage*> installPackageList;

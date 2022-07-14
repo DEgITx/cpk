@@ -23,35 +23,35 @@ bool cmdOptionExists(char** begin, char** end, const std::string& option)
     return std::find(begin, end, option) != end;
 }
 
-void InstallPackages(const std::vector<CPKPackage>& packages, int level = 0)
+void InstallPackages(const std::vector<CPKPackage>& packages)
 {
     if(packages.size() == 0)
         return;
 
     for(const auto& package : packages) 
     {
-        printf("add deps for install = %s\n", package.name.c_str());
-        installPackageList.insert({package.name, (CPKPackage*)&package});
-        InstallPackages(package.dependencies, level + 1);
+        printf("add deps for install = %s\n", package.package.c_str());
     }
 
+    std::string response = SendPostRequest("http://127.0.0.1:9988/install", "{\"packages\": [\"example\"]}");
+    printf("resp: %s\n", response.c_str());
+
+    std::vector<CPKPackage> install_packages = packages;
+
     // install
-    if (level == 0) 
-    {
-        for (const auto& package : packages)
-        {
-            DownloadFile(package.url.c_str(), "file");
-            switch(package.lang)
-            {
-                case CPP:
-                    printf("install %s\n", package.name.c_str());
-                    UnZip("test_zip.zip", "sitemap.xml");
-                    break;
-                default:
-                    break;
-            }
-        }
-    }
+    // for (const auto& package : install_packages)
+    // {
+    //     DownloadFile(package.url.c_str(), "file");
+    //     switch(package.lang)
+    //     {
+    //         case CPP:
+    //             printf("install %s\n", package.name.c_str());
+    //             UnZip("test_zip.zip", "sitemap.xml");
+    //             break;
+    //         default:
+    //             break;
+    //     }
+    // }
 }
 
 void PublishPacket()
@@ -77,7 +77,7 @@ int cpk_main(int argc, char *argv[]) {
             for (int i = 2; i < argc; i++)
             {
                 CPKPackage package;
-                package.name = argv[i];
+                package.package = argv[i];
                 package.url = "https://degitx.com/sitemap.xml";
                 package.lang = CPP;
                 packages.push_back(package);
