@@ -7,6 +7,8 @@
 #include "download.h"
 #include "archive.h"
 #include "global.h"
+#include "thread_pool.h"
+#include "degxlog.h"
 
 char* getCmdOption(char ** begin, char ** end, const std::string & option)
 {
@@ -37,6 +39,15 @@ void InstallPackages(const std::vector<CPKPackage>& packages)
     printf("resp: %s\n", response.c_str());
 
     std::vector<CPKPackage> install_packages = packages;
+
+    thread_pool pool;
+    pool.start(5);
+    for (int i = 0; i < 18; i++) {
+        pool.queue([i](){
+            printf("%d\n", i + 1);
+        });
+    }
+    pool.stop();
 
     // install
     // for (const auto& package : install_packages)
@@ -71,6 +82,8 @@ void PublishPacket()
 }
 
 int cpk_main(int argc, char *argv[]) {
+    DX_DEBUG("haha %d", DX_STRING_HASH("aaaaaa"));
+    
     if(argc > 2) {
         if (strcmp(argv[1], "install") == 0) {
             std::vector<CPKPackage> packages;
