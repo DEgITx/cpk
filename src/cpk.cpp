@@ -30,13 +30,8 @@ void InstallPackages(const std::vector<CPKPackage>& packages)
     if(packages.size() == 0)
         return;
 
-    for(const auto& package : packages) 
-    {
-        printf("add deps for install = %s\n", package.package.c_str());
-    }
-
     std::string response = SendPostRequest("http://127.0.0.1:9988/install", "{\"packages\": [\"example\"]}");
-    printf("resp: %s\n", response.c_str());
+    DX_DEBUG("install", "responce: %s\n", response.c_str());
 
     std::vector<CPKPackage> install_packages = packages;
 
@@ -78,12 +73,10 @@ void PublishPacket()
     fread((void*)archive_content, in_size, 1, in_file);
 
     std::string response = SendPostZip("http://127.0.0.1:9988/publish", "{\"package\": \"example\"}", archive_content, in_size);
-    printf("response %s", response.c_str());
+    DX_DEBUG("publish", "response %s", response.c_str());
 }
 
 int cpk_main(int argc, char *argv[]) {
-    DX_DEBUG("haha %d", DX_STRING_HASH("aaaaaa"));
-    
     if(argc > 2) {
         if (strcmp(argv[1], "install") == 0) {
             std::vector<CPKPackage> packages;

@@ -5,6 +5,7 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <vector>
+#include "degxlog.h"
 
 void UnZip(const std::string& path, const std::string& outFile = "sitemap.xml")
 {
@@ -12,10 +13,10 @@ void UnZip(const std::string& path, const std::string& outFile = "sitemap.xml")
     int err = 0;
     zip *z = zip_open(path.c_str(), 0, &err);
     if (z == NULL) {
-        printf("error openning archive\n");
+        DX_ERROR("zip", "error openning archive\n");
         return;
     }
-    printf("opened archive %s\n", path.c_str());
+    DX_INFO("zip", "opened archive %s\n", path.c_str());
 
     int i, n = zip_get_num_entries(z, 0);
     for (i = 0; i < n; ++i) {
@@ -25,10 +26,10 @@ void UnZip(const std::string& path, const std::string& outFile = "sitemap.xml")
             if (stat(file_name, &sb) == 0 && S_ISDIR(sb.st_mode)) {
                 continue;
             }
-            printf("create dir %s\n", file_name);
+            DX_DEBUG("zip", "create dir %s\n", file_name);
             int result = mkdir(file_name);
             if (result == -1) {
-                printf("cant create %s\n", file_name);
+                DX_DEBUG("zip", "cant create %s\n", file_name);
                 break;
             }
             continue;
@@ -44,7 +45,7 @@ void UnZip(const std::string& path, const std::string& outFile = "sitemap.xml")
         fwrite (buffer, sizeof(char), st.size, saveFile);
         fclose (saveFile);
         delete[] buffer;
-        printf("unpacked %s\n", file_name);
+        DX_INFO("zip", "unpacked %s\n", file_name);
     }
     //And close the archive
     zip_close(z);
