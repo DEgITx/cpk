@@ -42,7 +42,11 @@ set(CPK_SOURCES
     ${CPK_H_FLES}
 )
 
-include_directories(${CURL_INCLUDE_DIR})
+include_directories(
+    ${CURL_INCLUDE_DIR} 
+    ${CMAKE_SOURCE_DIR}/external 
+    ${CMAKE_SOURCE_DIR}/external/nlohmann
+)
 add_library(cpkl STATIC ${CPK_SOURCES})
 target_link_libraries(cpkl ${CURL_LIBRARIES})
 add_executable(cpk main.cpp)

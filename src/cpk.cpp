@@ -2,6 +2,7 @@
 #include <string.h>
 #include <string>
 #include <algorithm>
+#include <json.hpp>
 
 #include "cpk_structs.h"
 #include "download.h"
@@ -32,6 +33,9 @@ void InstallPackages(const std::vector<CPKPackage>& packages)
 
     std::string response = SendPostRequest("http://127.0.0.1:9988/install", "{\"packages\": [\"example\"]}");
     DX_DEBUG("install", "responce: %s", response.c_str());
+
+    std::vector<int> c_vector {1, 2, 3, 4};
+    nlohmann::json j_vec(c_vector);
 
     std::vector<CPKPackage> install_packages = packages;
 
