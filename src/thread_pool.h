@@ -1,6 +1,7 @@
 #pragma once
 #include <deque>
 #include <future>
+#include "degxlog.h"
 
 struct thread_pool {
   std::mutex mutex;
@@ -19,6 +20,7 @@ struct thread_pool {
         )
       );
     }
+    DX_DEBUG("thread", "started thread pool %d instances", size);
   }
 
   template<class F, class R=std::result_of_t<F&()>>
@@ -42,6 +44,7 @@ struct thread_pool {
     }
     condition.notify_all();
     threads.clear();
+    DX_DEBUG("thread", "closed thread pool");
   }
 
   ~thread_pool() {

@@ -31,7 +31,7 @@ void InstallPackages(const std::vector<CPKPackage>& packages)
         return;
 
     std::string response = SendPostRequest("http://127.0.0.1:9988/install", "{\"packages\": [\"example\"]}");
-    DX_DEBUG("install", "responce: %s\n", response.c_str());
+    DX_DEBUG("install", "responce: %s", response.c_str());
 
     std::vector<CPKPackage> install_packages = packages;
 
