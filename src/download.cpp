@@ -26,7 +26,7 @@ void DownloadFile(const char* url, const char* output_file)
     CURLcode res;
     curl = curl_easy_init();
     if (curl) {
-        DX_DEBUG("curl", "curl inited\n");
+        DX_DEBUG("curl", "curl inited");
         fp = fopen(output_file, "wb");
         curl_easy_setopt(curl, CURLOPT_URL, url);
         curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, FileWriteData);
@@ -38,12 +38,12 @@ void DownloadFile(const char* url, const char* output_file)
         res = curl_easy_perform(curl);
         if(res != CURLE_OK)
         {
-            DX_ERROR("curl", "curl_easy_perform() failed: %s\n",
+            DX_ERROR("curl", "curl_easy_perform() failed: %s",
                     curl_easy_strerror(res));
         }
         else
         {
-            DX_INFO("curl", "downloaded %s\n", output_file);
+            DX_INFO("curl", "downloaded %s", output_file);
         }
 
         /* always cleanup */

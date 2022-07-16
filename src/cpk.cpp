@@ -44,6 +44,9 @@ void InstallPackages(const std::vector<CPKPackage>& packages)
             std::string package_name = package["package"];
             std::string package_url = package["url"];
             DX_DEBUG("install", "install package %s", package_name.c_str());
+            DX_DEBUG("install", "download package %s", package_url.c_str());
+            DownloadFile(package_url.c_str(), (package_name + ".zip").c_str());
+            DX_DEBUG("install", "downloaded %s as %s", package_url.c_str(), (package_name + ".zip").c_str());
         });
     }
     pool.stop();
@@ -76,8 +79,11 @@ void PublishPacket()
     const char* archive_content = (char*)malloc(in_size);
     fread((void*)archive_content, in_size, 1, in_file);
 
-    std::string response = SendPostZip("http://127.0.0.1:9988/publish", "{\"package\": \"example\"}", archive_content, in_size);
+    std::string response = SendPostZip("http://127.0.0.1:9988/publish", "{\"package\": \"example\", \"dependencies\": [\"example2\", \"example3\"]}", archive_content, in_size);
     DX_DEBUG("publish", "response %s", response.c_str());
+    SendPostZip("http://127.0.0.1:9988/publish", "{\"package\": \"example2\"}", archive_content, in_size);
+    SendPostZip("http://127.0.0.1:9988/publish", "{\"package\": \"example3\", \"dependencies\": [\"example\", \"example4\"]}", archive_content, in_size);
+    SendPostZip("http://127.0.0.1:9988/publish", "{\"package\": \"example4\", \"dependencies\": [\"example\", \"notexist\"]}", archive_content, in_size);
 }
 
 int cpk_main(int argc, char *argv[]) {

@@ -18,7 +18,9 @@ app.use(express.raw({
 }));
 
 const packages = {};
-const PACKAGES_DIR = 'd:/Projects/cpk/build/packages/'
+const OUT_DIR = 'd:/Projects/cpk/build/public/'
+const PACKAGES_DIR = OUT_DIR + 'packages/'
+app.use(express.static(OUT_DIR));
 
 app.post('/publish', async function (req, res) {
     const ip = req.headers['x-forwarded-for'] || req.socket.remoteAddress 
@@ -64,27 +66,43 @@ app.post('/install', async function (req, res) {
         return;
     }
 
+    const packagesMap = {}
     const recursiveInstall = async (packageNames) => {
-        const packages = await Promise.all(packageNames.map(async (packageName) => (await redis.DB.packages)[packageName]));
-        return packages;
+        packageNames = packageNames.filter(name => !packagesMap[name]);
+        if (packageNames.length == 0)
+            return;
+        logT("deps", "add deps", packageNames);
+        await Promise.all(packageNames.map(async (packageName) => { 
+            const package = await (await redis.DB.packages)[packageName];
+            if (!package) {
+                logTW("deps", "no deps found", packageName);
+                return;
+            }
+            packagesMap[package.package] = package;
+            if (package.dependencies && package.dependencies.length > 0) {
+                await recursiveInstall(package.dependencies);
+            }
+            return package;
+        }));
     }
-    const packages = await recursiveInstall(request.packages);
+    await recursiveInstall(request.packages);
+    const packages = Object.values(packagesMap);
     if (!packages || packages.length == 0)
         return;
 
     logT("install", packages);
 
-    let pkg;
+    const packagesToInstall = []
     for(const package of packages)
     {
-        pkg = {
+        packagesToInstall.push({
             package: package.package,
-            url: PACKAGES_DIR + package.package + "/" + 'package.zip',
+            url: "http://localhost:9988/packages/" + package.package + "/" + 'package.zip',
             version: '0.0.1'
-        };
+        });
     }
 
     res.send({
-        packages: [pkg],
+        packages: packagesToInstall,
     })
 });
