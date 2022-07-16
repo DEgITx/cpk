@@ -34,16 +34,16 @@ void InstallPackages(const std::vector<CPKPackage>& packages)
     std::string response = SendPostRequest("http://127.0.0.1:9988/install", "{\"packages\": [\"example\"]}");
     DX_DEBUG("install", "responce: %s", response.c_str());
 
-    std::vector<int> c_vector {1, 2, 3, 4};
-    nlohmann::json j_vec(c_vector);
-
-    std::vector<CPKPackage> install_packages = packages;
+    nlohmann::json response_json = nlohmann::json::parse(response);
 
     thread_pool pool;
     pool.start(5);
-    for (int i = 0; i < 18; i++) {
-        pool.queue([i](){
-            printf("%d\n", i + 1);
+    for(const auto& package : response_json["packages"])
+    {
+        pool.queue([package](){
+            std::string package_name = package["package"];
+            std::string package_url = package["url"];
+            DX_DEBUG("install", "install package %s", package_name.c_str());
         });
     }
     pool.stop();

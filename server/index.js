@@ -18,7 +18,7 @@ app.use(express.raw({
 }));
 
 const packages = {};
-const PACKAGES_DIR = 'e:/Projects/cpk/build/packages/'
+const PACKAGES_DIR = 'd:/Projects/cpk/build/packages/'
 
 app.post('/publish', async function (req, res) {
     const ip = req.headers['x-forwarded-for'] || req.socket.remoteAddress 
@@ -69,6 +69,8 @@ app.post('/install', async function (req, res) {
         return packages;
     }
     const packages = await recursiveInstall(request.packages);
+    if (!packages || packages.length == 0)
+        return;
 
     logT("install", packages);
 
@@ -82,5 +84,7 @@ app.post('/install', async function (req, res) {
         };
     }
 
-    res.send(pkg)
+    res.send({
+        packages: [pkg],
+    })
 });
