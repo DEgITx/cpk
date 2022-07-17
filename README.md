@@ -1,4 +1,6 @@
-# <img src="https://cloud.githubusercontent.com/assets/378023/15063284/cf544f2c-1383-11e6-9336-e13bd64b1694.png" width="60px" align="center" alt="Spectron icon"> CPK Package Manager
+# <img src="https://raw.githubusercontent.com/DEgITx/cpk/master/resources/cpk_logo.png" width="60px" align="center" alt="Spectron icon"> CPK Package Manager
+
+<p align="center"><a href="https://github.com/DEgiTx/cpk"><img src="https://raw.githubusercontent.com/DEgITx/cpk/master/resources/cpk.png"></a></p>
 
 ## CPK Package Manager
 
@@ -42,3 +44,5 @@ cmake -DCMAKE_BUILD_TYPE=Release ../
 make
 ```
 
+## License
+[MIT](https://github.com/DEgiTx/cpk/blob/master/LICENSE)
