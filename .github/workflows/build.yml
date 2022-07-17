@@ -1,0 +1,21 @@
+name: cpk
+on: [push, pull_request]
+
+jobs:
+  build:
+    runs-on: ${{ matrix.os }}
+    continue-on-error: true
+    strategy:
+      matrix:
+        os:
+          - ubuntu-latest
+          - macos-latest
+          - windows-latest
+        architecture:
+          - x64
+    name: Cpk ${{ matrix.architecture }} on ${{ matrix.os }}
+    env:
+      GH_TOKEN: ${{ SECRETS.GH_TOKEN }}
+      DISPLAY: :0
+    steps:
+      - uses: actions/checkout@v2
