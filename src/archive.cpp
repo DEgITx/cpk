@@ -27,7 +27,12 @@ void UnZip(const std::string& path, const std::string& outFile = "sitemap.xml")
                 continue;
             }
             DX_DEBUG("zip", "create dir %s\n", file_name);
+#if defined(_WIN32)
             int result = mkdir(file_name);
+#else
+            mode_t mode = 0755;
+            int result = mkdir(file_name, mode);
+#endif
             if (result == -1) {
                 DX_DEBUG("zip", "cant create %s\n", file_name);
                 break;
