@@ -19,3 +19,10 @@ jobs:
       DISPLAY: :0
     steps:
       - uses: actions/checkout@v2
+      - name: Build CPK
+        run: |
+          cmake `
+            -B build `
+            -G "Ninja" `
+            -DCMAKE_BUILD_TYPE=RelWithDebInfo
+          cmake --build build
