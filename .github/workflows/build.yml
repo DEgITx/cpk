@@ -18,11 +18,14 @@ jobs:
       GH_TOKEN: ${{ SECRETS.GH_TOKEN }}
       DISPLAY: :0
     steps:
+      - name: Setup Ninja and CMake (Linux)
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt update
+          sudo apt install -y \
+            build-essential cmake ninja-build
       - uses: actions/checkout@v2
       - name: Build CPK
         run: |
-          cmake `
-            -B build `
-            -G "Ninja" `
-            -DCMAKE_BUILD_TYPE=RelWithDebInfo
+          cmake -B build -G "Ninja" -DCMAKE_BUILD_TYPE=RelWithDebInfo
           cmake --build build -j16
