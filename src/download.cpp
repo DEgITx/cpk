@@ -104,6 +104,6 @@ std::string SendPostRequest(const char* url, const std::string& jsonString = "{\
 std::string SendPostZip(const char* url, const std::string& jsonString = "{\"username\":\"bob\",\"password\":\"12345\"}", const char* fileData = NULL, size_t fileSize = 0)
 {
     auto ret = CreatePostRequest(url, "Content-Type: application/json", jsonString.c_str());
-    CreatePostRequest(url, "Content-Type: application/zip", fileData, fileSize);
-    return ret;
+    auto ret2 = CreatePostRequest(url, "Content-Type: application/zip", fileData, fileSize);
+    return ret2;
 }

@@ -2,6 +2,7 @@ const express = require('express');
 const app = express();
 const server = require('http').Server(app);
 const fs = require('fs');
+const path = require('path');
 require('tagslog')();
 let redis;
 
@@ -18,8 +19,9 @@ app.use(express.raw({
 }));
 
 const packages = {};
-const OUT_DIR = 'd:/Projects/cpk/build/public/'
+const OUT_DIR = path.resolve(__dirname + "/../public") + "/";
 const PACKAGES_DIR = OUT_DIR + 'packages/'
+logT("core", `public path: ${OUT_DIR}`);
 app.use(express.static(OUT_DIR));
 
 app.post('/publish', async function (req, res) {
@@ -28,12 +30,22 @@ app.post('/publish', async function (req, res) {
     if (req.body instanceof Buffer) {
         if (!packages[ip]) {
             logW('package', 'no ip for this zip package');
+            res.send({
+                error: true,
+                errorCode: 1,
+                errorDesc: `Not found package data from this zip`,
+            });
             return;
         }
         const package = packages[ip];
         delete packages[ip];
         if (!package.package) {
             logW('package', 'no package name');
+            res.send({
+                error: true,
+                errorCode: 2,
+                errorDesc: `No package name`,
+            });
             return;
         }
 
@@ -50,19 +62,28 @@ app.post('/publish', async function (req, res) {
         logT('package', 'publish', 'ip', ip, 'info', req.body);
         packages[ip] = req.body;
     }
-
     res.send({
-        hello: 'yes'
-    })
+        success: true
+    });
 });
 
 app.post('/install', async function (req, res) {
     const ip = req.headers['x-forwarded-for'] || req.socket.remoteAddress 
     const request = req.body;
     if (!request) {
+        res.send({
+            error: true,
+            errorCode: 1,
+            errorDesc: "No body",
+        });
         return;
     }
     if(!request.packages || !Array.isArray(request.packages) || request.packages.length == 0) {
+        res.send({
+            error: true,
+            errorCode: 2,
+            errorDesc: "No packages for install",
+        });
         return;
     }
 
@@ -76,6 +97,11 @@ app.post('/install', async function (req, res) {
             const package = await (await redis.DB.packages)[packageName];
             if (!package) {
                 logTW("deps", "no deps found", packageName);
+                res.send({
+                    error: true,
+                    errorCode: 3,
+                    errorDesc: `One of the deps for ${packageName} is not founded`,
+                });
                 return;
             }
             packagesMap[package.package] = package;

@@ -32,9 +32,29 @@ void InstallPackages(const std::vector<CPKPackage>& packages)
         return;
 
     std::string response = SendPostRequest("http://127.0.0.1:9988/install", "{\"packages\": [\"example\"]}");
+    if (response.length() == 0) {
+        DX_ERROR("json", "no respoce from server");
+        return;
+    }
     DX_DEBUG("install", "responce: %s", response.c_str());
 
-    nlohmann::json response_json = nlohmann::json::parse(response);
+    nlohmann::json response_json;
+    try {
+        response_json = nlohmann::json::parse(response);
+    } catch(...) {
+        DX_ERROR("json", "error parse or respoce from server");
+        return;
+    }
+    if (response_json.contains("error"))
+    {
+        bool error = response_json["error"];
+        switch ((int)response_json["errorCode"]) {
+            default:
+                std::string errorDesc = response_json["errorDesc"];
+                DX_ERROR("install", "error install: %s", errorDesc.c_str());
+        }
+        return;
+    }
 
     thread_pool pool;
     const int processor_count = std::thread::hardware_concurrency();
@@ -82,6 +102,24 @@ void PublishPacket()
 
     std::string response = SendPostZip("http://127.0.0.1:9988/publish", "{\"package\": \"example\", \"dependencies\": [\"example2\", \"example3\"]}", archive_content, in_size);
     DX_DEBUG("publish", "response %s", response.c_str());
+    nlohmann::json response_json;
+    try {
+        response_json = nlohmann::json::parse(response);
+    } catch(...) {
+        DX_ERROR("json", "error parse or respoce from server");
+        return;
+    }
+    if (response_json.contains("error"))
+    {
+        bool error = response_json["error"];
+        switch ((int)response_json["errorCode"]) {
+            default:
+                std::string errorDesc = response_json["errorDesc"];
+                DX_ERROR("install", "error install: %s", errorDesc.c_str());
+        }
+        return;
+    }
+
     SendPostZip("http://127.0.0.1:9988/publish", "{\"package\": \"example2\"}", archive_content, in_size);
     SendPostZip("http://127.0.0.1:9988/publish", "{\"package\": \"example3\", \"dependencies\": [\"example\", \"example4\"]}", archive_content, in_size);
     SendPostZip("http://127.0.0.1:9988/publish", "{\"package\": \"example4\", \"dependencies\": [\"example\", \"notexist\"]}", archive_content, in_size);
