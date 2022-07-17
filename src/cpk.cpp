@@ -37,13 +37,14 @@ void InstallPackages(const std::vector<CPKPackage>& packages)
     nlohmann::json response_json = nlohmann::json::parse(response);
 
     thread_pool pool;
-    pool.start(5);
+    const int processor_count = std::thread::hardware_concurrency();
+    pool.start(processor_count);
     for(const auto& package : response_json["packages"])
     {
         pool.queue([package](){
             std::string package_name = package["package"];
             std::string package_url = package["url"];
-            DX_DEBUG("install", "install package %s", package_name.c_str());
+            DX_DEBUG("pkg", "install package %s", package_name.c_str());
             DX_DEBUG("install", "download package %s", package_url.c_str());
             DownloadFile(package_url.c_str(), (package_name + ".zip").c_str());
             DX_DEBUG("install", "downloaded %s as %s", package_url.c_str(), (package_name + ".zip").c_str());
