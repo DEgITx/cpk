@@ -157,12 +157,7 @@ app.post('/install', async function (req, res) {
             const package = await (await redis.DB.packages)[packageName];
             if (!package) {
                 logTW("deps", "no deps found", packageName);
-                res.send({
-                    error: true,
-                    errorCode: 3,
-                    errorDesc: `One of the deps for ${packageName} is not founded`,
-                });
-                return;
+                throw new Error("Not found deps for package " + packageName);
             }
             packagesMap[package.package] = package;
             if (package.dependencies && package.dependencies.length > 0) {
@@ -171,7 +166,18 @@ app.post('/install', async function (req, res) {
             return package;
         }));
     }
-    await recursiveInstall(request.packages);
+    try {
+        await recursiveInstall(request.packages);
+    } catch(e) {
+        logTW("deps", "one of the deps missing");
+        res.send({
+            error: true,
+            errorCode: 3,
+            errorDesc: e.message,
+        });
+        return;
+    } 
+    
     const packages = Object.values(packagesMap);
     if (!packages || packages.length == 0)
         return;
