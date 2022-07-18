@@ -24,6 +24,12 @@ jobs:
           sudo apt update
           sudo apt install -y \
             build-essential cmake ninja-build
+      - name: Setup Ninja and CMake (MacOS)
+        if: runner.os == 'macOS'
+        run: |
+          brew update > /dev/null
+          brew install \
+            cmake ninja
       - uses: actions/checkout@v2
       - name: Build CPK
         run: |
