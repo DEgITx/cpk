@@ -84,6 +84,7 @@ function(curl_cv_func_recv_run_test recv_retv recv_arg1 recv_arg2 recv_arg3 recv
 endfunction()
 
 check_c_source_compiles("${_source_epilogue}
+#include <sys/socket.h>
 int main(void) {
     recv(0, 0, 0, 0);
     return 0;
@@ -160,6 +161,7 @@ function(curl_cv_func_send_run_test send_retv send_arg1 send_arg2 send_arg3 send
 endfunction()
 
 check_c_source_compiles("${_source_epilogue}
+#include <sys/socket.h>
 int main(void) {
     send(0, 0, 0, 0);
     return 0;
