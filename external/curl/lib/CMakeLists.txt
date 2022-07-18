@@ -35,6 +35,7 @@ endif()
 set(CURL_LIBS ${CURL_LIBS} mbedtls)
 add_definitions(-DCURL_DISABLE_LDAP -DCURL_DISABLE_LDAPS)
 add_definitions(-DUSE_MBEDTLS)
+if(NOT WIN32)
 include(OtherTests.cmake)
 include(CheckIncludeFile)
 include(CheckSymbolExists)
@@ -84,6 +85,7 @@ if(NOT UNIX)
   check_include_file_concat("ws2tcpip.h"     HAVE_WS2TCPIP_H)
   check_include_file_concat("winsock2.h"     HAVE_WINSOCK2_H)
   check_include_file_concat("wincrypt.h"     HAVE_WINCRYPT_H)
+  add_definitions(-DWIN32_LEAN_AND_MEAN)
 endif()
 
 check_include_file_concat("stdio.h"          HAVE_STDIO_H)
@@ -322,9 +324,14 @@ if(NOT HAVE_IN_ADDR_T)
   set(in_addr_t "unsigned long")
 endif()
 
+if (WIN32)
+  set(HAVE_IOCTLSOCKET_FIONBIO 1)
+  set(HAVE_SELECT 1)
+  set(HAVE_SOCKET 1)
+endif()
 
 add_definitions(-DHAVE_CONFIG_H)
-
+endif(NOT WIN32)
 
 
 # Ugly (but functional) way to include "Makefile.inc" by transforming it (= regenerate it).
