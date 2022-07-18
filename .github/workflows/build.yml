@@ -33,7 +33,7 @@ jobs:
       - uses: actions/checkout@v2
       - name: Build CPK
         run: |
-          cmake -B build -G "Ninja" -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_INSTALL_PREFIX="../upload/"
+          cmake -B build -G "Ninja" -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_INSTALL_PREFIX="upload"
           cmake --build build -j16
           cmake --install build
       - name: Run Tests
