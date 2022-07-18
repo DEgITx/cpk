@@ -33,8 +33,13 @@ jobs:
       - uses: actions/checkout@v2
       - name: Build CPK
         run: |
-          cmake -B build -G "Ninja" -DCMAKE_BUILD_TYPE=RelWithDebInfo
+          cmake -B build -G "Ninja" -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_INSTALL_PREFIX="../upload/"
           cmake --build build -j16
+          cmake --install build
       - name: Run Tests
         working-directory: build
         run: ctest -j8
+      - uses: actions/upload-artifact@v3
+        with:
+          name: cpk-${{ matrix.os }}-${{ matrix.architecture }}
+          path: upload
