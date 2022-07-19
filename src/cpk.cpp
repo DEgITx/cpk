@@ -11,21 +11,6 @@
 #include "thread_pool.h"
 #include "degxlog.h"
 
-char* getCmdOption(char ** begin, char ** end, const std::string & option)
-{
-    char ** itr = std::find(begin, end, option);
-    if (itr != end && ++itr != end)
-    {
-        return *itr;
-    }
-    return 0;
-}
-
-bool cmdOptionExists(char** begin, char** end, const std::string& option)
-{
-    return std::find(begin, end, option) != end;
-}
-
 void InstallPackages(const std::vector<CPKPackage>& packages)
 {
     if(packages.size() == 0)
@@ -100,7 +85,7 @@ void PublishPacket()
     const char* archive_content = (char*)malloc(in_size);
     fread((void*)archive_content, in_size, 1, in_file);
 
-    std::string response = SendPostZip("http://127.0.0.1:9988/publish", "{\"package\": \"example\", \"dependencies\": [\"example2\", \"example3\"]}", archive_content, in_size);
+    std::string response = SendPostZip("http://127.0.0.1:9988/publish", "{\"package\": \"example\"}", archive_content, in_size);
     DX_DEBUG("publish", "response %s", response.c_str());
     nlohmann::json response_json;
     try {
@@ -121,11 +106,42 @@ void PublishPacket()
     }
 
     SendPostZip("http://127.0.0.1:9988/publish", "{\"package\": \"example2\"}", archive_content, in_size);
-    SendPostZip("http://127.0.0.1:9988/publish", "{\"package\": \"example3\", \"dependencies\": [\"example\", \"example4\"]}", archive_content, in_size);
-    SendPostZip("http://127.0.0.1:9988/publish", "{\"package\": \"example4\", \"dependencies\": [\"example\", \"notexist\"]}", archive_content, in_size);
+    SendPostZip("http://127.0.0.1:9988/publish", "{\"package\": \"example3\", \"dependencies\": {\"example\": \"0.1\", \"example2\": \"\"}}", archive_content, in_size);
+    SendPostZip("http://127.0.0.1:9988/publish", "{\"package\": \"example4\", \"dependencies\": {\"example_non\": \"0.1\"}}", archive_content, in_size);
+    SendPostZip("http://127.0.0.1:9988/publish", "{\"package\": \"example5\", \"dependencies\": {\"example\": \"0.5\"}}", archive_content, in_size);
+}
+
+char* getCmdOption(char ** begin, char ** end, const std::string & option)
+{
+    char ** itr = std::find(begin, end, option);
+    if (itr != end && ++itr != end)
+    {
+        return *itr;
+    }
+    return 0;
+}
+
+bool cmdOptionExists(char** begin, char** end, const std::string& option)
+{
+    return std::find(begin, end, option) != end;
+}
+
+void printHelp()
+{
+    printf("./cpk [command] - CPK package manage\n");
+    printf("commands:\n");
+    printf("  install package1 [package2] - install package1, package2 and other\n");
+    printf("  publish - publish current package\n");
+    printf("  packages - list avaiable packages\n");
 }
 
 int cpk_main(int argc, char *argv[]) {
+    if(argc == 1 || cmdOptionExists(argv, argv+argc, "-h"))
+    {
+        printHelp();
+        return 0;
+    }
+
     if(argc > 2) {
         if (strcmp(argv[1], "install") == 0) {
             std::vector<CPKPackage> packages;

@@ -67,7 +67,7 @@ app.post('/publish', async function (req, res) {
 
         const pkgInfo = await redis.get(`cpk:packages:${package.package}`);
         if (package.dependencies) {
-            if (!Array.isArray(package.dependencies)) {
+            if (typeof package.dependencies != 'object' || Object.keys(package.dependencies).length == 0) {
                 res.send({
                     error: true,
                     errorCode: 3,
@@ -76,20 +76,21 @@ app.post('/publish', async function (req, res) {
                 return;
             }
 
-            for (const dep of package.dependencies) {
-                const pkg = await redis.get(`cpk:packages:${dep}`);
+            for (let dep in package.dependencies) {
+                const depVersion = package.dependencies[dep];
+                const pkg = await redis.get((depVersion && depVersion.length != 0) ? `cpk:archive:${dep}:${depVersion}` : `cpk:packages:${dep}`);
                 if (!pkg) {
                     res.send({
                         error: true,
                         errorCode: 4,
-                        errorDesc: `Package from deps not founded ${dep}`,
+                        errorDesc: `Package from deps not founded ${dep} with version ${depVersion}`,
                     });
                     return;
                 }
             }
         }
 
-        if (!pkgInfo.version) {
+        if (!pkgInfo?.version) {
             package.version = '0.1';
             logT('version', 'set basic version', package.version);
         } else {
@@ -117,7 +118,7 @@ app.post('/publish', async function (req, res) {
         logT('zip', 'archive', `package_${package.version}.zip`, 'saved for version', package.version);
 
         await redis.set(`cpk:packages:${package.package}`, package);
-        await redis.set(`cpk:packages:${package.package}:${package.version}`, package);
+        await redis.set(`cpk:archive:${package.package}:${package.version}`, package);
     } else {
         logT('package', 'publish', 'ip', ip, 'info', req.body);
         packages[ip] = req.body;
@@ -177,6 +178,7 @@ app.post('/install', async function (req, res) {
         });
         return;
     } 
+    return;
     
     const packages = Object.values(packagesMap);
     if (!packages || packages.length == 0)
