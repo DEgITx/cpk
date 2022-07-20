@@ -22,7 +22,7 @@ Publish your own package:
 cpk publish
 ```
 
-List of awailable packages for install:
+List of available packages for install:
 ```sh
 cpk packages
 ```
@@ -39,6 +39,8 @@ Create a new application with the following options:
 * `install PACKAGE` -  Install package
 * `publish` - Publish current package
 * `update` - Update tree of packages
+* `packages` - Update tree of packages
+* `-h` - Help
 
 ### Build CPK client
 
