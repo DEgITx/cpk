@@ -16,7 +16,7 @@ void InstallPackages(const std::vector<CPKPackage>& packages)
     if(packages.size() == 0)
         return;
 
-    std::string response = SendPostRequest("http://127.0.0.1:9988/install", "{\"packages\": [\"example\"]}");
+    std::string response = SendPostRequest("http://127.0.0.1:9988/install", "{\"packages\": {\"example3\": \"\"}}");
     if (response.length() == 0) {
         DX_ERROR("json", "no respoce from server");
         return;

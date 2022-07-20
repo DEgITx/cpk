@@ -90,11 +90,12 @@ app.post('/publish', async function (req, res) {
             }
         }
 
+        let oldVersion;
         if (!pkgInfo?.version) {
             package.version = '0.1';
             logT('version', 'set basic version', package.version);
         } else {
-            const oldVersion = pkgInfo.version;
+            oldVersion = pkgInfo.version;
             package.version = changeVersion(pkgInfo.version);
             if (package.version == oldVersion) {
                 res.send({
@@ -117,6 +118,11 @@ app.post('/publish', async function (req, res) {
         fs.writeFileSync(PACKAGES_DIR + package.package + "/" + `package_${package.version}.zip`, req.body);
         logT('zip', 'archive', `package_${package.version}.zip`, 'saved for version', package.version);
 
+        package.isLastVersion = true;
+        if (pkgInfo) {
+            pkgInfo.isLastVersion = false;
+            await redis.set(`cpk:archive:${package.package}:${oldVersion}`, pkgInfo);
+        }
         await redis.set(`cpk:packages:${package.package}`, package);
         await redis.set(`cpk:archive:${package.package}:${package.version}`, package);
     } else {
@@ -139,7 +145,7 @@ app.post('/install', async function (req, res) {
         });
         return;
     }
-    if(!request.packages || !Array.isArray(request.packages) || request.packages.length == 0) {
+    if(!request.packages || typeof request.packages != 'object' || Object.keys(request.packages).length == 0) {
         res.send({
             error: true,
             errorCode: 2,
@@ -149,19 +155,34 @@ app.post('/install', async function (req, res) {
     }
 
     const packagesMap = {}
-    const recursiveInstall = async (packageNames) => {
-        packageNames = packageNames.filter(name => !packagesMap[name]);
+    const recursiveInstall = async (packagesObject) => {
+        let packageNames = Object.keys(packagesObject);
+        packageNames = packageNames.filter(name => {
+            if (packagesObject[name]?.length > 0) {
+                return !packagesMap[`${name}:${packagesObject[name]}`]
+            } else {
+                return !packagesMap[name];
+            }
+        });
         if (packageNames.length == 0)
             return;
         logT("deps", "add deps", packageNames);
         await Promise.all(packageNames.map(async (packageName) => { 
-            const package = await (await redis.DB.packages)[packageName];
+            let package;
+            if (packagesObject[packageName]?.length > 0) {
+                package = await (await redis.DB.archive)[`${packageName}:${packagesObject[packageName]}`];
+            } else {
+                package = await (await redis.DB.packages)[packageName];
+            }
             if (!package) {
                 logTW("deps", "no deps found", packageName);
                 throw new Error("Not found deps for package " + packageName);
             }
-            packagesMap[package.package] = package;
-            if (package.dependencies && package.dependencies.length > 0) {
+            if (!(packagesObject[packageName]?.length > 0) || package.isLastVersion) {
+                packagesMap[package.package] = package;
+            }
+            packagesMap[`${package.package}:${package.version}`] = package;
+            if (package.dependencies && Object.keys(package.dependencies).length > 0) {
                 await recursiveInstall(package.dependencies);
             }
             return package;
@@ -177,12 +198,12 @@ app.post('/install', async function (req, res) {
             errorDesc: e.message,
         });
         return;
-    } 
-    return;
+    }
     
-    const packages = Object.values(packagesMap);
+    let packages = Object.keys(packagesMap);
     if (!packages || packages.length == 0)
         return;
+    packages = packages.filter(name => name.includes(':')).map(name => packagesMap[name]);
 
     logT("install", packages);
 

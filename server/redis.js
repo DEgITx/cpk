@@ -64,7 +64,7 @@ module.exports = async () => {
     const DB = new Proxy(DBobj, {
         get: async (target, prop) => {
             if (!target[prop]) {
-                if(prop == 'packages') {
+                if(prop == 'packages' || prop == 'archive') {
                     target[prop] = new Proxy({}, ChangeDBListener(`cpk:${prop}`, true, true, true))
                     return target[prop];
                 }
