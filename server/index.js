@@ -221,3 +221,14 @@ app.post('/install', async function (req, res) {
         packages: packagesToInstall,
     })
 });
+
+app.post('/packages', async function (req, res) {
+    const ip = req.headers['x-forwarded-for'] || req.socket.remoteAddress 
+    const request = req.body;
+
+    const packages = await redis.values("cpk:packages:*");
+
+    res.send({
+        packages,
+    })
+});

@@ -111,6 +111,38 @@ void PublishPacket()
     SendPostZip("http://127.0.0.1:9988/publish", "{\"package\": \"example5\", \"dependencies\": {\"example\": \"0.5\"}}", archive_content, in_size);
 }
 
+void PackagesList()
+{
+    std::string response = SendPostRequest("http://127.0.0.1:9988/packages", "{}");
+    DX_DEBUG("packages", "response %s", response.c_str());
+    nlohmann::json response_json;
+    try {
+        response_json = nlohmann::json::parse(response);
+    } catch(...) {
+        DX_ERROR("json", "error parse or respoce from server");
+        return;
+    }
+    if (response_json.contains("error"))
+    {
+        bool error = response_json["error"];
+        switch ((int)response_json["errorCode"]) {
+            default:
+                std::string errorDesc = response_json["errorDesc"];
+                DX_ERROR("install", "error install: %s", errorDesc.c_str());
+        }
+        return;
+    }
+
+    printf("packages:\n");
+    for(const auto& package : response_json["packages"])
+    {
+        std::string package_name = package["package"];
+        std::string package_version = package["version"];
+        printf(" %s: %s\n", package_name.c_str(), package_version.c_str());
+    }
+}
+
+
 char* getCmdOption(char ** begin, char ** end, const std::string & option)
 {
     char ** itr = std::find(begin, end, option);
@@ -159,6 +191,9 @@ int cpk_main(int argc, char *argv[]) {
     if(argc == 2) {
         if (strcmp(argv[1], "publish") == 0) {
                 PublishPacket();
+        }
+        if (strcmp(argv[1], "packages") == 0) {
+                PackagesList();
         }
     }
 
