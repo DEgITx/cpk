@@ -22,6 +22,11 @@ Publish your own package:
 cpk publish
 ```
 
+List of awailable packages for install:
+```sh
+cpk packages
+```
+
 Update all pacakges:
 ```sh
 cpk update
