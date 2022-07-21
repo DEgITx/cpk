@@ -4,6 +4,12 @@ project(cpk VERSION 1.0)
 set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 
+if (NOT CMAKE_BUILD_TYPE OR CMAKE_BUILD_TYPE STREQUAL "Debug")
+    add_definitions(-DCPK_DEBUG)
+else()
+    add_definitions(-DCPK_RELEASE)
+endif()
+
 set(WITH_TESTS True)
 if(WITH_TESTS)
     enable_testing()

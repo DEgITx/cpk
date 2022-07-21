@@ -16,7 +16,7 @@ void InstallPackages(const std::vector<CPKPackage>& packages)
     if(packages.size() == 0)
         return;
 
-    std::string response = SendPostRequest("http://127.0.0.1:9988/install", "{\"packages\": {\"example3\": \"\"}}");
+    std::string response = SendPostRequest(REMOTE_BACKEND_URL "/install", "{\"packages\": {\"example3\": \"\"}}");
     if (response.length() == 0) {
         DX_ERROR("json", "no respoce from server");
         return;
@@ -85,7 +85,7 @@ void PublishPacket()
     const char* archive_content = (char*)malloc(in_size);
     fread((void*)archive_content, in_size, 1, in_file);
 
-    std::string response = SendPostZip("http://127.0.0.1:9988/publish", "{\"package\": \"example\"}", archive_content, in_size);
+    std::string response = SendPostZip(REMOTE_BACKEND_URL "/publish", "{\"package\": \"example\"}", archive_content, in_size);
     DX_DEBUG("publish", "response %s", response.c_str());
     nlohmann::json response_json;
     try {
@@ -104,16 +104,11 @@ void PublishPacket()
         }
         return;
     }
-
-    SendPostZip("http://127.0.0.1:9988/publish", "{\"package\": \"example2\"}", archive_content, in_size);
-    SendPostZip("http://127.0.0.1:9988/publish", "{\"package\": \"example3\", \"dependencies\": {\"example\": \"0.1\", \"example2\": \"\"}}", archive_content, in_size);
-    SendPostZip("http://127.0.0.1:9988/publish", "{\"package\": \"example4\", \"dependencies\": {\"example_non\": \"0.1\"}}", archive_content, in_size);
-    SendPostZip("http://127.0.0.1:9988/publish", "{\"package\": \"example5\", \"dependencies\": {\"example\": \"0.5\"}}", archive_content, in_size);
 }
 
 void PackagesList()
 {
-    std::string response = SendPostRequest("http://127.0.0.1:9988/packages", "{}");
+    std::string response = SendPostRequest(REMOTE_BACKEND_URL "/packages", "{}");
     DX_DEBUG("packages", "response %s", response.c_str());
     nlohmann::json response_json;
     try {
