@@ -5,6 +5,8 @@
 #else
 #include <sys/utsname.h>
 #endif
+#include <stdio.h>
+#include <string.h>
 
 std::string GetOSArch()
 {
