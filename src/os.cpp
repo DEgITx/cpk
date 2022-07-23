@@ -8,6 +8,9 @@
 #include <stdio.h>
 #include <string.h>
 
+namespace cpk
+{
+
 std::string GetOSArch()
 {
 #ifdef CPK_OS_WIN
@@ -39,4 +42,20 @@ std::string GetOSArch()
     }
 #endif
     return "";
+}
+
+std::string GetOSType()
+{
+#ifdef CPK_OS_WIN
+    return "windows";
+#endif
+#ifdef CPK_OS_LINUX
+    return "linux";
+#endif
+#ifdef CPK_OS_MACOS
+    return "macos";
+#endif
+    return "";
+}
+
 }

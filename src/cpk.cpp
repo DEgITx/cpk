@@ -12,6 +12,9 @@
 #include "degxlog.h"
 #include "os.h"
 
+namespace cpk
+{
+
 void InstallPackages(const std::vector<CPKPackage>& packages)
 {
     if(packages.size() == 0)
@@ -170,7 +173,7 @@ int cpk_main(int argc, char *argv[]) {
         return 0;
     }
 
-    DX_DEBUG("arch", "OS Arch: %s", GetOSArch().c_str());
+    DX_DEBUG("arch", "OS: %s %s", cpk::GetOSType().c_str(), cpk::GetOSArch().c_str());
 
     if(argc > 2) {
         if (strcmp(argv[1], "install") == 0) {
@@ -197,4 +200,6 @@ int cpk_main(int argc, char *argv[]) {
 
     //downloadFile("https://degitx.com/sitemap.xml", "sitemap.xml");
     return 0;
+}
+
 }

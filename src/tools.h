@@ -4,7 +4,6 @@
 namespace cpk
 {
 
-std::string GetOSArch();
-std::string GetOSType();
+std::string BuildToolsUrl();
 
 }

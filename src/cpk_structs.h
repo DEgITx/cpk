@@ -3,6 +3,9 @@
 #include <vector>
 #include <unordered_map>
 
+namespace cpk
+{
+
 enum CPKLang
 {
     CPP = 1,
@@ -28,3 +31,5 @@ struct CPKPackage
     CPKLang lang;
     CPKBuildType buildType;
 };
+
+}

@@ -7,6 +7,9 @@
 #include <vector>
 #include "degxlog.h"
 
+namespace cpk
+{
+
 void UnZip(const std::string& path, const std::string& outFile = "sitemap.xml")
 {
     //Open the ZIP archive
@@ -74,4 +77,6 @@ void CreateZip(const std::vector<std::string>& files, const std::string out_path
         zip_file_add(z, file.c_str(), zs, ZIP_FL_OVERWRITE | ZIP_FL_ENC_UTF_8);
     }
     zip_close(z);
+}
+
 }

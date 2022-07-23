@@ -3,6 +3,8 @@
 #include <future>
 #include "degxlog.h"
 
+namespace cpk
+{
 struct thread_pool {
   std::mutex mutex;
   std::deque<std::packaged_task<void()>> tasks;
@@ -73,3 +75,5 @@ struct thread_pool {
       }
     }
 };
+
+}

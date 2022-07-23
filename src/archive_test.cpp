@@ -2,6 +2,8 @@
 #include <archive.h>
 #include <string.h>
 
+using namespace cpk;
+
 void readline(char* file, char* buff)
 {
     FILE* fp = fopen(file, "r");

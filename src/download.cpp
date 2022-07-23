@@ -3,6 +3,9 @@
 #include <string>
 #include "degxlog.h"
 
+namespace cpk
+{
+
 void print_curl_protocols()
 {
     DX_DEBUG("curl", "curl version: %s\n", curl_version());
@@ -106,4 +109,6 @@ std::string SendPostZip(const char* url, const std::string& jsonString = "{\"use
     auto ret = CreatePostRequest(url, "Content-Type: application/json", jsonString.c_str());
     auto ret2 = CreatePostRequest(url, "Content-Type: application/zip", fileData, fileSize);
     return ret2;
+}
+
 }
