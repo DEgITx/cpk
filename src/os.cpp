@@ -11,12 +11,11 @@
 namespace cpk
 {
 
-
-std::unordered_map <std::string, int> os_arch_mapping = {
+std::map <std::string, int> os_arch_mapping = {
     {"x86_64", X86_64},
     {"x86", X86},
 };
-std::unordered_map <std::string, int> os_type_mapping = {
+std::map <std::string, int> os_type_mapping = {
     {"linux", LINUX},
     {"macos", MACOS},
     {"windows", WINDOWS},

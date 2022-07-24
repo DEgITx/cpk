@@ -10,7 +10,7 @@ std::string BuildToolsUrl()
 {
     switch(os_type_mapping[GetOSType()])
     {
-        case CPK_OS_TYPE::WINDOWS:
+        case OS_TYPE::WINDOWS:
             switch(os_arch_mapping[GetOSArch()])
             {
                 case X86_64:
@@ -25,7 +25,7 @@ void InstallBuildTools()
 {
     switch(os_type_mapping[GetOSType()])
     {
-        case CPK_OS_TYPE::WINDOWS:
+        case OS_TYPE::WINDOWS:
         {
             std::string toolchainUrl = BuildToolsUrl();
             DX_DEBUG("tools", "download %s", toolchainUrl.c_str());
