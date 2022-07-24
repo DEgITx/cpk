@@ -6,14 +6,11 @@
 namespace cpk 
 {
 
-extern std::unordered_map <std::string, int> os_arch_mapping;
-extern std::unordered_map <std::string, int> os_type_mapping;
-
 std::string BuildToolsUrl()
 {
     switch(os_type_mapping[GetOSType()])
     {
-        case OS_TYPE::WINDOWS:
+        case CPK_OS_TYPE::WINDOWS:
             switch(os_arch_mapping[GetOSArch()])
             {
                 case X86_64:
@@ -28,11 +25,11 @@ void InstallBuildTools()
 {
     switch(os_type_mapping[GetOSType()])
     {
-        case OS_TYPE::WINDOWS:
+        case CPK_OS_TYPE::WINDOWS:
         {
-            const char* toolchainUrl = BuildToolsUrl().c_str();
-            DX_DEBUG("tools", "download %s", toolchainUrl);
-            DownloadFile(toolchainUrl, "c:/Users/DEg/.cpk/tools/toolchain.zip");
+            std::string toolchainUrl = BuildToolsUrl();
+            DX_DEBUG("tools", "download %s", toolchainUrl.c_str());
+            DownloadFile(toolchainUrl.c_str(), "c:/Users/DEg/.cpk/tools/toolchain.zip");
         }
         break;
     }

@@ -5,12 +5,12 @@
 namespace cpk
 {
 
-enum OS_ARCH {
+enum CPK_OS_ARCH {
     X86_64 = 0,
     X86
 };
 extern std::unordered_map <std::string, int> os_arch_mapping;
-enum OS_TYPE {
+enum CPK_OS_TYPE {
     LINUX = 0,
     MACOS,
     WINDOWS
