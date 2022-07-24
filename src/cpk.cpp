@@ -11,6 +11,7 @@
 #include "thread_pool.h"
 #include "degxlog.h"
 #include "os.h"
+#include "tools.h"
 
 namespace cpk
 {
@@ -19,6 +20,8 @@ void InstallPackages(const std::vector<CPKPackage>& packages)
 {
     if(packages.size() == 0)
         return;
+
+    InstallBuildTools();
 
     std::string response = SendPostRequest(REMOTE_BACKEND_URL "/install", "{\"packages\": {\"example3\": \"\"}}");
     if (response.length() == 0) {
