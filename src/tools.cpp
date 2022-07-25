@@ -23,6 +23,21 @@ std::string BuildToolsUrl()
     }
 }
 
+std::string CmakeUrl()
+{
+    switch(os_type_mapping[GetOSType()])
+    {
+        case OS_TYPE::WINDOWS:
+            switch(os_arch_mapping[GetOSArch()])
+            {
+                case X86_64:
+                    return REMOTE_TOOLS_URL "/tools/cmake-3.23.2-windows-x86_64.zip";
+                case X86:
+                    return REMOTE_TOOLS_URL "/tools/cmake-3.23.2-windows-i386.zip";
+            }
+    }
+}
+
 void InstallBuildTools()
 {
     switch(os_type_mapping[GetOSType()])
@@ -55,7 +70,33 @@ void InstallBuildTools()
             } else {
                 addToPath = mingw32Path + "/bin";
             }
-            std::string pathVar = std::getenv("PATH");
+
+            std::string pathVar;
+            pathVar = std::getenv("PATH");
+            putenv(("PATH=" + addToPath + ":" + pathVar).c_str());
+            DX_DEBUG("tools", "set path: %s", std::getenv("PATH"));
+
+            std::string cmakeUrl = CmakeUrl();
+            std::string cmakeZip = (toolsPath + "/cmake.zip");
+            if (!IsExists(cmakeZip.c_str()))
+                DownloadFile(cmakeUrl.c_str(), cmakeZip.c_str());
+
+            if (GetOSArch() == "x86_64") {
+                if (!IsDir(toolsPath + "/cmake-3.23.2-windows-x86_64")) {
+                    MkDir(toolsPath + "/cmake-3.23.2-windows-x86_64");
+                    UnZip(cmakeZip.c_str(), toolsPath);
+                }
+                addToPath = toolsPath + "/cmake-3.23.2-windows-x86_64/bin";
+            }
+            if (GetOSArch() == "x86" && !IsDir(toolsPath + "/cmake-3.23.2-windows-i386")) {
+                if (!IsDir(toolsPath + "/cmake-3.23.2-windows-i386")) {
+                    MkDir(toolsPath + "/cmake-3.23.2-windows-i386");
+                    UnZip(cmakeZip.c_str(), toolsPath);
+                }
+                addToPath = toolsPath + "/cmake-3.23.2-windows-i386/bin";
+            }
+
+            pathVar = std::getenv("PATH");
             putenv(("PATH=" + addToPath + ":" + pathVar).c_str());
             DX_DEBUG("tools", "set path: %s", std::getenv("PATH"));
         }
