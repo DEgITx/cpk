@@ -12,6 +12,9 @@ namespace cpk
 #define REMOTE_TOOLS_URL "http://143.244.189.114:9988"
 #endif
 
-size_t CPKGetFileSize(std::string filename);
+size_t CPKGetFileSize(const std::string& filename);
+int MkDir(const std::string& path);
+bool IsDir(const std::string& path);
+bool IsExists(const std::string& path);
 
 }

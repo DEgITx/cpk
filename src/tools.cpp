@@ -30,7 +30,21 @@ void InstallBuildTools()
         {
             std::string toolchainUrl = BuildToolsUrl();
             DX_DEBUG("tools", "download %s", toolchainUrl.c_str());
-            DownloadFile(toolchainUrl.c_str(), "c:\\Users\\DEg\\.cpk\\tools\\toolchain.zip");
+            std::string userPath = std::getenv("USERPROFILE");
+            if (!IsDir(userPath + "/.cpk"))
+            {
+                DX_DEBUG("tools", "create dir %s", (userPath + "/.cpk").c_str());
+                MkDir(userPath + "/.cpk");
+            }
+            if (!IsDir(userPath + "/.cpk/tools"))
+            {
+                DX_DEBUG("tools", "create dir %s", (userPath + "/.cpk/tools").c_str());
+                MkDir(userPath + "/.cpk/tools");
+            }
+            std::string toolsPath = userPath + "/.cpk/tools";
+            if (!IsExists((toolsPath + "/toolchain.zip").c_str()))
+                DownloadFile(toolchainUrl.c_str(), (toolsPath + "/toolchain.zip").c_str());
+            UnZip(toolsPath + "/toolchain.zip", toolsPath);
         }
         break;
     }

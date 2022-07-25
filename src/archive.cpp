@@ -6,6 +6,7 @@
 #include <sys/types.h>
 #include <vector>
 #include "degxlog.h"
+#include "global.h"
 
 namespace cpk
 {
@@ -19,7 +20,7 @@ void UnZip(const std::string& path, const std::string& outFile = "sitemap.xml")
         DX_ERROR("zip", "error openning archive\n");
         return;
     }
-    DX_INFO("zip", "opened archive %s\n", path.c_str());
+    DX_INFO("zip", "opened archive %s", path.c_str());
 
     int i, n = zip_get_num_entries(z, 0);
     for (i = 0; i < n; ++i) {
@@ -29,15 +30,10 @@ void UnZip(const std::string& path, const std::string& outFile = "sitemap.xml")
             if (stat(file_name, &sb) == 0 && S_ISDIR(sb.st_mode)) {
                 continue;
             }
-            DX_DEBUG("zip", "create dir %s\n", file_name);
-#if defined(_WIN32)
-            int result = mkdir(file_name);
-#else
-            mode_t mode = 0755;
-            int result = mkdir(file_name, mode);
-#endif
+            DX_DEBUG("zip", "create dir %s", file_name);
+            int result = MkDir(file_name);
             if (result == -1) {
-                DX_DEBUG("zip", "cant create %s\n", file_name);
+                DX_DEBUG("zip", "cant create %s", file_name);
                 break;
             }
             continue;
@@ -53,7 +49,7 @@ void UnZip(const std::string& path, const std::string& outFile = "sitemap.xml")
         fwrite (buffer, sizeof(char), st.size, saveFile);
         fclose (saveFile);
         delete[] buffer;
-        DX_INFO("zip", "unpacked %s\n", file_name);
+        DX_INFO("zip", "unpacked %s", file_name);
     }
     //And close the archive
     zip_close(z);
