@@ -11,7 +11,7 @@
 namespace cpk
 {
 
-void UnZip(const std::string& path, const std::string& outFile = "sitemap.xml")
+void UnZip(const std::string& path, const std::string& outFile = "")
 {
     //Open the ZIP archive
     int err = 0;
@@ -25,15 +25,16 @@ void UnZip(const std::string& path, const std::string& outFile = "sitemap.xml")
     int i, n = zip_get_num_entries(z, 0);
     for (i = 0; i < n; ++i) {
         const char* file_name = zip_get_name(z, i, 0);
+        std::string out_file = (!outFile.empty() && IsDir(outFile)) ? (outFile + "/" + file_name) : file_name;
         if (strlen(file_name) > 0 && file_name[strlen(file_name) - 1] == '/') {
             struct stat sb;
-            if (stat(file_name, &sb) == 0 && S_ISDIR(sb.st_mode)) {
+            if (stat(out_file.c_str(), &sb) == 0 && S_ISDIR(sb.st_mode)) {
                 continue;
             }
             DX_DEBUG("zip", "create dir %s", file_name);
-            int result = MkDir(file_name);
+            int result = MkDir(out_file.c_str());
             if (result == -1) {
-                DX_DEBUG("zip", "cant create %s", file_name);
+                DX_DEBUG("zip", "cant create %s", out_file.c_str());
                 break;
             }
             continue;
@@ -45,7 +46,7 @@ void UnZip(const std::string& path, const std::string& outFile = "sitemap.xml")
         char *buffer = new char[st.size];
         zip_fread(f, buffer, st.size);
         zip_fclose(f);
-        FILE* saveFile = fopen (file_name, "wb");
+        FILE* saveFile = fopen (out_file.c_str(), "wb");
         fwrite (buffer, sizeof(char), st.size, saveFile);
         fclose (saveFile);
         delete[] buffer;

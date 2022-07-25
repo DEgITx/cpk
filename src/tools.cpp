@@ -4,6 +4,7 @@
 #include "archive.h"
 #include "degxlog.h"
 #include "global.h"
+#include <stdlib.h>
 namespace cpk 
 {
 
@@ -44,7 +45,19 @@ void InstallBuildTools()
             std::string toolsPath = userPath + "/.cpk/tools";
             if (!IsExists((toolsPath + "/toolchain.zip").c_str()))
                 DownloadFile(toolchainUrl.c_str(), (toolsPath + "/toolchain.zip").c_str());
-            UnZip(toolsPath + "/toolchain.zip", toolsPath);
+            std::string mingw64Path = toolsPath + "/mingw64";
+            std::string mingw32Path = toolsPath + "/mingw32";
+            if (!IsDir(mingw64Path) && !IsDir(mingw32Path))
+                UnZip(toolsPath + "/toolchain.zip", toolsPath);
+            std::string addToPath;
+            if (GetOSArch() == "x86_64") {
+                addToPath = mingw64Path + "/bin";
+            } else {
+                addToPath = mingw32Path + "/bin";
+            }
+            std::string pathVar = std::getenv("PATH");
+            putenv(("PATH=" + addToPath + ":" + pathVar).c_str());
+            DX_DEBUG("tools", "set path: %s", std::getenv("PATH"));
         }
         break;
     }
