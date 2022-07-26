@@ -30,6 +30,10 @@ if(WITH_TESTS)
 endif(WITH_TESTS)
 add_definitions(-DZIP_STATIC)
 
+if(MINGW)
+    SET(CMAKE_EXE_LINKER_FLAGS  "${CMAKE_EXE_LINKER_FLAGS} -static-libgcc -static-libstdc++ -static")
+endif()
+
 #find_package(CURL REQUIRED)
 add_subdirectory(external/mbedtls/library)
 add_subdirectory(external/curl/lib)
