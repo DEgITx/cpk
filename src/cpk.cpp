@@ -48,18 +48,25 @@ void InstallPackages(const std::vector<CPKPackage>& packages)
         return;
     }
 
+    std::string cpkDir = ".cpk";
+    if (!IsDir(cpkDir))
+        MkDir(cpkDir);
+
     thread_pool pool;
     const int processor_count = std::thread::hardware_concurrency();
     pool.start(processor_count);
     for(const auto& package : response_json["packages"])
     {
-        pool.queue([package](){
+        pool.queue([package, cpkDir](){
             std::string package_name = package["package"];
             std::string package_url = package["url"];
             DX_DEBUG("pkg", "install package %s", package_name.c_str());
             DX_DEBUG("install", "download package %s", package_url.c_str());
-            DownloadFile(package_url.c_str(), (package_name + ".zip").c_str());
-            DX_DEBUG("install", "downloaded %s as %s", package_url.c_str(), (package_name + ".zip").c_str());
+            std::string zipFile = cpkDir + "/" + package_name + ".zip";
+            DownloadFile(package_url.c_str(), zipFile.c_str());
+            DX_DEBUG("install", "downloaded %s as %s", package_url.c_str(), zipFile.c_str());
+            UnZip(zipFile, cpkDir);
+            DX_DEBUG("install", "Prepared package, start building...");
         });
     }
     pool.stop();
@@ -81,19 +88,26 @@ void InstallPackages(const std::vector<CPKPackage>& packages)
 }
 
 void PublishPacket()
-{
-    FILE* in_file = fopen("cr_archive.zip", "rb");
+{  
+    auto all_files = AllFiles();
+    CreateZip(all_files, "temp.zip");
+
+    FILE* in_file = fopen("temp.zip", "rb");
     if (!in_file) {
-        perror("fopen");
-        exit(EXIT_FAILURE);
+        DX_ERROR("zip", "cant create zip");
+        Remove("temp.zip");
+        return;
     }
 
-    size_t in_size = CPKGetFileSize("cr_archive.zip");
+    size_t in_size = FileSize("temp.zip");
     const char* archive_content = (char*)malloc(in_size);
     fread((void*)archive_content, in_size, 1, in_file);
 
+    DX_DEBUG("publish", "send %d", in_size);
+
     std::string response = SendPostZip(REMOTE_BACKEND_URL "/publish", "{\"package\": \"example\"}", archive_content, in_size);
     DX_DEBUG("publish", "response %s", response.c_str());
+    Remove("temp.zip");
     nlohmann::json response_json;
     try {
         response_json = nlohmann::json::parse(response);

@@ -56,13 +56,6 @@ void UnZip(const std::string& path, const std::string& outFile = "")
     zip_close(z);
 }
 
-long GetFileSize(std::string filename)
-{
-    struct stat stat_buf;
-    int rc = stat(filename.c_str(), &stat_buf);
-    return rc == 0 ? stat_buf.st_size : -1;
-}
-
 void CreateZip(const std::vector<std::string>& files, const std::string out_path) {
     //Open the ZIP archive
     int err = 0;
@@ -70,7 +63,7 @@ void CreateZip(const std::vector<std::string>& files, const std::string out_path
     zip_source_t* zs;
     for(const auto& file : files)
     {
-        zs = zip_source_buffer(z, file.c_str(), GetFileSize(file.c_str()), 0);
+        zs = zip_source_buffer(z, file.c_str(), FileSize(file.c_str()), 0);
         zip_file_add(z, file.c_str(), zs, ZIP_FL_OVERWRITE | ZIP_FL_ENC_UTF_8);
     }
     zip_close(z);

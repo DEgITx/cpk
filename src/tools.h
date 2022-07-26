@@ -5,6 +5,7 @@ namespace cpk
 {
 
 std::string BuildToolsUrl();
+std::string CmakeUrl();
 void InstallBuildTools();
 
 }

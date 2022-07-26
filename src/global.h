@@ -1,5 +1,6 @@
 #pragma once
 #include <string>
+#include <vector>
 
 namespace cpk
 {
@@ -12,9 +13,12 @@ namespace cpk
 #define REMOTE_TOOLS_URL "http://143.244.189.114:9988"
 #endif
 
-size_t CPKGetFileSize(const std::string& filename);
+size_t FileSize(const std::string& filename);
 int MkDir(const std::string& path);
 bool IsDir(const std::string& path);
 bool IsExists(const std::string& path);
+void EXE(const std::string& command);
+std::vector<std::string> AllFiles(const std::string& ext = "");
+void Remove(const std::string& file);
 
 }
