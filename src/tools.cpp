@@ -73,7 +73,7 @@ void InstallBuildTools()
 
             std::string pathVar;
             pathVar = std::getenv("PATH");
-            putenv(("PATH=" + addToPath + ":" + pathVar).c_str());
+            putenv((char*)("PATH=" + addToPath + ":" + pathVar).c_str());
             DX_DEBUG("tools", "set path: %s", std::getenv("PATH"));
 
             std::string cmakeUrl = CmakeUrl();
@@ -97,7 +97,7 @@ void InstallBuildTools()
             }
 
             pathVar = std::getenv("PATH");
-            putenv(("PATH=" + addToPath + ":" + pathVar).c_str());
+            putenv((char*)("PATH=" + addToPath + ":" + pathVar).c_str());
             DX_DEBUG("tools", "set path: %s", std::getenv("PATH"));
         }
         break;
