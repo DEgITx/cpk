@@ -19,5 +19,6 @@ extern std::map <std::string, int> os_type_mapping;
 
 std::string GetOSArch();
 std::string GetOSType();
+std::string GetTempDir();
 
 }

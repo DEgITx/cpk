@@ -69,4 +69,14 @@ std::string GetOSType()
     return "";
 }
 
+std::string GetTempDir()
+{
+#ifdef _WIN32
+    std::string tmpPath = std::getenv("TEMP");
+    return tmpPath;
+#else
+    return "/tmp";
+#endif
+}
+
 }

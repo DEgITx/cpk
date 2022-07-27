@@ -90,16 +90,19 @@ void InstallPackages(const std::vector<CPKPackage>& packages)
 void PublishPacket()
 {  
     auto all_files = AllFiles();
-    CreateZip(all_files, "temp.zip");
+    std::string tmpFile = GetTempDir() + "/temp.zip";
+    DX_DEBUG("publish", "generation temp.zip");
+    CreateZip(all_files, tmpFile);
+    DX_DEBUG("publish", "generated temp.zip");
 
-    FILE* in_file = fopen("temp.zip", "rb");
+    FILE* in_file = fopen(tmpFile.c_str(), "rb");
     if (!in_file) {
-        DX_ERROR("zip", "cant create zip");
-        Remove("temp.zip");
+        DX_ERROR("zip", "cant open created zip");
+        Remove(tmpFile);
         return;
     }
 
-    size_t in_size = FileSize("temp.zip");
+    size_t in_size = FileSize(tmpFile);
     const char* archive_content = (char*)malloc(in_size);
     fread((void*)archive_content, in_size, 1, in_file);
 
@@ -107,7 +110,7 @@ void PublishPacket()
 
     std::string response = SendPostZip(REMOTE_BACKEND_URL "/publish", "{\"package\": \"example\"}", archive_content, in_size);
     DX_DEBUG("publish", "response %s", response.c_str());
-    Remove("temp.zip");
+    Remove(tmpFile);
     nlohmann::json response_json;
     try {
         response_json = nlohmann::json::parse(response);
