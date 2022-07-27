@@ -327,7 +327,6 @@ if(WIN32)
   endif()
 else(WIN32)
   target_sources(zip PRIVATE
-    zip_mkstempm.c
     zip_source_file_stdio_named.c
     zip_random_unix.c
     )
@@ -369,7 +368,7 @@ if(HAVE_CRYPTO)
 endif()
 
 if(SHARED_LIB_VERSIONNING)
-  set_target_properties(zip PROPERTIES VERSION 5.4 SOVERSION 5)
+  set_target_properties(zip PROPERTIES VERSION 5.5 SOVERSION 5)
 endif()
 
 target_link_libraries(zip PRIVATE zlibstatic)

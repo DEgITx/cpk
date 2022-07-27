@@ -3,7 +3,7 @@
   Copyright (C) 2018-2021 Dieter Baron and Thomas Klausner
 
   This file is part of libzip, a library to manipulate ZIP archives.
-  The authors can be contacted at <libzip@nih.at>
+  The authors can be contacted at <info@libzip.org>
 
   Redistribution and use in source and binary forms, with or without
   modification, are permitted provided that the following conditions
@@ -36,14 +36,14 @@
 
 #define HAVE_SECURE_RANDOM
 
-#include <openssl/aes.h>
+#include <openssl/evp.h>
 #include <openssl/hmac.h>
 
-#define _zip_crypto_aes_t AES_KEY
+#define _zip_crypto_aes_t EVP_CIPHER_CTX
 #define _zip_crypto_hmac_t HMAC_CTX
 
 void _zip_crypto_aes_free(_zip_crypto_aes_t *aes);
-#define _zip_crypto_aes_encrypt_block(aes, in, out) (AES_encrypt((in), (out), (aes)), true)
+bool _zip_crypto_aes_encrypt_block(_zip_crypto_aes_t *aes, const zip_uint8_t *in, zip_uint8_t *out);
 _zip_crypto_aes_t *_zip_crypto_aes_new(const zip_uint8_t *key, zip_uint16_t key_size, zip_error_t *error);
 
 #define _zip_crypto_hmac(hmac, data, length) (HMAC_Update((hmac), (data), (length)) == 1)
