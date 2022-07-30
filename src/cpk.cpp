@@ -119,7 +119,11 @@ void PublishPacket()
 
     DX_DEBUG("publish", "send %d", in_size);
 
-    std::string response = SendPostZip(REMOTE_BACKEND_URL "/publish", "{\"package\": \"example\"}", archive_content, in_size);
+    nlohmann::json json;
+    json["package"] = "example";
+    std::string jsonRequest = json.dump(4);
+
+    std::string response = SendPostZip(REMOTE_BACKEND_URL "/publish", jsonRequest, archive_content, in_size);
     DX_DEBUG("publish", "response %s", response.c_str());
     fclose(in_file);
     Remove(tmpFile);
@@ -216,6 +220,7 @@ int cpk_main(int argc, char *argv[]) {
                 package.package = argv[i];
                 package.url = "https://degitx.com/sitemap.xml";
                 package.lang = CPP;
+                package.buildType = CMAKE;
                 packages.push_back(package);
             }
             InstallPackages(packages);
