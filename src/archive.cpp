@@ -63,7 +63,7 @@ void CreateZip(const std::vector<std::string>& files, const std::string out_path
     zip_source_t* zs;
     for(const auto& file : files)
     {
-        zs = zip_source_buffer(z, file.c_str(), FileSize(file.c_str()), 0);
+        zs = zip_source_file(z, file.c_str(), 0, FileSize(file.c_str()));
         zip_file_add(z, file.c_str(), zs, ZIP_FL_OVERWRITE | ZIP_FL_ENC_UTF_8);
     }
     zip_close(z);
