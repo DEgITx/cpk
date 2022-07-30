@@ -4,6 +4,7 @@
 #include <string>
 #include <sys/stat.h>
 #include <vector>
+#include <algorithm>
 namespace cpk
 {
 
@@ -22,6 +23,54 @@ int MkDir(const std::string& path)
     mode_t mode = 0755;
     return mkdir(path.c_str(), mode);
 #endif
+}
+
+std::vector<std::string> Split (std::string s, std::string delimiter) {
+    size_t pos_start = 0, pos_end, delim_len = delimiter.length();
+    std::string token;
+    std::vector<std::string> res;
+
+    while ((pos_end = s.find (delimiter, pos_start)) != std::string::npos) {
+        token = s.substr (pos_start, pos_end - pos_start);
+        pos_start = pos_end + delim_len;
+        res.push_back (token);
+    }
+
+    res.push_back (s.substr (pos_start));
+    return res;
+}
+
+std::string Join(const std::vector<std::string> &lst, const std::string &delim)
+{
+    std::string ret;
+    for(const auto &s : lst) {
+        if(!ret.empty())
+            ret += delim;
+        ret += s;
+    }
+    return ret;
+}
+
+int MkDirP(const std::string& path)
+{
+    std::string normalPath = path;
+    std::replace( normalPath.begin(), normalPath.end(), '\\', '/');
+
+    char tmp[1024];
+    char *p = NULL;
+    size_t len;
+
+    snprintf(tmp, sizeof(tmp),"%s", normalPath.c_str());
+    len = strlen(tmp);
+    if (tmp[len - 1] == '/')
+        tmp[len - 1] = 0;
+    for (p = tmp + 1; *p; p++)
+        if (*p == '/') {
+            *p = 0;
+            MkDir(tmp);
+            *p = '/';
+        }
+    MkDir(tmp);
 }
 
 bool IsDir(const std::string& path)

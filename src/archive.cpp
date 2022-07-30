@@ -7,6 +7,7 @@
 #include <vector>
 #include "degxlog.h"
 #include "global.h"
+#include <algorithm>
 
 namespace cpk
 {
@@ -25,20 +26,16 @@ void UnZip(const std::string& path, const std::string& outFile = "")
     int i, n = zip_get_num_entries(z, 0);
     for (i = 0; i < n; ++i) {
         const char* file_name = zip_get_name(z, i, 0);
+        DX_DEBUG("tst", "zip %s", file_name);
         std::string out_file = (!outFile.empty() && IsDir(outFile)) ? (outFile + "/" + file_name) : file_name;
-        if (strlen(file_name) > 0 && file_name[strlen(file_name) - 1] == '/') {
-            struct stat sb;
-            if (stat(out_file.c_str(), &sb) == 0 && S_ISDIR(sb.st_mode)) {
-                continue;
-            }
-            DX_DEBUG("zip", "create dir %s", file_name);
-            int result = MkDir(out_file.c_str());
-            if (result == -1) {
-                DX_DEBUG("zip", "cant create %s", out_file.c_str());
-                break;
-            }
-            continue;
+        std::string normalOutPath = out_file;
+        std::replace( normalOutPath.begin(), normalOutPath.end(), '\\', '/');
+        std::size_t foundLastPathSep = normalOutPath.find_last_of("/\\");
+        if (foundLastPathSep >= 0 && foundLastPathSep < normalOutPath.length()) {
+            normalOutPath = normalOutPath.substr(0, foundLastPathSep);
+            MkDirP(normalOutPath);
         }
+        
         struct zip_stat st;
         zip_stat_init(&st);
         zip_stat(z, file_name, 0, &st);
@@ -57,6 +54,9 @@ void UnZip(const std::string& path, const std::string& outFile = "")
 }
 
 void CreateZip(const std::vector<std::string>& files, const std::string out_path) {
+    if (IsExists(out_path))
+        Remove(out_path);
+
     //Open the ZIP archive
     int err = 0;
     zip *z = zip_open(out_path.c_str(), ZIP_CREATE, &err);

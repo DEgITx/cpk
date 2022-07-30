@@ -23,7 +23,14 @@ void InstallPackages(const std::vector<CPKPackage>& packages)
 
     InstallBuildTools();
 
-    std::string response = SendPostRequest(REMOTE_BACKEND_URL "/install", "{\"packages\": {\"example3\": \"\"}}");
+    nlohmann::json json;
+    json["packages"] = {};
+    for (const auto& package : packages) {
+        json["packages"][package.package] = "";
+    }
+    std::string jsonRequest = json.dump(4);
+
+    std::string response = SendPostRequest(REMOTE_BACKEND_URL "/install", jsonRequest.c_str());
     if (response.length() == 0) {
         DX_ERROR("json", "no respoce from server");
         return;
@@ -65,7 +72,10 @@ void InstallPackages(const std::vector<CPKPackage>& packages)
             std::string zipFile = cpkDir + "/" + package_name + ".zip";
             DownloadFile(package_url.c_str(), zipFile.c_str());
             DX_DEBUG("install", "downloaded %s as %s", package_url.c_str(), zipFile.c_str());
-            UnZip(zipFile, cpkDir);
+            std::string packageDir = cpkDir + "/" + package_name;
+            if (!IsExists(packageDir))
+                MkDir(packageDir);
+            UnZip(zipFile, packageDir);
             DX_DEBUG("install", "Prepared package, start building...");
         });
     }
@@ -98,6 +108,7 @@ void PublishPacket()
     FILE* in_file = fopen(tmpFile.c_str(), "rb");
     if (!in_file) {
         DX_ERROR("zip", "cant open created zip");
+        fclose(in_file);
         Remove(tmpFile);
         return;
     }
@@ -110,6 +121,7 @@ void PublishPacket()
 
     std::string response = SendPostZip(REMOTE_BACKEND_URL "/publish", "{\"package\": \"example\"}", archive_content, in_size);
     DX_DEBUG("publish", "response %s", response.c_str());
+    fclose(in_file);
     Remove(tmpFile);
     nlohmann::json response_json;
     try {

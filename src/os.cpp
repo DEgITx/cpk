@@ -73,6 +73,8 @@ std::string GetTempDir()
 {
 #ifdef _WIN32
     std::string tmpPath = std::getenv("TEMP");
+    if (tmpPath.length() > 0 && tmpPath[tmpPath.length() - 1] == '\\')
+        tmpPath.pop_back();
     return tmpPath;
 #else
     return "/tmp";
