@@ -134,6 +134,19 @@ void PublishPacket()
         return;
     }
 
+    nlohmann::json json;
+    json["package"] = packageName;
+    json["language"] = "cpp";
+    if (IsExists("CMakeLists.txt")) {
+        json["buildType"] = "cmake";
+    }
+
+    if (!json.contains("buildType"))
+    {
+        DX_ERROR("publish", "build type is not detected");
+        return;
+    }
+
     auto all_files = AllFiles();
     std::string tmpFile = GetTempDir() + "/temp.zip";
     DX_DEBUG("publish", "generation temp.zip");
@@ -154,12 +167,7 @@ void PublishPacket()
 
     DX_DEBUG("publish", "send %d", in_size);
 
-    nlohmann::json json;
-    json["package"] = packageName;
-    json["language"] = "cpp";
-    json["buildType"] = "cmake";
     std::string jsonRequest = json.dump(4);
-
     std::string response = SendPostZip(REMOTE_BACKEND_URL "/publish", jsonRequest, archive_content, in_size);
     DX_DEBUG("publish", "response %s", response.c_str());
     fclose(in_file);
