@@ -6,15 +6,15 @@
 
 Very light and easy and fast native package manager to install **C/C++ (priority), JS, Python, Rust** packages and compile sources when it needed. Same package can be in muitple form for different languages.
 
-Main purpose of this package manager to have simple C/C++ manager with posibility to post packages like **npm**, and also provide functionality to support same algorithms and code base for different programming languges, so if someone wanna **quicksort** package in their project on Python - they will get it, and if need the same one for C++ he will get it with simillar command.
+Main purpose of this package manager to have simple C/C++ manager with possibility to post packages like **npm**, and also provide functionality to support same algorithms and code base for different programming languages, so if someone wanna **quicksort** package in their project on Python - they will get it, and if need the same one for C++ he will get it with simillar command.
 
 Cross-platform. Implemented on C/C++ and provided for Linux, Mac OS, Windows arch.
 
 ## Package philosophy / license
 
-CPK package manager created to distribute any kind of open source packages, but we want to *garantee that any package can be used in commertial software* in any form of use. So if anyone who wanna install package will be ensure that he allowed to use it and modify without any restrictions even for commertial products. So we recomend to stick to MIT, BSD or other commertial free licenses. 
+CPK package manager created to distribute any kind of open source packages, but we want to *guarantee that any package can be used in commertial software* in any form of use. So if anyone who wanna install package will be ensure that he allowed to use it and modify without any restrictions even for commertial products. So we recommend to stick to MIT, BSD or other commertial free licenses. 
 
-*Everyone can publush their own package.*
+*Everyone can publish their own package.*
 
 ## Usage
 
@@ -33,14 +33,14 @@ Publish your own package (inside directory of project):
 cpk publish
 ```
 
-### List of avaiable packages
+### List of available packages
 List of available packages for install:
 ```sh
 cpk packages
 ```
 
 ### Update packages
-Update all pacakges:
+Update all packages:
 ```sh
 cpk update
 ```
