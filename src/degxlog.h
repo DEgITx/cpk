@@ -20,7 +20,7 @@ inline int DX_STRING_HASH(const char* str)
   return hash;
 }
 
-#define DX_PRINTF(out, tag, msg, ...) {\
+#define DX_PRINTF(out, tag, level, msg, ...) {\
   timeval curTime;\
   time_t rawtime;\
   char timebuffer[28];\
@@ -33,13 +33,22 @@ inline int DX_STRING_HASH(const char* str)
   sprintf(color, "\x1b[38;5;%dm", color_pick); \
   char color_clear[] = "\x1b[0m"; \
   \
-  fprintf(out, "[%s:%03ld] %s[%s]%s " msg "\n", timebuffer, curTime.tv_usec / 1000, color, tag, color_clear, ##__VA_ARGS__);\
+  char text_color[16] = { 0 };\
+  char text_clear[16] = { 0 };\
+  if (level == 0) {\
+    sprintf(text_color, "\x1b[38;5;%dm", 1);\
+    sprintf(text_clear, "\x1b[0m");\
+  } else if (level == 1) {\
+    sprintf(text_color, "\x1b[38;5;%dm", 3);\
+    sprintf(text_clear, "\x1b[0m");\
+  }\
+  fprintf(out, "[%s:%03ld] %s[%s]%s %s" msg "%s\n", timebuffer, curTime.tv_usec / 1000, color, tag, color_clear, text_color, ##__VA_ARGS__, text_clear);\
 }
 
-#define DX_ERROR(tag, ...) DX_PRINTF(stderr, tag, ##__VA_ARGS__)
-#define DX_WARN(tag, ...) DX_PRINTF(stdout, tag, ##__VA_ARGS__)
-#define DX_INFO(tag, ...) DX_PRINTF(stdout, tag, ##__VA_ARGS__)
-#define DX_DEBUG(tag, ...) DX_PRINTF(stdout, tag, ##__VA_ARGS__)
+#define DX_ERROR(tag, ...) DX_PRINTF(stderr, tag, 0, ##__VA_ARGS__)
+#define DX_WARN(tag, ...) DX_PRINTF(stdout, tag, 1, ##__VA_ARGS__)
+#define DX_INFO(tag, ...) DX_PRINTF(stdout, tag, 2, ##__VA_ARGS__)
+#define DX_DEBUG(tag, ...) DX_PRINTF(stdout, tag, 3, ##__VA_ARGS__)
 
 #else // DX_COLORFUL
 #define __FILENAME__ (strrchr(__FILE__, '/') ? strrchr(__FILE__, '/') + 1 : __FILE__)
