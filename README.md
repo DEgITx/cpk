@@ -18,27 +18,34 @@ CPK package manager created to distribute any kind of open source packages, but 
 
 ## Usage
 
-Install package:
+### Installing packages
 ```sh
 cpk install package
 ```
+Install 2 packages package=1.0 version and package2 latest version
+```sh
+cpk install package@1.0 package2
+```
 
-Publish your own package:
+### Publish own package
+Publish your own package (inside directory of project):
 ```sh
 cpk publish
 ```
 
+### List of avaiable packages
 List of available packages for install:
 ```sh
 cpk packages
 ```
 
+### Update packages
 Update all pacakges:
 ```sh
 cpk update
 ```
 
-### Available commands
+## Available commands
 
 Create a new application with the following options:
 
@@ -48,13 +55,13 @@ Create a new application with the following options:
 * `packages` - Update tree of packages
 * `-h` - Help
 
-### Build CPK client
+## Build CPK Client by own
 
 ```sh
 mkdir build
 cd build
 cmake -DCMAKE_BUILD_TYPE=Release ../
-make
+make -j8
 ```
 
 ## License
