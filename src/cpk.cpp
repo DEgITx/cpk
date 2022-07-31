@@ -16,6 +16,18 @@
 namespace cpk
 {
 
+std::map <std::string, int> CpkBuildTypes = {
+    {"cmake", CMAKE},
+};
+
+std::map <std::string, int> CpkLanguages = {
+    {"cpp", CPP},
+    {"c", C},
+    {"rust", RUST},
+    {"python", PYTHON},
+    {"javascript", JAVASCRIPT},
+};
+
 void InstallPackages(const std::vector<CPKPackage>& packages)
 {
     if(packages.size() == 0)
@@ -26,7 +38,7 @@ void InstallPackages(const std::vector<CPKPackage>& packages)
     nlohmann::json json;
     json["packages"] = {};
     for (const auto& package : packages) {
-        json["packages"][package.package] = "";
+        json["packages"][package.package] = (package.version.length() > 0) ? package.version : "";
     }
     std::string jsonRequest = json.dump(4);
 
@@ -64,9 +76,12 @@ void InstallPackages(const std::vector<CPKPackage>& packages)
     pool.start(processor_count);
     for(const auto& package : response_json["packages"])
     {
-        pool.queue([package, cpkDir](){
+        pool.queue([package, cpkDir, processor_count](){
             std::string package_name = package["package"];
             std::string package_url = package["url"];
+            std::string build_type = package["buildType"];
+            std::string package_language = package["language"];
+
             DX_DEBUG("pkg", "install package %s", package_name.c_str());
             DX_DEBUG("install", "download package %s", package_url.c_str());
             std::string zipFile = cpkDir + "/" + package_name + ".zip";
@@ -77,28 +92,47 @@ void InstallPackages(const std::vector<CPKPackage>& packages)
                 MkDir(packageDir);
             UnZip(zipFile, packageDir);
             DX_DEBUG("install", "Prepared package, start building...");
+            switch(CpkBuildTypes[build_type])
+            {
+                case CMAKE:
+                    {
+                        DX_DEBUG("install", "build package %s with cmake", package_name.c_str());
+                        std::string buildDir = packageDir + "/build";
+                        MkDir(buildDir);
+                        DX_DEBUG("install", "prepare cmake build");
+                        EXE("cmake -B \"" + buildDir + "\" -G \"MinGW Makefiles\" -DCMAKE_BUILD_TYPE=RelWithDebInfo");
+                        DX_DEBUG("install", "build");
+                        EXE("cmake --build \"" + buildDir + "\" -j" + std::to_string(processor_count));
+                    }
+                    break;
+                default:
+                    DX_ERROR("install", "no build type assotiated founded");
+            }
         });
     }
     pool.stop();
-
-    // install
-    // for (const auto& package : install_packages)
-    // {
-    //     DownloadFile(package.url.c_str(), "file");
-    //     switch(package.lang)
-    //     {
-    //         case CPP:
-    //             printf("install %s\n", package.name.c_str());
-    //             UnZip("test_zip.zip", "sitemap.xml");
-    //             break;
-    //         default:
-    //             break;
-    //     }
-    // }
 }
 
 void PublishPacket()
 {  
+    std::string packageName = Cwd();
+    if (packageName.length() == 0) {
+        DX_ERROR("publish", "no package name");
+        return;
+    }
+    std::replace( packageName.begin(), packageName.end(), '\\', '/');
+    std::size_t foundLastPathSep = packageName.find_last_of("/\\");
+    if (foundLastPathSep >= 0 && foundLastPathSep < packageName.length()) {
+        packageName = packageName.substr(0, foundLastPathSep);
+        if (packageName.length() == 0) {
+            DX_ERROR("publish", "no package name");
+            return;
+        }
+    } else {
+        DX_ERROR("publish", "no package name");
+        return;
+    }
+
     auto all_files = AllFiles();
     std::string tmpFile = GetTempDir() + "/temp.zip";
     DX_DEBUG("publish", "generation temp.zip");
@@ -120,7 +154,9 @@ void PublishPacket()
     DX_DEBUG("publish", "send %d", in_size);
 
     nlohmann::json json;
-    json["package"] = "example";
+    json["package"] = packageName;
+    json["language"] = "cpp";
+    json["buildType"] = "cmake";
     std::string jsonRequest = json.dump(4);
 
     std::string response = SendPostZip(REMOTE_BACKEND_URL "/publish", jsonRequest, archive_content, in_size);
@@ -197,7 +233,7 @@ void printHelp()
 {
     printf("./cpk [command] - CPK package manage\n");
     printf("commands:\n");
-    printf("  install package1 [package2] - install package1, package2 and other\n");
+    printf("  install package1 [package2[@version]] - install package1, package2 and other\n");
     printf("  publish - publish current package\n");
     printf("  packages - list avaiable packages\n");
 }
@@ -217,10 +253,10 @@ int cpk_main(int argc, char *argv[]) {
             for (int i = 2; i < argc; i++)
             {
                 CPKPackage package;
-                package.package = argv[i];
-                package.url = "https://degitx.com/sitemap.xml";
-                package.lang = CPP;
-                package.buildType = CMAKE;
+                auto packageVer = Split(argv[i], "@");
+                package.package = packageVer[0];
+                if (packageVer.size() == 2)
+                    package.package = packageVer[1];
                 packages.push_back(package);
             }
             InstallPackages(packages);

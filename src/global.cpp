@@ -3,6 +3,8 @@
 #include "degxlog.h"
 #include <string>
 #include <sys/stat.h>
+#include <unistd.h>
+#include <limits.h>
 #include <vector>
 #include <algorithm>
 namespace cpk
@@ -116,6 +118,18 @@ void Remove(const std::string& file)
    if(ret != 0) {
     DX_ERROR("file", "can't remove %s", file.c_str());
    }
+}
+
+std::string Cwd()
+{
+   char cwd[PATH_MAX];
+   if (getcwd(cwd, sizeof(cwd)) != NULL) {
+       return std::string(cwd);
+   } else {
+       perror("getcwd() error");
+       return "";
+   }
+   return "";
 }
 
 }

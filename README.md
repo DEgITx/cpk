@@ -14,6 +14,8 @@ Cross-platform. Implemented on C/C++ and provided for Linux, Mac OS, Windows arc
 
 CPK package manager created to distribute any kind of open source packages, but we want to *garantee that any package can be used in commertial software* in any form of use. So if anyone who wanna install package will be ensure that he allowed to use it and modify without any restrictions even for commertial products. So we recomend to stick to MIT, BSD or other commertial free licenses. 
 
+*Everyone can publush their own package.*
+
 ## Usage
 
 Install package:

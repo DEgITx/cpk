@@ -1,7 +1,7 @@
 #include <string>
 #include <algorithm>
 #include <vector>
-#include <unordered_map>
+#include <map>
 
 namespace cpk
 {
@@ -20,6 +20,9 @@ enum CPKBuildType
     SIMPLE = 1,
     CMAKE
 };
+
+extern std::map <std::string, int> CpkBuildTypes;
+extern std::map <std::string, int> CpkLanguages;
 
 struct CPKPackage
 {

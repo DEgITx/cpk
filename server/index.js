@@ -65,6 +65,26 @@ app.post('/publish', async function (req, res) {
             return;
         }
 
+        if(!package.language || package.language.length == 0) {
+            logW('package', 'no language for package');
+            res.send({
+                error: true,
+                errorCode: 6,
+                errorDesc: `No language for package`,
+            });
+            return;
+        }
+
+        if(!package.buildType || package.buildType.length == 0) {
+            logW('package', 'no buildType');
+            res.send({
+                error: true,
+                errorCode: 7,
+                errorDesc: `No buildType`,
+            });
+            return;
+        }
+
         const pkgInfo = await redis.get(`cpk:packages:${package.package}`);
         if (package.dependencies) {
             if (typeof package.dependencies != 'object' || Object.keys(package.dependencies).length == 0) {

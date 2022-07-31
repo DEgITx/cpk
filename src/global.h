@@ -23,5 +23,6 @@ std::vector<std::string> AllFiles(const std::string& ext = "");
 void Remove(const std::string& file);
 std::vector<std::string> Split (std::string s, std::string delimiter);
 std::string Join(const std::vector<std::string> &lst, const std::string &delim);
+std::string Cwd();
 
 }
