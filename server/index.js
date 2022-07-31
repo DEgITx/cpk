@@ -55,7 +55,7 @@ app.post('/publish', async function (req, res) {
         }
         const package = packages[ip];
         delete packages[ip];
-        if (!package.package) {
+        if (!package.package || package.package.includes('/') || package.package.includes('\\')) {
             logW('package', 'no package name');
             res.send({
                 error: true,
@@ -230,11 +230,9 @@ app.post('/install', async function (req, res) {
     const packagesToInstall = []
     for(const package of packages)
     {
-        packagesToInstall.push({
-            package: package.package,
+        packagesToInstall.push(Object.assign(package, {
             url: "http://localhost:9988/packages/" + package.package + "/" + 'package.zip',
-            version: '0.0.1'
-        });
+        }));
     }
 
     res.send({

@@ -132,4 +132,9 @@ std::string Cwd()
    return "";
 }
 
+void ChDir(const std::string& path)
+{
+    chdir(path.c_str());
+}
+
 }

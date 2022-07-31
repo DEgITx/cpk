@@ -97,12 +97,13 @@ void InstallPackages(const std::vector<CPKPackage>& packages)
                 case CMAKE:
                     {
                         DX_DEBUG("install", "build package %s with cmake", package_name.c_str());
+                        ChDir(packageDir);
                         std::string buildDir = packageDir + "/build";
                         MkDir(buildDir);
                         DX_DEBUG("install", "prepare cmake build");
-                        EXE("cmake -B \"" + buildDir + "\" -G \"MinGW Makefiles\" -DCMAKE_BUILD_TYPE=RelWithDebInfo");
+                        EXE("cmake -B \"build\" -G \"MinGW Makefiles\" -DCMAKE_BUILD_TYPE=RelWithDebInfo");
                         DX_DEBUG("install", "build");
-                        EXE("cmake --build \"" + buildDir + "\" -j" + std::to_string(processor_count));
+                        EXE("cmake --build \"build\" -j" + std::to_string(processor_count));
                     }
                     break;
                 default:
@@ -123,7 +124,7 @@ void PublishPacket()
     std::replace( packageName.begin(), packageName.end(), '\\', '/');
     std::size_t foundLastPathSep = packageName.find_last_of("/\\");
     if (foundLastPathSep >= 0 && foundLastPathSep < packageName.length()) {
-        packageName = packageName.substr(0, foundLastPathSep);
+        packageName = packageName.substr(foundLastPathSep+1);
         if (packageName.length() == 0) {
             DX_ERROR("publish", "no package name");
             return;
