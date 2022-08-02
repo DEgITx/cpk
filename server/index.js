@@ -5,6 +5,7 @@ const fs = require('fs');
 const path = require('path');
 require('tagslog')();
 let redis;
+global.PRODUCTION = (process.env.NODE_ENV == 'production');
 
 async function f() {
     redis = await require('./redis')();
@@ -231,7 +232,7 @@ app.post('/install', async function (req, res) {
     for(const package of packages)
     {
         packagesToInstall.push(Object.assign(package, {
-            url: "http://localhost:9988/packages/" + package.package + "/" + 'package.zip',
+            url: `http://${PRODUCTION ? '143.244.189.114' : 'localhost'}:9988/packages/` + package.package + "/" + 'package.zip',
         }));
     }
 
