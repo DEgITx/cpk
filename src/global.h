@@ -5,7 +5,7 @@
 namespace cpk
 {
 
-#ifndef CPK_RELEASE
+#ifdef CPK_RELEASE
 #define REMOTE_BACKEND_URL "http://143.244.189.114:9988"
 #define REMOTE_TOOLS_URL REMOTE_BACKEND_URL
 #else
