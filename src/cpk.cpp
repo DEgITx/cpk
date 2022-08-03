@@ -101,7 +101,12 @@ void InstallPackages(const std::vector<CPKPackage>& packages)
                         std::string buildDir = packageDir + "/build";
                         MkDir(buildDir);
                         DX_DEBUG("install", "prepare cmake build");
-                        EXE("cmake -B \"build\" -G \"MinGW Makefiles\" -DCMAKE_BUILD_TYPE=RelWithDebInfo");
+#ifdef CPK_OS_WIN
+                        std::string cmake_build_type = "-G \"MinGW Makefiles\"";
+#else
+                        std::string cmake_build_type = "";
+#endif
+                        EXE("cmake -B \"build\" " + cmake_build_type + " -DCMAKE_BUILD_TYPE=RelWithDebInfo");
                         DX_DEBUG("install", "build");
                         EXE("cmake --build \"build\" -j" + std::to_string(processor_count));
                     }

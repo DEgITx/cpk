@@ -26,10 +26,12 @@ void UnZip(const std::string& path, const std::string& outFile = "")
     int i, n = zip_get_num_entries(z, 0);
     for (i = 0; i < n; ++i) {
         const char* file_name = zip_get_name(z, i, 0);
-        DX_DEBUG("tst", "zip %s", file_name);
         std::string out_file = (!outFile.empty() && IsDir(outFile)) ? (outFile + "/" + file_name) : file_name;
         std::string normalOutPath = out_file;
         std::replace( normalOutPath.begin(), normalOutPath.end(), '\\', '/');
+#ifndef CPK_OS_WIN
+        out_file = normalOutPath;
+#endif
         std::size_t foundLastPathSep = normalOutPath.find_last_of("/\\");
         if (foundLastPathSep >= 0 && foundLastPathSep < normalOutPath.length()) {
             normalOutPath = normalOutPath.substr(0, foundLastPathSep);
