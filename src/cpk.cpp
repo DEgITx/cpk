@@ -3,6 +3,7 @@
 #include <string>
 #include <algorithm>
 #include <json.hpp>
+#include <vector>
 
 #include "cpk_structs.h"
 #include "download.h"
@@ -74,13 +75,28 @@ void InstallPackages(const std::vector<CPKPackage>& packages)
     thread_pool pool;
     const int processor_count = std::thread::hardware_concurrency();
     pool.start(processor_count);
+
+    std::mutex wait_install_mutex;
+    std::unordered_map<std::string, std::condition_variable> need_install_deps_conditions;
+    std::unordered_map<std::string, bool> need_install_deps_map_ready;
     for(const auto& package : response_json["packages"])
     {
-        pool.queue([package, cpkDir, processor_count](){
+        pool.queue([package, cpkDir, processor_count, &wait_install_mutex, &need_install_deps_conditions, &need_install_deps_map_ready]() 
+        {
             std::string package_name = package["package"];
             std::string package_url = package["url"];
             std::string build_type = package["buildType"];
             std::string package_language = package["language"];
+            std::vector<std::string> dependencies = package["dependencies"];
+
+            DX_DEBUG("pkg", "wait deps install for package %s size=%d", package_name.c_str(), dependencies.size());
+            for(const auto& dep : dependencies)
+            {
+                std::unique_lock lock_install(wait_install_mutex);
+                need_install_deps_conditions[package_name].wait(lock_install, [&need_install_deps_map_ready, package_name]{
+                    return need_install_deps_map_ready[package_name];
+                });
+            }
 
             DX_DEBUG("pkg", "install package %s", package_name.c_str());
             DX_DEBUG("install", "download package %s", package_url.c_str());
@@ -109,6 +125,10 @@ void InstallPackages(const std::vector<CPKPackage>& packages)
                 default:
                     DX_ERROR("install", "no build type assotiated founded");
             }
+            wait_install_mutex.lock();
+            need_install_deps_map_ready[package_name] = true;
+            need_install_deps_conditions[package_name].notify_all();
+            wait_install_mutex.unlock();
         });
     }
     pool.stop();
