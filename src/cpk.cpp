@@ -4,6 +4,7 @@
 #include <algorithm>
 #include <json.hpp>
 #include <vector>
+#include <fstream>
 
 #include "cpk_structs.h"
 #include "download.h"
@@ -87,15 +88,18 @@ void InstallPackages(const std::vector<CPKPackage>& packages)
             std::string package_url = package["url"];
             std::string build_type = package["buildType"];
             std::string package_language = package["language"];
-            std::vector<std::string> dependencies = package["dependencies"];
 
-            DX_DEBUG("pkg", "wait deps install for package %s size=%d", package_name.c_str(), dependencies.size());
-            for(const auto& dep : dependencies)
+            DX_DEBUG("pkg", "wait deps install for package %s", package_name.c_str());
+            if (package.contains("dependencies"))
             {
-                std::unique_lock lock_install(wait_install_mutex);
-                need_install_deps_conditions[package_name].wait(lock_install, [&need_install_deps_map_ready, package_name]{
-                    return need_install_deps_map_ready[package_name];
-                });
+                for(const auto& dep : package["dependencies"].items())
+                {
+                    DX_DEBUG("pkg", "dep %s", dep.key().c_str());
+                    std::unique_lock lock_install(wait_install_mutex);
+                    need_install_deps_conditions[dep.key()].wait(lock_install, [&need_install_deps_map_ready, &dep]{
+                        return need_install_deps_map_ready[dep.key()];
+                    });
+                }
             }
 
             DX_DEBUG("pkg", "install package %s", package_name.c_str());
@@ -141,26 +145,43 @@ void InstallPackages(const std::vector<CPKPackage>& packages)
 
 void PublishPacket()
 {  
-    std::string packageName = Cwd();
-    if (packageName.length() == 0) {
-        DX_ERROR("publish", "no package name");
-        return;
+    std::string packageName;
+    nlohmann::json cpkConfig;
+    if (IsExists("cpk.json"))
+    {
+        DX_DEBUG("publish", "found cpk.json");
+        std::ifstream ifs("cpk.json");
+        cpkConfig = nlohmann::json::parse(ifs);
+        packageName = cpkConfig["name"];
     }
-    std::replace( packageName.begin(), packageName.end(), '\\', '/');
-    std::size_t foundLastPathSep = packageName.find_last_of("/\\");
-    if (foundLastPathSep >= 0 && foundLastPathSep < packageName.length()) {
-        packageName = packageName.substr(foundLastPathSep+1);
+    else
+    {
+        DX_DEBUG("publish", "cpk.json not founded");
+        packageName = Cwd();
         if (packageName.length() == 0) {
             DX_ERROR("publish", "no package name");
             return;
         }
-    } else {
-        DX_ERROR("publish", "no package name");
-        return;
+        std::replace( packageName.begin(), packageName.end(), '\\', '/');
+        std::size_t foundLastPathSep = packageName.find_last_of("/\\");
+        if (foundLastPathSep >= 0 && foundLastPathSep < packageName.length()) {
+            packageName = packageName.substr(foundLastPathSep+1);
+            if (packageName.length() == 0) {
+                DX_ERROR("publish", "no package name");
+                return;
+            }
+        } else {
+            DX_ERROR("publish", "no package name");
+            return;
+        }
     }
 
     nlohmann::json json;
     json["package"] = packageName;
+    if (!cpkConfig.is_null() && cpkConfig.contains("dependencies"))
+    {
+        json["dependencies"] = cpkConfig["dependencies"];
+    }
     json["language"] = "cpp";
     if (IsExists("CMakeLists.txt")) {
         json["buildType"] = "cmake";
