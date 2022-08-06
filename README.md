@@ -10,12 +10,6 @@ Main purpose of this package manager to have simple C/C++ manager with possibili
 
 Cross-platform. Implemented on C/C++ and provided for Linux, Mac OS, Windows arch.
 
-## Package philosophy / license
-
-CPK package manager created to distribute any kind of open source packages, but we want to *guarantee that any package can be used in commertial software* in any form of use. So if anyone who wanna install package will be ensure that he allowed to use it and modify without any restrictions even for commertial products. So we recommend to stick to MIT, BSD or other commertial free licenses. 
-
-*Everyone can publish their own package.*
-
 ## Usage
 
 ### Installing packages
@@ -44,6 +38,27 @@ Update all packages:
 ```sh
 cpk update
 ```
+
+## Publish own package
+
+CPK package manager created to distribute any kind of open source packages, but we want to *guarantee that any package can be used in commertial software* in any form of use. So we recomend to use licenses like BSD or MIT if it possible.
+
+to publish your package you can create *cpk.json* with following very basic config with package name and list of dependencies:
+```json
+{
+	"name": "example",
+	"dependencies": {
+		"zlib": ""
+	}
+}
+```
+
+and use
+
+```sh
+cpk publish
+```
+command to publish you own package
 
 ## Available commands
 
