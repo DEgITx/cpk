@@ -176,6 +176,7 @@ app.post('/install', async function (req, res) {
     }
 
     const packagesMap = {}
+    const packagesDepsCount = {}
     const recursiveInstall = async (packagesObject) => {
         let packageNames = Object.keys(packagesObject);
         packageNames = packageNames.filter(name => {
@@ -205,6 +206,13 @@ app.post('/install', async function (req, res) {
             packagesMap[`${package.package}:${package.version}`] = package;
             if (package.dependencies && Object.keys(package.dependencies).length > 0) {
                 await recursiveInstall(package.dependencies);
+                for (const dep in package.dependencies)
+                {
+                    if (!packagesDepsCount[dep]) {
+                        packagesDepsCount[dep] = 0;
+                    }
+                    packagesDepsCount[dep]++;
+                }
             }
             return package;
         }));
@@ -225,7 +233,12 @@ app.post('/install', async function (req, res) {
     if (!packages || packages.length == 0)
         return;
     packages = packages.filter(name => name.includes(':')).map(name => packagesMap[name]);
-
+    packages.sort((a, b) => {
+        const valA = packagesDepsCount[a.package] || -1;
+        const valB = packagesDepsCount[b.package] || -1;
+        console.log(valA, valB)
+        return valB - valA;
+    })
     logT("install", packages);
 
     const packagesToInstall = []
