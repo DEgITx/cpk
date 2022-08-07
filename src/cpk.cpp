@@ -117,7 +117,6 @@ void InstallPackages(const std::vector<CPKPackage>& packages)
                 case CMAKE:
                     {
                         DX_DEBUG("install", "build package %s with cmake", package_name.c_str());
-                        ChDir(packageDir);
                         std::string buildDir = packageDir + "/build";
                         MkDir(buildDir);
                         DX_DEBUG("install", "prepare cmake build");
@@ -126,9 +125,9 @@ void InstallPackages(const std::vector<CPKPackage>& packages)
 #else
                         std::string cmake_build_type = "";
 #endif
-                        EXE("cmake -B \"build\" " + cmake_build_type + " -DCMAKE_BUILD_TYPE=RelWithDebInfo");
+                        EXE("cd \"" + packageDir + "\" && cmake -B \"build\" " + cmake_build_type + " -DCMAKE_BUILD_TYPE=RelWithDebInfo");
                         DX_DEBUG("install", "build");
-                        EXE("cmake --build \"build\" -j" + std::to_string(processor_count));
+                        EXE("cd \"" + packageDir + "\" && cmake --build \"build\" -j" + std::to_string(processor_count));
                     }
                     break;
                 default:
