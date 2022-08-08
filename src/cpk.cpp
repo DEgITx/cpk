@@ -89,6 +89,23 @@ void InstallPackages(const std::vector<CPKPackage>& packages)
             std::string build_type = package["buildType"];
             std::string package_language = package["language"];
 
+            nlohmann::json installedFileSave;
+            if (IsExists(cpkDir + "/packages.json"))
+            {
+                std::ifstream ifs(cpkDir + "/packages.json");
+                installedFileSave = nlohmann::json::parse(ifs);
+            }
+            else
+            {
+                installedFileSave["packages"] = {};
+            }
+
+            if (installedFileSave["packages"].contains(package_name))
+            {
+                DX_INFO("install", "%s package installed. Skip.", package_name.c_str());
+                return;
+            }
+
             DX_DEBUG("pkg", "wait deps install for package %s", package_name.c_str());
             if (package.contains("dependencies"))
             {
@@ -134,7 +151,23 @@ void InstallPackages(const std::vector<CPKPackage>& packages)
                     DX_ERROR("install", "no build type assotiated founded");
             }
             wait_install_mutex.lock();
+
             need_install_deps_map_ready[package_name] = true;
+
+            if (IsExists(cpkDir + "/packages.json"))
+            {
+                std::ifstream ifs(cpkDir + "/packages.json");
+                installedFileSave = nlohmann::json::parse(ifs);
+            }
+            else
+            {
+                installedFileSave["packages"] = {};
+            }
+            installedFileSave["packages"][package_name] = package;
+            std::ofstream installedFile(cpkDir + "/packages.json");
+            installedFile << std::setw(4) << installedFileSave << std::endl;
+            DX_DEBUG("install", "written package.json");
+
             wait_install_mutex.unlock();
             need_install_deps_conditions[package_name].notify_all();
         });
