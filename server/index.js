@@ -3,6 +3,7 @@ const app = express();
 const server = require('http').Server(app);
 const fs = require('fs');
 const path = require('path');
+const template = require('lodash.template');
 require('tagslog')();
 let redis;
 global.PRODUCTION = (process.env.NODE_ENV == 'production');
@@ -19,11 +20,22 @@ app.use(express.raw({
     type: 'application/zip'
 }));
 
+app.get('/', async function (req, res) {
+    const packages = await redis.values("cpk:packages:*");
+    res.send(render('index', {
+        packages : packages || []
+    }))
+});
+
 const packages = {};
 const OUT_DIR = path.resolve(__dirname + "/../public") + "/";
 const PACKAGES_DIR = OUT_DIR + 'packages/'
 logT("core", `public path: ${OUT_DIR}`);
 app.use(express.static(OUT_DIR));
+
+function render(view, ctx = {}) {
+    return template(fs.readFileSync(OUT_DIR + `/${view}.html`))(ctx)
+}
 
 function isNumeric(str) {
     if (typeof str != "string") return false // we only process strings!  
