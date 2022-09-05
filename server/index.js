@@ -28,10 +28,12 @@ app.get('/', async function (req, res) {
 });
 
 const packages = {};
+const ROOT_DIRECTORY = path.resolve(__dirname + '/..') + '/';
 const OUT_DIR = path.resolve(__dirname + "/../public") + "/";
 const PACKAGES_DIR = OUT_DIR + 'packages/'
 logT("core", `public path: ${OUT_DIR}`);
 app.use(express.static(OUT_DIR));
+app.use('/resources', express.static(ROOT_DIRECTORY + 'resources'));
 
 function render(view, ctx = {}) {
     return template(fs.readFileSync(OUT_DIR + `/${view}.html`))(ctx)
