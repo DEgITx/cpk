@@ -167,6 +167,8 @@ void InstallPackages(const std::vector<CPKPackage>& packages)
             std::ofstream installedFile(cpkDir + "/packages.json");
             installedFile << std::setw(4) << installedFileSave << std::endl;
             DX_DEBUG("install", "written package.json");
+            SendPostRequest(REMOTE_BACKEND_URL "/installed", "{\"package\": \"" + package_name + "\", \"success\": true}");
+            DX_DEBUG("install", "post statistic after installation");
 
             wait_install_mutex.unlock();
             need_install_deps_conditions[package_name].notify_all();

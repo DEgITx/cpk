@@ -142,6 +142,7 @@ app.post('/publish', async function (req, res) {
             }
             logT('version', 'change version from', oldVersion, 'to', package.version);
         }
+        package.installed = pkgInfo?.installed || 0;
 
         logT('zip', 'archive', package);
         if (!fs.existsSync(PACKAGES_DIR + package.package)){
@@ -277,4 +278,20 @@ app.post('/packages', async function (req, res) {
     res.send({
         packages,
     })
+});
+
+app.post('/installed', async function (req, res) {
+    const ip = req.headers['x-forwarded-for'] || req.socket.remoteAddress 
+    const request = req.body;
+
+    if (request?.package && request.success) {
+        const package = await redis.get(`cpk:packages:${request.package}`);
+        if (typeof package?.installed != 'undefined') {
+            package.installed++;
+            logT('installed', 'installed', package.package, 'times', package.installed);
+            await redis.set(`cpk:packages:${package.package}`, package);
+        }
+    }
+
+    res.send({success: true})
 });
