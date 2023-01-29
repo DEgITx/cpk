@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="UTF-8" />
+	<meta name="viewport" content="width=device-width,initial-scale=1" />
+	<meta name="mobile-web-app-capable" content="yes" />
+
+	<!-- Title -->
+	<title>CPK Package Manager</title>
+	<meta name="description"
+		content="CPK Package Manager packages" />
+	<meta name="keywords"
+		content="cpk, c++, packages, manager, c, rust, npm, pip" />
+
+	<style>
+		.logo {
+			text-align: center;
+		}
+	</style>
+	
+</head>
+
+<body id="head">
+	<nav>
+		<a href="/downloads">Downloads</a>
+	</nav>
+	<div class="logo"><a href="/"><img src="/resources/cpk.png" /></a></div>
+	<%
+		packages.forEach(package => {
+	%>
+	${package.package}
+	<%
+		});
+	%>
+</body>
+
+</html>
