@@ -6,11 +6,11 @@ namespace cpk
 {
 
 #ifdef CPK_RELEASE
-#define REMOTE_BACKEND_URL "http://cpkpkg.com:9988"
+#define REMOTE_BACKEND_URL "https://cpkpkg.com"
 #define REMOTE_TOOLS_URL REMOTE_BACKEND_URL
 #else
 #define REMOTE_BACKEND_URL "http://127.0.0.1:9988"
-#define REMOTE_TOOLS_URL "http://cpkpkg.com:9988"
+#define REMOTE_TOOLS_URL "https://cpkpkg.com"
 #endif
 
 size_t FileSize(const std::string& filename);
