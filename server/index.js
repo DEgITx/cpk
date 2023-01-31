@@ -4,6 +4,7 @@ const server = require('http').Server(app);
 const fs = require('fs');
 const path = require('path');
 const template = require('lodash.template');
+const AdmZip = require("adm-zip");
 require('tagslog')();
 let redis;
 global.PRODUCTION = (process.env.NODE_ENV == 'production');
@@ -154,7 +155,20 @@ app.post('/publish', async function (req, res) {
         fs.writeFileSync(PACKAGES_DIR + package.package + "/" + `package_${package.version}.zip`, req.body);
         logT('zip', 'archive', `package_${package.version}.zip`, 'saved for version', package.version);
 
+        const {size: fileSize} = fs.statSync(PACKAGES_DIR + package.package + "/" + 'package.zip');
+
+        const zip = new AdmZip(PACKAGES_DIR + package.package + "/" + 'package.zip');
+        const zipEntries = zip.getEntries();
+        try {
+            zip.extractEntryTo(/*entry name*/ "README.md", /*target path*/ PACKAGES_DIR + package.package, /*maintainEntryPath*/ false, /*overwrite*/ true);
+            logT('package', 'README.md exists, extract');
+        } catch(err) {
+            logT('package', 'no README.md');
+        }
+        package.entries = zipEntries.length;
         package.isLastVersion = true;
+        package.archiveSize = fileSize;
+        package.publishDate = Date.now();
         if (pkgInfo) {
             pkgInfo.isLastVersion = false;
             await redis.set(`cpk:archive:${package.package}:${oldVersion}`, pkgInfo);
