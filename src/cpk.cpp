@@ -336,7 +336,7 @@ int cpk_main(int argc, char *argv[]) {
         return 0;
     }
 
-    char version[] = GIT_VERSION " (" GIT_DESCRIBE ")";
+    char version[] = GIT_DESCRIBE;
     char revision[] = "r" GIT_REVISION;
 
     if (cmdOptionExists(argv, argv+argc, "--version") || cmdOptionExists(argv, argv+argc, "-v")) {
@@ -344,7 +344,7 @@ int cpk_main(int argc, char *argv[]) {
         return 0;
     }
 
-    DX_DEBUG("cpk", "v%s %s [os: %s %s]", version, revision, cpk::GetOSType().c_str(), cpk::GetOSArch().c_str());
+    DX_DEBUG("cpk", "%s %s [os: %s %s]", version, revision, cpk::GetOSType().c_str(), cpk::GetOSArch().c_str());
 
     if(argc > 2) {
         if (strcmp(argv[1], "install") == 0) {
