@@ -2,4 +2,4 @@ build/
 *.dll
 *.exe
 server/node_modules/
-
+src/version.h

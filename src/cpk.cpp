@@ -14,6 +14,7 @@
 #include "degxlog.h"
 #include "os.h"
 #include "tools.h"
+#include "version.h"
 
 namespace cpk
 {
@@ -325,6 +326,7 @@ void printHelp()
     printf("  install package1 [package2[@version]] - install package1, package2 and other\n");
     printf("  publish - publish current package\n");
     printf("  packages - list avaiable packages\n");
+    printf("  --version / -v - version of CPK\n");
 }
 
 int cpk_main(int argc, char *argv[]) {
@@ -334,7 +336,15 @@ int cpk_main(int argc, char *argv[]) {
         return 0;
     }
 
-    DX_DEBUG("arch", "OS: %s %s", cpk::GetOSType().c_str(), cpk::GetOSArch().c_str());
+    char version[] = GIT_VERSION " (" GIT_DESCRIBE ")";
+    char revision[] = "r" GIT_REVISION;
+
+    if (cmdOptionExists(argv, argv+argc, "--version") || cmdOptionExists(argv, argv+argc, "-v")) {
+        printf("%s", version);
+        return 0;
+    }
+
+    DX_DEBUG("cpk", "v%s %s [os: %s %s]", version, revision, cpk::GetOSType().c_str(), cpk::GetOSArch().c_str());
 
     if(argc > 2) {
         if (strcmp(argv[1], "install") == 0) {

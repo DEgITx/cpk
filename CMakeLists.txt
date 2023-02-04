@@ -1,6 +1,24 @@
 cmake_minimum_required(VERSION 3.10)
 project(cpk VERSION 1.0)
 
+execute_process(COMMAND git log --pretty=format:cmake
+		WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
+		OUTPUT_VARIABLE GIT_REVISION
+		OUTPUT_STRIP_TRAILING_WHITESPACE
+		)
+string(REPLACE "\n" ";" GIT_REVISION_LIST ${GIT_REVISION})
+list(LENGTH GIT_REVISION_LIST GIT_REVISION)
+MATH(EXPR GIT_REVISION "${GIT_REVISION} - 1" )
+execute_process(COMMAND git describe
+		WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
+		OUTPUT_VARIABLE GIT_DESCRIBE 
+		OUTPUT_STRIP_TRAILING_WHITESPACE
+		)
+
+message("Git revision detected: ${GIT_REVISION}")
+message("Git describe: ${GIT_DESCRIBE}")
+configure_file(${CMAKE_SOURCE_DIR}/version.h.in ${CMAKE_SOURCE_DIR}/src/version.h)
+
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 
