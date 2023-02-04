@@ -43,8 +43,8 @@
 	<%
 		if (typeof package != 'undefined') {
 	%>
-		<div class="packageInfo flex">
-				<div class="installCommand">cpk install ${package.package}</div>
+		<div class="packageInfo row">
+			<div class="leftPanel">
 				<%
 					if (typeof readme != 'undefined' && readme) {
 				%>
@@ -52,6 +52,11 @@
 				<%
 					};
 				%>
+			</div>
+			<div class="rightPanel column">
+				<div class="w100p">Install:</div>
+				<div class="installCommand">cpk install ${package.package}</div>
+			</div>
 		</div>
 	<%
 		}

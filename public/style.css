@@ -56,4 +56,20 @@ a:focus {
   border: 1px #cccccc solid;
   border-radius: 5px;
   padding: 10px 10px 10px 35px;
+  box-sizing: border-box;
+  width: 100%;
+}
+
+.packageInfo img {
+  max-width: 100%;
+}
+
+.packageInfo .rightPanel {
+  width: 300px;
+  padding: 0px 20px;
+}
+
+.packageInfo .leftPanel {
+  flex: 1;
+  padding: 0px 20px;
 }
