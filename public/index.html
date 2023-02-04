@@ -13,12 +13,12 @@
 	<meta name="keywords"
 		content="cpk, c++, packages, manager, c, rust, npm, pip" />
 
-	<style>
-		.logo {
-			text-align: center;
-		}
-	</style>
-	
+	<link rel="preconnect" href="https://fonts.googleapis.com" />
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin  />
+	<link href="https://fonts.googleapis.com/css2?family=Source+Sans+Pro:wght@200&display=swap" rel="stylesheet" />
+
+	<link href="/flex.css" rel="stylesheet" />
+	<link href="/style.css" rel="stylesheet" />
 </head>
 
 <body id="head">
@@ -27,11 +27,34 @@
 	</nav>
 	<div class="logo"><a href="/"><img src="/resources/cpk.png" /></a></div>
 	<%
-		packages.forEach(package => {
+		typeof packages != 'undefined' && packages.forEach(package => {
 	%>
-	${package.package}
+		<div class="package flex">
+			<h3 class="name"><a href="/${package.package}">${package.package}</a></h3>
+			<p class="description">${package.description || '(no description)'}</p>
+			<div class="row">
+				<p class="version">v${package.version}</p> 
+				<p class="publishDate">(published ${package.publishDate})</p>
+			</div>
+		</div>
 	<%
 		});
+	%>
+	<%
+		if (typeof package != 'undefined') {
+	%>
+		<div class="packageInfo flex">
+				<div class="installCommand">cpk install ${package.package}</div>
+				<%
+					if (typeof readme != 'undefined' && readme) {
+				%>
+					${readme}
+				<%
+					};
+				%>
+		</div>
+	<%
+		}
 	%>
 </body>
 

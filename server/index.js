@@ -2,9 +2,14 @@ const express = require('express');
 const app = express();
 const server = require('http').Server(app);
 const fs = require('fs');
+const {readFile} = require('fs/promises');
 const path = require('path');
 const template = require('lodash.template');
 const AdmZip = require("adm-zip");
+const moment = require('moment');
+const createDOMPurify = require('dompurify');
+const { JSDOM } = require('jsdom');
+const marked = require('marked');
 require('tagslog')();
 let redis;
 global.PRODUCTION = (process.env.NODE_ENV == 'production');
@@ -21,10 +26,20 @@ app.use(express.raw({
     type: 'application/zip'
 }));
 
+const parsePackages = (packages) => {
+    if (!packages)
+        return;
+    
+    return packages.map (p => {
+        p.publishDate = moment(p.publishDate).format('MMMM Do YYYY, h:mm a');
+        return p;
+    })
+}
+
 app.get('/', async function (req, res) {
     const packages = await redis.values("cpk:packages:*");
     res.send(render('index', {
-        packages : packages || []
+        packages : parsePackages(packages) || []
     }))
 });
 
@@ -309,3 +324,24 @@ app.post('/installed', async function (req, res) {
 
     res.send({success: true})
 });
+
+const wind = new JSDOM('').window;
+const DOMPurify = createDOMPurify(wind);
+app.get('/:package', async (req, res) => {
+    // get the link from the request parameters
+    const packageName = req.params.package;
+    const package = await redis.get(`cpk:packages:${packageName}`);
+    if (package) {
+        let readmeFile = await readFile(PACKAGES_DIR + package.package + "/README.md", 'utf8');
+        if (readmeFile) {
+            readmeFile = DOMPurify.sanitize(marked.parse(readmeFile.toString()));
+        }
+        res.send(render('index', {
+            package : package,
+            readme: readmeFile,
+        }));
+        return;
+    }
+    res.status(404).send('Link not found');
+  });
+  
