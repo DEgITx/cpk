@@ -1,0 +1,59 @@
+/* Tiny reset thingy */
+body,
+html {
+  margin: 0;
+  padding: 0;
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: 'Source Sans Pro', sans-serif;
+}
+
+/* div {
+  color: white;
+} */
+
+ul {
+  padding: 0;
+  list-style-type: none;
+}
+
+a,
+a:hover,
+a:focus {
+  -webkit-transition-duration: 500ms;
+  transition-duration: 500ms;
+  text-decoration: none;
+  color: black;
+}
+
+.w100p {
+  width: 100%;
+}
+
+.centerc {
+  text-align: center;
+}
+
+.package {
+  padding: 0px 30px;
+}
+
+.package h3 {
+  font-size: 1.25rem;
+}
+
+.package .version {
+  padding: 0px 6px 0px 0px;
+}
+
+.package .description {
+  margin: 2px 0px;
+}
+
+.installCommand {
+  border: 1px #cccccc solid;
+  border-radius: 5px;
+  padding: 10px 10px 10px 35px;
+}
