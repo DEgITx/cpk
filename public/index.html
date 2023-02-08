@@ -24,8 +24,14 @@
 <body id="head">
 	<nav>
 		<a href="/downloads">Downloads</a>
+		
 	</nav>
-	<div class="logo"><a href="/"><img src="/resources/cpk.png" /></a></div>
+	<div class="w100p searchBox row inline split">
+		<div class="logo"><a href="/"><img src="/resources/cpk.png" /></a></div>
+		<div class="search">
+			<input type="search" name="searchInput" placeholder="Search cpk package" autocomplete="off" value="" element="input">
+		</div>
+	</div>
 	<%
 		typeof packages != 'undefined' && packages.forEach(package => {
 	%>
@@ -44,7 +50,9 @@
 		if (typeof package != 'undefined') {
 	%>
 		<div class="packageInfo row">
-			<div class="leftPanel">
+			<div class="leftPanel column">
+				<div class="packageName">${package.package}</div>
+				<div class="details split"><span>${package.version}</span><span>${package.publishDate}</span></div>
 				<%
 					if (typeof readme != 'undefined' && readme) {
 				%>
@@ -55,7 +63,33 @@
 			</div>
 			<div class="rightPanel column">
 				<div class="w100p">Install:</div>
-				<div class="installCommand">cpk install ${package.package}</div>
+				<div class="installCommand split">cpk install ${package.package}</div>
+				<div class="row w100p split">
+					<div class="column detail cell">
+						<div class="name">version</div>
+						<div class="value">${package.version}</div>
+					</div>
+					<div class="column detail cell">
+						<div class="name">downloaded times:</div>
+						<div class="value">${package.installed}</div>
+					</div>
+				</div>
+				<div class="row w100p split">
+					<div class="column detail cell">
+						<div class="name">package languange:</div>
+						<div class="value">${package.language}</div>
+					</div>
+					<div class="column detail cell">
+						<div class="name">last published:</div>
+						<div class="value">${package.publishDate}</div>
+					</div>
+				</div>
+				<div class="row w100p">
+					<div class="column detail cell">
+						<div class="name">files:</div>
+						<div class="value">${package.entries}</div>
+					</div>
+				</div>
 			</div>
 		</div>
 	<%

@@ -332,9 +332,14 @@ app.get('/:package', async (req, res) => {
     const packageName = req.params.package;
     const package = await redis.get(`cpk:packages:${packageName}`);
     if (package) {
-        let readmeFile = await readFile(PACKAGES_DIR + package.package + "/README.md", 'utf8');
-        if (readmeFile) {
-            readmeFile = DOMPurify.sanitize(marked.parse(readmeFile.toString()));
+        let readmeFile;
+        try {
+            readmeFile = await readFile(PACKAGES_DIR + package.package + "/README.md", 'utf8');
+            if (readmeFile) {
+                readmeFile = DOMPurify.sanitize(marked.parse(readmeFile.toString()));
+            }
+        } catch(err) {
+            logT('readme', 'cant readme README.md'); 
         }
         res.send(render('index', {
             package : package,

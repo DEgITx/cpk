@@ -176,3 +176,7 @@
 	flex-shrink: 0;
 	flex-grow: 0;
 }
+
+.cell {
+	flex: 1;
+}

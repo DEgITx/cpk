@@ -58,6 +58,7 @@ a:focus {
   padding: 10px 10px 10px 35px;
   box-sizing: border-box;
   width: 100%;
+  margin: 10px 0px;
 }
 
 .packageInfo img {
@@ -65,11 +66,78 @@ a:focus {
 }
 
 .packageInfo .rightPanel {
-  width: 300px;
+  width: 33%;
+  max-width: 450px;
+  min-width: 330px;
   padding: 0px 20px;
 }
 
 .packageInfo .leftPanel {
   flex: 1;
   padding: 0px 20px;
+}
+
+.detail {
+  padding: 10px;
+}
+
+.rightPanel .name {
+  color: #777777;
+}
+
+.rightPanel .value {
+  font-size: 1.25rem;
+  font-weight: bold;
+}
+
+.leftPanel .packageName {
+  font-size: 1.5rem;
+  font-weight: bold;
+  margin-left: 22px;
+}
+
+.leftPanel .details {
+  font-size: 1.1rem;
+  margin-left: 22px;
+  padding-bottom: 15px;
+  margin-bottom: 20px;
+  width: 100%;
+}
+
+.leftPanel .details span {
+  padding-right: 12px;
+}
+
+.split {
+  border-color: rgba(0,0,0,.1);
+  border-bottom-style: solid;
+  border-bottom-width: 1px;
+}
+
+.searchBox {
+  padding: 13px 0px;
+  margin-bottom: 12px;
+}
+
+.logo img {
+  width: 180px;
+}
+
+.logo {
+  margin-right: 10px;
+}
+
+.search {
+  border: 1px solid #dedede;
+  padding: 10px 10px;
+  background: #f2f2f2;
+  width: 60%;
+}
+
+.search input {
+  background: none;
+  border: none;
+  outline: unset;
+  width: 100%;
+  height: 30px;
 }
