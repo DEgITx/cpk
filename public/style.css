@@ -165,3 +165,15 @@ header {
   border-bottom: 1px solid #d2d2d2;
   margin-bottom: 30px;
 }
+
+nav {
+  padding: 10px 30px 12px;
+}
+
+nav a {
+  padding: 15px 13px;
+
+  color: #000;
+  letter-spacing: 0.012em;
+  font-weight: bold;
+}
