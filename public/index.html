@@ -22,16 +22,21 @@
 </head>
 
 <body id="head">
-	<nav>
-		<a href="/downloads">Downloads</a>
-		
-	</nav>
-	<div class="w100p searchBox row inline split">
-		<div class="logo"><a href="/"><img src="/resources/cpk.png" /></a></div>
-		<div class="search">
-			<input type="search" name="searchInput" placeholder="Search cpk package" autocomplete="off" value="" element="input">
+	<header>
+		<nav>
+			<a href="/downloads">Downloads</a>
+			
+		</nav>
+		<div class="w100p searchBox row inline">
+			<div class="logo"><a href="/"><img src="/resources/cpk.png" /></a></div>
+			<div class="searchBar row w100p">
+				<div class="search">
+					<input type="search" name="searchInput" placeholder="Search cpk package" autocomplete="off" value="" element="input" />
+				</div>
+				<button type="submit" class="searchButton" title="">Search</button>
+			</div>
 		</div>
-	</div>
+	</header>
 	<%
 		typeof packages != 'undefined' && packages.forEach(package => {
 	%>
