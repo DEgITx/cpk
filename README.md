@@ -10,6 +10,8 @@ Main purpose of this package manager to have simple C/C++ manager with possibili
 
 Cross-platform. Implemented on C/C++ and provided for Linux, Mac OS, Windows arch.
 
+<p align="center">[https://cpkpkg.com](https://cpkpkg.com)</p>
+
 ## Usage
 
 ### Installing packages
@@ -46,7 +48,7 @@ CPK package manager created to distribute any kind of open source packages, but 
 to publish your package you can create *cpk.json* with following very basic config with package name and list of dependencies:
 ```json
 {
-	"name": "example",
+	"package": "example",
 	"dependencies": {
 		"zlib": ""
 	}
@@ -59,6 +61,8 @@ and use
 cpk publish
 ```
 command to publish you own package
+
+[https://cpkpkg.com/YOUR_PACKAGE](https://cpkpkg.com/zlib) - After publishing the package, it will displayed on reposity site.
 
 ## Available commands
 
