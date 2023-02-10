@@ -166,7 +166,8 @@ std::string ConsoleInput(const std::string& inputText, const std::string& defaul
    std::string ret;
    if ((strlen(str) == 0 || strcmp(str, "\n") == 0 || strcmp(str, "\r\n") == 0) && defaultText.length() > 0)
         ret = defaultText;
-   ret = std::string(str);
+   else
+        ret = std::string(str);
    DX_DEBUG("input", "%s = %s", inputText.c_str(), ret.c_str());
    return ret;
 }

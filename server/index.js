@@ -10,6 +10,7 @@ const moment = require('moment');
 const createDOMPurify = require('dompurify');
 const { JSDOM } = require('jsdom');
 const marked = require('marked');
+const Ajv = require("ajv")
 require('tagslog')();
 let redis;
 global.PRODUCTION = (process.env.NODE_ENV == 'production');
@@ -71,6 +72,28 @@ function changeVersion(version) {
     return versionArr.join('.');
 }
 
+const ajv = new Ajv();
+require('ajv-formats')(ajv);
+ajv.addFormat('packageName', (data) => ( !data.includes('/') && !data.includes('\\') ) );
+const packageShcema = {
+    type: "object",
+    properties: {
+        package: {type: "string", format: "packageName"},
+        language: {type: "string"},
+        buildType: {type: "string"},
+        dependencies: {type: "object"},
+        version: {type: "string"},
+        description: {type: "string"},
+        email: { type: 'string', format: 'email'},
+        author: {type: "string"},
+        description: {type: "string"},
+    },
+    required: ["package", "language", "buildType"],
+    additionalProperties: false,
+}
+
+const packageValidate = ajv.compile(packageShcema);
+
 app.post('/publish', async function (req, res) {
     const ip = req.headers['x-forwarded-for'] || req.socket.remoteAddress 
 
@@ -86,32 +109,15 @@ app.post('/publish', async function (req, res) {
         }
         const package = packages[ip];
         delete packages[ip];
-        if (!package.package || package.package.includes('/') || package.package.includes('\\')) {
-            logW('package', 'no package name');
+
+        if (!packageValidate(packageValidate))
+        {
+            const errorString = ajv.errorsText(packageValidate.errors)
+            logT('package', 'cant parse package', errorString);
             res.send({
                 error: true,
                 errorCode: 2,
-                errorDesc: `No package name`,
-            });
-            return;
-        }
-
-        if(!package.language || package.language.length == 0) {
-            logW('package', 'no language for package');
-            res.send({
-                error: true,
-                errorCode: 6,
-                errorDesc: `No language for package`,
-            });
-            return;
-        }
-
-        if(!package.buildType || package.buildType.length == 0) {
-            logW('package', 'no buildType');
-            res.send({
-                error: true,
-                errorCode: 7,
-                errorDesc: `No buildType`,
+                errorDesc: errorString,
             });
             return;
         }
