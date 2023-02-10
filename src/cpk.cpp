@@ -336,6 +336,10 @@ int cpk_main(int argc, char *argv[]) {
         return 0;
     }
 
+    if (cmdOptionExists(argv, argv+argc, "--release")) {
+        EnableRemoteBackend();
+    }
+
     char version[] = GIT_DESCRIBE;
     char revision[] = "r" GIT_REVISION;
 

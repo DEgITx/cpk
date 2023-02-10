@@ -7,12 +7,17 @@ namespace cpk
 
 #ifdef CPK_RELEASE
 #define REMOTE_BACKEND_URL "https://cpkpkg.com"
+#define REMOTE_BACKEND_RELEASE_URL REMOTE_BACKEND_URL
 #define REMOTE_TOOLS_URL REMOTE_BACKEND_URL
 #else
 #define REMOTE_BACKEND_URL "http://127.0.0.1:9988"
+#define REMOTE_BACKEND_RELEASE_URL "https://cpkpkg.com"
 #define REMOTE_TOOLS_URL "https://cpkpkg.com"
 #endif
 
+extern bool m_gIsReleaseBackend;
+std::string GetRemoteBackend();
+void EnableRemoteBackend();
 size_t FileSize(const std::string& filename);
 int MkDir(const std::string& path);
 int MkDirP(const std::string& path);

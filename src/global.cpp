@@ -10,6 +10,22 @@
 namespace cpk
 {
 
+bool m_gIsReleaseBackend = false;
+
+std::string GetRemoteBackend()
+{
+    if (m_gIsReleaseBackend)
+        return std::string(REMOTE_BACKEND_RELEASE_URL);
+    else
+        return std::string(REMOTE_BACKEND_URL);
+}
+
+void EnableRemoteBackend()
+{
+    DX_ERROR("dgx", "enabled remote backend");
+    m_gIsReleaseBackend = true;
+}
+
 size_t FileSize(const std::string& filename)
 {
     struct stat stat_buf;
