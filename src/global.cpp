@@ -153,4 +153,30 @@ void ChDir(const std::string& path)
     chdir(path.c_str());
 }
 
+std::string ConsoleInput(const std::string& inputText, const std::string& defaultText)
+{
+   char str[4096];
+   if (inputText.length() > 0) {
+        if (defaultText.length() == 0)
+            printf("%s: ", inputText.c_str());
+        else
+            printf("%s [%s]: ", inputText.c_str(), defaultText.c_str());
+   }
+   gets( str );
+   std::string ret;
+   if ((strlen(str) == 0 || strcmp(str, "\n") == 0 || strcmp(str, "\r\n") == 0) && defaultText.length() > 0)
+        ret = defaultText;
+   ret = std::string(str);
+   DX_DEBUG("input", "%s = %s", inputText.c_str(), ret.c_str());
+   return ret;
+}
+
+void WriteToFile(const std::string& file, const std::string& data)
+{
+   FILE *fp;
+   fp = fopen(file.c_str(), "w");
+   fprintf(fp, "%s", data.c_str());
+   fclose(fp);
+}
+
 }

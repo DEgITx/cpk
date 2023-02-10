@@ -182,12 +182,14 @@ void PublishPacket()
 {  
     std::string packageName;
     nlohmann::json cpkConfig;
+    bool cpkConfigExists = false;
     if (IsExists("cpk.json"))
     {
         DX_DEBUG("publish", "found cpk.json");
         std::ifstream ifs("cpk.json");
         cpkConfig = nlohmann::json::parse(ifs);
-        packageName = cpkConfig["name"];
+        packageName = cpkConfig["package"];
+        cpkConfigExists = true;
     }
     else
     {
@@ -220,6 +222,16 @@ void PublishPacket()
     json["language"] = "cpp";
     if (IsExists("CMakeLists.txt")) {
         json["buildType"] = "cmake";
+    }
+
+    // manual input
+    if (!cpkConfigExists)
+    {
+        json["package"] = ConsoleInput("package name ?", json["package"]);
+        json["description"] = ConsoleInput("description ?");
+        json["author"] = ConsoleInput("your name / nick ?");
+        json["email"] = ConsoleInput("your email ?");
+        json["version"] = ConsoleInput("version ?");
     }
 
     if (!json.contains("buildType"))
@@ -266,9 +278,14 @@ void PublishPacket()
         switch ((int)response_json["errorCode"]) {
             default:
                 std::string errorDesc = response_json["errorDesc"];
-                DX_ERROR("install", "error install: %s", errorDesc.c_str());
+                DX_ERROR("publish", "error publish: %s", errorDesc.c_str());
         }
         return;
+    }
+    else
+    {
+        DX_INFO("publish", "publish successfull");
+        WriteToFile("cpk.json", jsonRequest);
     }
 }
 

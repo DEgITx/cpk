@@ -30,5 +30,7 @@ std::vector<std::string> Split (std::string s, std::string delimiter);
 std::string Join(const std::vector<std::string> &lst, const std::string &delim);
 std::string Cwd();
 void ChDir(const std::string& path);
+std::string ConsoleInput(const std::string& inputText, const std::string& defaultText = std::string());
+void WriteToFile(const std::string& file, const std::string& data = std::string());
 
 }

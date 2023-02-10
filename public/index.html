@@ -16,6 +16,7 @@
 	<link rel="preconnect" href="https://fonts.googleapis.com" />
 	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin  />
 	<link href="https://fonts.googleapis.com/css2?family=Source+Sans+Pro:wght@200&display=swap" rel="stylesheet" />
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.3.0/css/all.min.css" />
 
 	<link href="/flex.css" rel="stylesheet" />
 	<link href="/style.css" rel="stylesheet" />
@@ -36,16 +37,22 @@
 				</div>
 				<button type="submit" class="searchButton" title="">Search</button>
 			</div>
+			<div class="row center">Need client ? download: </div>
+			<div class="row downloadLinks center">
+				<button class="downloadLink button"><i class="fab fa-windows"></i> Windows</button>
+				<button class="downloadLink button"><i class="fas fa-linux"></i> Linux</button>
+				<button class="downloadLink button"><i class="fas fa-apple"></i> MacOS</button>
+			</div>
 		</div>
 	</header>
 	<%
 		typeof packages != 'undefined' && packages.forEach(package => {
 	%>
-		<div class="package flex">
+		<div class="package flex split">
 			<h3 class="name"><a href="/${package.package}">${package.package}</a></h3>
 			<p class="description">${package.description || '(no description)'}</p>
 			<div class="row">
-				<p class="version">v${package.version}</p> 
+				<p class="version">${package.version}</p> 
 				<p class="publishDate">(published ${package.publishDate})</p>
 			</div>
 		</div>

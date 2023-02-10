@@ -156,6 +156,16 @@ a:focus {
   color: #fff;
 }
 
+.button {
+  background-color: #231f20;
+  font-weight: bold;
+  z-index: 1;
+  outline-offset: 3px;
+  letter-spacing: 0.3px;
+  font-size: .875rem;
+  color: #fff;
+}
+
 .searchBar .searchButton:hover, .shadow-hover {
   cursor: pointer;
 }
@@ -176,4 +186,9 @@ nav a {
   color: #000;
   letter-spacing: 0.012em;
   font-weight: bold;
+}
+
+.downloadLink {
+  padding: 10px 20px;
+  margin: 0px 3px;
 }
