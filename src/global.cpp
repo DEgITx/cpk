@@ -7,6 +7,8 @@
 #include <limits.h>
 #include <vector>
 #include <algorithm>
+#include <stdio.h>
+
 namespace cpk
 {
 
