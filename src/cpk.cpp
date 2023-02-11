@@ -213,12 +213,8 @@ void PublishPacket()
         }
     }
 
-    nlohmann::json json;
+    nlohmann::json json = cpkConfig;
     json["package"] = packageName;
-    if (!cpkConfig.is_null() && cpkConfig.contains("dependencies"))
-    {
-        json["dependencies"] = cpkConfig["dependencies"];
-    }
     json["language"] = "cpp";
     if (IsExists("CMakeLists.txt")) {
         json["buildType"] = "cmake";

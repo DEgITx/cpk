@@ -78,7 +78,7 @@ ajv.addFormat('packageName', (data) => ( !data.includes('/') && !data.includes('
 const packageShcema = {
     type: "object",
     properties: {
-        package: {type: "string", format: "packageName"},
+        package: {type: "string", format: "packageName", pattern: '^[a-z0-9\-]+$'},
         language: {type: "string"},
         buildType: {type: "string"},
         dependencies: {type: "object"},
@@ -148,37 +148,39 @@ app.post('/publish', async function (req, res) {
         }
 
         let oldVersion = pkgInfo?.version;
-        if (package.version) {
-            if (package.version === pkgInfo?.version) {
-                package.version = changeVersion(pkgInfo.version);
-                if (package.version == oldVersion) {
-                    res.send({
-                        error: true,
-                        errorCode: 5,
-                        errorDesc: `Can't change version for ${oldVersion} to ${package.version}`,
-                    });
-                    return;
-                }
-            } else {
-                logT('version', 'new version of package changed to:', package.version);
+
+        let maxTries = 100;
+        if (!pkgInfo?.version && !package.version) {
+            package.version = '0.1';
+            logT('version', 'set basic version', package.version);
+        }
+        if (pkgInfo?.version && !package.version) {
+            package.version = pkgInfo.version;
+        }
+        while (package.version === pkgInfo?.version || (await redis.get(`cpk:archive:${package.package}:${package.version}`)) )
+        {
+            let prevVersion = package.version;
+            package.version = changeVersion(package.version);
+            logT('version', `package ${package.package} with version ${prevVersion} exist, changing the version ${package.version}`);
+            if (package.version == prevVersion) {
+                res.send({
+                    error: true,
+                    errorCode: 5,
+                    errorDesc: `Can't change version for ${oldVersion} to ${package.version}`,
+                });
+                return;
             }
-        } else {
-            if (!pkgInfo?.version) {
-                package.version = '0.1';
-                logT('version', 'set basic version', package.version);
-            } else {
-                package.version = changeVersion(pkgInfo.version);
-                if (package.version == oldVersion) {
-                    res.send({
-                        error: true,
-                        errorCode: 5,
-                        errorDesc: `Can't change version for ${oldVersion} to ${package.version}`,
-                    });
-                    return;
-                }
-                logT('version', 'change version from', oldVersion, 'to', package.version);
+            if (maxTries-- <= 0) {
+                res.send({
+                    error: true,
+                    errorCode: 6,
+                    errorDesc: `Can't change version, max attempts`,
+                });
+                return;
             }
         }
+        logT('version', 'new version of package changed to:', package.version);
+
         package.installed = pkgInfo?.installed || 0;
 
         logT('zip', 'archive', package);
