@@ -110,10 +110,10 @@ app.post('/publish', async function (req, res) {
         const package = packages[ip];
         delete packages[ip];
 
-        if (!packageValidate(packageValidate))
+        if (!packageValidate(package))
         {
             const errorString = ajv.errorsText(packageValidate.errors)
-            logT('package', 'cant parse package', errorString);
+            logT('package', 'cant parse package:', errorString);
             res.send({
                 error: true,
                 errorCode: 2,
@@ -147,22 +147,37 @@ app.post('/publish', async function (req, res) {
             }
         }
 
-        let oldVersion;
-        if (!pkgInfo?.version) {
-            package.version = '0.1';
-            logT('version', 'set basic version', package.version);
-        } else {
-            oldVersion = pkgInfo.version;
-            package.version = changeVersion(pkgInfo.version);
-            if (package.version == oldVersion) {
-                res.send({
-                    error: true,
-                    errorCode: 5,
-                    errorDesc: `Can't change version for ${oldVersion} to ${package.version}`,
-                });
-                return;
+        let oldVersion = pkgInfo?.version;
+        if (package.version) {
+            if (package.version === pkgInfo?.version) {
+                package.version = changeVersion(pkgInfo.version);
+                if (package.version == oldVersion) {
+                    res.send({
+                        error: true,
+                        errorCode: 5,
+                        errorDesc: `Can't change version for ${oldVersion} to ${package.version}`,
+                    });
+                    return;
+                }
+            } else {
+                logT('version', 'new version of package changed to:', package.version);
             }
-            logT('version', 'change version from', oldVersion, 'to', package.version);
+        } else {
+            if (!pkgInfo?.version) {
+                package.version = '0.1';
+                logT('version', 'set basic version', package.version);
+            } else {
+                package.version = changeVersion(pkgInfo.version);
+                if (package.version == oldVersion) {
+                    res.send({
+                        error: true,
+                        errorCode: 5,
+                        errorDesc: `Can't change version for ${oldVersion} to ${package.version}`,
+                    });
+                    return;
+                }
+                logT('version', 'change version from', oldVersion, 'to', package.version);
+            }
         }
         package.installed = pkgInfo?.installed || 0;
 
