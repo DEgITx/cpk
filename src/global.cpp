@@ -8,6 +8,10 @@
 #include <vector>
 #include <algorithm>
 #include <stdio.h>
+#include <random>
+#ifdef CPK_OS_MACOS
+#include <pwd.h>
+#endif
 
 namespace cpk
 {
@@ -200,6 +204,56 @@ void WriteToFile(const std::string& file, const std::string& data)
    fp = fopen(file.c_str(), "w");
    fprintf(fp, "%s", data.c_str());
    fclose(fp);
+}
+
+std::string ReadFileString(const std::string& file)
+{
+   std::string result = "";
+   FILE *fp;
+   fp = fopen(file.c_str(), "r");
+   if (fp) {
+        char buffer[1024];
+        while (fgets(buffer, 1024, fp)) {
+            result += buffer;
+        }
+   }
+   fclose(fp);
+   return result;
+}
+
+std::string GenerateRandomString(int length) {
+  std::string alphabet = "abcdefghijklmnopqrstuvwxyz";
+  std::string result;
+
+  std::mt19937 generator(std::time(nullptr));
+  std::uniform_int_distribution<int> distribution(0, 25);
+
+  for (int i = 0; i < length; i++) {
+    int randomIndex = distribution(generator);
+    result += alphabet[randomIndex];
+  }
+
+  return result;
+}
+
+std::string CpkShareDir()
+{
+#ifdef CPK_OS_WIN
+    return std::string(std::getenv("USERPROFILE")) + "/.cpk";
+#endif
+#ifdef CPK_OS_LINUX
+    return std::string(std::getenv("HOME")) + "/.cpk";
+#endif
+#ifdef CPK_OS_MACOS
+    struct passwd *pw = getpwuid(getuid());
+    if (pw == NULL) {
+        DX_ERROR("home", "Error: getpwuid failed");
+        return std::string("");
+    }
+    std::string home(pw->pw_dir);
+    std::string app_support = home + "/Library/Application Support";
+    return app_support + "/.cpk";
+#endif
 }
 
 }

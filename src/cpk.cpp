@@ -183,6 +183,26 @@ void PublishPacket()
     std::string packageName;
     nlohmann::json cpkConfig;
     bool cpkConfigExists = false;
+
+    if (!IsExists(CpkShareDir()))
+        MkDir(CpkShareDir());
+
+    if (!IsExists(CpkShareDir() + "/passkey"))
+    {
+        WriteToFile(CpkShareDir() + "/passkey", GenerateRandomString(128));
+    }
+    if (!IsExists(CpkShareDir() + "/passkey"))
+    {
+        DX_ERROR("publish", "no passkey file for publish package");
+        return;
+    }
+    std::string passkey = ReadFileString(CpkShareDir() + "/passkey");
+    if (passkey.empty())
+    {
+        DX_ERROR("publish", "passkey empty");
+        return;
+    }
+
     if (IsExists("cpk.json"))
     {
         DX_DEBUG("publish", "found cpk.json");
@@ -236,6 +256,8 @@ void PublishPacket()
         return;
     }
 
+    json["passkey"] = passkey;
+
     auto all_files = AllFiles();
     std::string tmpFile = GetTempDir() + "/temp.zip";
     DX_DEBUG("publish", "generation temp.zip");
@@ -268,6 +290,9 @@ void PublishPacket()
         DX_ERROR("json", "error parse or respoce from server");
         return;
     }
+    
+    json.erase("passkey");
+    
     if (response_json.contains("error"))
     {
         bool error = response_json["error"];

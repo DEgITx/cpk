@@ -46,18 +46,18 @@ void InstallBuildTools()
         {
             std::string toolchainUrl = BuildToolsUrl();
             DX_DEBUG("tools", "download %s", toolchainUrl.c_str());
-            std::string userPath = std::getenv("USERPROFILE");
-            if (!IsDir(userPath + "/.cpk"))
+            std::string cpkShareDir = CpkShareDir();
+            if (!IsDir(cpkShareDir))
             {
-                DX_DEBUG("tools", "create dir %s", (userPath + "/.cpk").c_str());
-                MkDir(userPath + "/.cpk");
+                DX_DEBUG("tools", "create dir %s", cpkShareDir.c_str());
+                MkDir(cpkShareDir);
             }
-            if (!IsDir(userPath + "/.cpk/tools"))
+            if (!IsDir(cpkShareDir + "/tools"))
             {
-                DX_DEBUG("tools", "create dir %s", (userPath + "/.cpk/tools").c_str());
-                MkDir(userPath + "/.cpk/tools");
+                DX_DEBUG("tools", "create dir %s", (cpkShareDir + "/tools").c_str());
+                MkDir(cpkShareDir + "/tools");
             }
-            std::string toolsPath = userPath + "/.cpk/tools";
+            std::string toolsPath = cpkShareDir + "/tools";
             if (!IsExists((toolsPath + "/toolchain.zip").c_str()))
                 DownloadFile(toolchainUrl.c_str(), (toolsPath + "/toolchain.zip").c_str());
             std::string mingw64Path = toolsPath + "/mingw64";

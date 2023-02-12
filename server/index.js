@@ -72,23 +72,35 @@ function changeVersion(version) {
     return versionArr.join('.');
 }
 
+function escapeHtml(s) {
+    let lookup = {
+        '&': "&amp;",
+        '"': "&quot;",
+        '\'': "&apos;",
+        '<': "&lt;",
+        '>': "&gt;"
+    };
+    return s.replace( /[&"'<>]/g, c => lookup[c] );
+}
+
 const ajv = new Ajv();
 require('ajv-formats')(ajv);
 ajv.addFormat('packageName', (data) => ( !data.includes('/') && !data.includes('\\') ) );
 const packageShcema = {
     type: "object",
     properties: {
-        package: {type: "string", format: "packageName", pattern: '^[a-z0-9\-]+$'},
+        package: {type: "string", format: "packageName", pattern: '^[a-z0-9\-]+$', maxLength: 50},
         language: {type: "string"},
         buildType: {type: "string"},
         dependencies: {type: "object"},
-        version: {type: "string"},
+        version: {type: "string", maxLength: 32},
         description: {type: "string"},
         email: { type: 'string', format: 'email'},
-        author: {type: "string"},
-        description: {type: "string"},
+        author: {type: "string", maxLength: 128},
+        description: {type: "string", maxLength: 4096},
+        passkey: {type: "string", maxLength: 128, pattern: '^[a-zA-Z0-9]+$'},
     },
-    required: ["package", "language", "buildType"],
+    required: ["package", "language", "buildType", "passkey"],
     additionalProperties: false,
 }
 const packageValidate = ajv.compile(packageShcema);
@@ -146,6 +158,21 @@ app.post('/publish', async function (req, res) {
             }
         }
 
+        if (pkgInfo?.email) {
+            package.email = pkgInfo.email;
+        }
+        if (pkgInfo) {
+            const passkey = await redis.get(`cpk:passkey:${package.email}`);
+            if (passkey && passkey != package.passkey) {
+                res.send({
+                    error: true,
+                    errorCode: 5,
+                    errorDesc: `passkey incorrect`,
+                });
+                return;
+            }
+        }
+
         let oldVersion = pkgInfo?.version;
 
         let maxTries = 100;
@@ -164,7 +191,7 @@ app.post('/publish', async function (req, res) {
             if (package.version == prevVersion) {
                 res.send({
                     error: true,
-                    errorCode: 5,
+                    errorCode: 6,
                     errorDesc: `Can't change version for ${oldVersion} to ${package.version}`,
                 });
                 return;
@@ -172,7 +199,7 @@ app.post('/publish', async function (req, res) {
             if (maxTries-- <= 0) {
                 res.send({
                     error: true,
-                    errorCode: 6,
+                    errorCode: 7,
                     errorDesc: `Can't change version, max attempts`,
                 });
                 return;
@@ -180,6 +207,9 @@ app.post('/publish', async function (req, res) {
         }
         logT('version', 'new version of package changed to:', package.version);
 
+        if (package.description) {
+            package.description = escapeHtml(package.description);
+        }
         package.installed = pkgInfo?.installed || 0;
 
         logT('zip', 'archive', package);
@@ -206,6 +236,10 @@ app.post('/publish', async function (req, res) {
         package.isLastVersion = true;
         package.archiveSize = fileSize;
         package.publishDate = Date.now();
+
+        if (!pkgInfo)
+            await redis.set(`cpk:passkey:${package.email}`, package.passkey);
+        delete package.passkey;
         if (pkgInfo) {
             pkgInfo.isLastVersion = false;
             await redis.set(`cpk:archive:${package.package}:${oldVersion}`, pkgInfo);

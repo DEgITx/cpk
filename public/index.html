@@ -75,7 +75,11 @@
 				%>
 					${readme}
 				<%
-					};
+					} else if (package.description) {
+				%>
+					${package.description}
+				<%
+					}
 				%>
 			</div>
 			<div class="rightPanel column">
