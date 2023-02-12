@@ -388,7 +388,7 @@ int cpk_main(int argc, char *argv[]) {
 
     DX_DEBUG("cpk", "%s %s [os: %s %s]", version, revision, cpk::GetOSType().c_str(), cpk::GetOSArch().c_str());
 
-    if(argc > 2) {
+    if(argc >= 2) {
         if (strcmp(argv[1], "install") == 0) {
             std::vector<CPKPackage> packages;
             for (int i = 2; i < argc; i++)
@@ -402,8 +402,6 @@ int cpk_main(int argc, char *argv[]) {
             }
             InstallPackages(packages);
         }
-    }
-    if(argc == 2) {
         if (strcmp(argv[1], "publish") == 0) {
                 PublishPacket();
         }
