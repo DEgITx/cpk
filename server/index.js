@@ -91,7 +91,6 @@ const packageShcema = {
     required: ["package", "language", "buildType"],
     additionalProperties: false,
 }
-
 const packageValidate = ajv.compile(packageShcema);
 
 app.post('/publish', async function (req, res) {
@@ -379,3 +378,32 @@ app.get('/:package', async (req, res) => {
     res.status(404).send('Link not found');
   });
   
+  const searchSchema = {
+    type: "object",
+    properties: {
+        search: {type: "string", pattern: '^[a-z0-9\-]+$'},
+    },
+    required: ["search"],
+    additionalProperties: false,
+  }
+  const searchValidate = ajv.compile(searchSchema);
+
+  app.post('/search', async function (req, res) {
+    const ip = req.headers['x-forwarded-for'] || req.socket.remoteAddress 
+    const request = req.body;
+    if (!searchValidate(request)) {
+        const errorString = ajv.errorsText(searchValidate.errors)
+        res.send({
+            error: true,
+            errorCode: 1,
+            errorDesc: errorString,
+        });
+        return;
+    }
+
+    const packages = await redis.values(`cpk:packages:*${request.search}*`);
+
+    res.send({
+        packages
+    })
+});
