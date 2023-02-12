@@ -210,6 +210,11 @@ app.post('/publish', async function (req, res) {
         if (pkgInfo) {
             pkgInfo.isLastVersion = false;
             await redis.set(`cpk:archive:${package.package}:${oldVersion}`, pkgInfo);
+            if (pkgInfo.versions && Array.isArray(pkgInfo.versions))
+                package.versions = pkgInfo.versions.concat([package.version]);
+        }
+        else {
+            package.versions = [package.version];
         }
         await redis.set(`cpk:packages:${package.package}`, package);
         await redis.set(`cpk:archive:${package.package}:${package.version}`, package);
@@ -367,6 +372,7 @@ app.get('/:package', async (req, res) => {
         res.send(render('index', {
             package : package,
             readme: readmeFile,
+            publishDate: package.publishDate && moment().diff(package.publishDate, 'days'),
         }));
         return;
     }

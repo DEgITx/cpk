@@ -26,7 +26,7 @@
 	<header>
 		<nav class="split">
 			<a href="/">MAIN</a>
-			<a href="/downloads">DOWNLOAD CLIENT</a>
+			<a href="https://github.com/DEgITx/cpk/releases">DOWNLOAD CLIENT</a>
 			<a href="https://github.com/DEgITx/cpk">SUPPORT PROJECT</a>
 		</nav>
 		<div class="w100p searchBox row inline">
@@ -65,7 +65,7 @@
 		<div class="packageInfo row">
 			<div class="leftPanel column">
 				<div class="packageName">${package.package}</div>
-				<div class="details split"><span>${package.version}</span><span>${package.publishDate}</span></div>
+				<div class="details split"><span>${package.version}</span><span>${publishDate} days ago</span></div>
 				<%
 					if (typeof readme != 'undefined' && readme) {
 				%>
@@ -94,13 +94,17 @@
 					</div>
 					<div class="column detail cell">
 						<div class="name">last published:</div>
-						<div class="value">${package.publishDate}</div>
+						<div class="value">${publishDate} days ago</div>
 					</div>
 				</div>
 				<div class="row w100p">
 					<div class="column detail cell">
 						<div class="name">files:</div>
 						<div class="value">${package.entries}</div>
+					</div>
+					<div class="column detail cell">
+						<div class="name">published versions:</div>
+						<div class="value">${package.versions.length}</div>
 					</div>
 				</div>
 			</div>
