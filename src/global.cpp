@@ -155,6 +155,26 @@ void ChDir(const std::string& path)
     chdir(path.c_str());
 }
 
+char* trim(char* str)
+{
+  char *end;
+
+  // Trim leading space
+  while(isspace((unsigned char)*str)) str++;
+
+  if(*str == 0)  // All spaces?
+    return str;
+
+  // Trim trailing space
+  end = str + strlen(str) - 1;
+  while(end > str && isspace((unsigned char)*end)) end--;
+
+  // Write new null terminator character
+  end[1] = '\0';
+
+  return str;
+}
+
 std::string ConsoleInput(const std::string& inputText, const std::string& defaultText)
 {
    char str[4096];
@@ -164,12 +184,12 @@ std::string ConsoleInput(const std::string& inputText, const std::string& defaul
         else
             printf("%s [%s]: ", inputText.c_str(), defaultText.c_str());
    }
-   gets( str );
+   fgets( str, sizeof(str), stdin );
    std::string ret;
    if ((strlen(str) == 0 || strcmp(str, "\n") == 0 || strcmp(str, "\r\n") == 0) && defaultText.length() > 0)
         ret = defaultText;
    else
-        ret = std::string(str);
+        ret = std::string(trim(str));
    DX_DEBUG("input", "%s = %s", inputText.c_str(), ret.c_str());
    return ret;
 }

@@ -32,5 +32,6 @@ std::string Cwd();
 void ChDir(const std::string& path);
 std::string ConsoleInput(const std::string& inputText, const std::string& defaultText = std::string());
 void WriteToFile(const std::string& file, const std::string& data = std::string());
+char* trim(char* str);
 
 }
