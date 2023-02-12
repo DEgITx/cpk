@@ -142,6 +142,9 @@ a:focus {
   height: 30px;
 }
 
+.searchBar {
+  position: relative;
+}
 
 .searchBar .searchButton {
   height: 100%;
@@ -194,5 +197,29 @@ nav a {
 }
 
 .downloadLink:hover {
+  cursor: pointer;
+}
+
+.searchResults {
+  display: none;
+  position: absolute;
+  width: 67%;
+  border-color: grey;
+  border: 3px;
+  top: 55px;
+  background-color: #fff;
+
+  box-shadow: 9px 10px 49px -8px rgba(0,0,0,0.75);
+  -webkit-box-shadow: 9px 10px 49px -8px rgba(0,0,0,0.75);
+  -moz-box-shadow: 9px 10px 49px -8px rgba(0,0,0,0.75);
+}
+
+.searchResults .searchResultRow {
+  padding: 12px 15px;
+  border-bottom: 1px solid #d2d2d2;
+  width: 100%;
+}
+
+.searchResults .searchResultRow:hover {
   cursor: pointer;
 }
