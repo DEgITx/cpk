@@ -45,7 +45,7 @@ void InstallPackages(const std::vector<CPKPackage>& packages)
     }
     std::string jsonRequest = json.dump(4);
 
-    std::string response = SendPostRequest(REMOTE_BACKEND_URL "/install", jsonRequest.c_str());
+    std::string response = SendPostRequest(GetRemoteBackend() + "/install", jsonRequest.c_str());
     if (response.length() == 0) {
         DX_ERROR("json", "no respoce from server");
         return;
@@ -168,7 +168,7 @@ void InstallPackages(const std::vector<CPKPackage>& packages)
             std::ofstream installedFile(cpkDir + "/packages.json");
             installedFile << std::setw(4) << installedFileSave << std::endl;
             DX_DEBUG("install", "written package.json");
-            SendPostRequest(REMOTE_BACKEND_URL "/installed", "{\"package\": \"" + package_name + "\", \"success\": true}");
+            SendPostRequest(GetRemoteBackend() + "/installed", "{\"package\": \"" + package_name + "\", \"success\": true}");
             DX_DEBUG("install", "post statistic after installation");
 
             wait_install_mutex.unlock();
@@ -257,7 +257,7 @@ void PublishPacket()
     DX_DEBUG("publish", "send %d", in_size);
 
     std::string jsonRequest = json.dump(4);
-    std::string response = SendPostZip(REMOTE_BACKEND_URL "/publish", jsonRequest, archive_content, in_size);
+    std::string response = SendPostZip(GetRemoteBackend() + "/publish", jsonRequest, archive_content, in_size);
     DX_DEBUG("publish", "response %s", response.c_str());
     fclose(in_file);
     Remove(tmpFile);
@@ -287,7 +287,7 @@ void PublishPacket()
 
 void PackagesList()
 {
-    std::string response = SendPostRequest(REMOTE_BACKEND_URL "/packages", "{}");
+    std::string response = SendPostRequest(GetRemoteBackend() + "/packages", "{}");
     DX_DEBUG("packages", "response %s", response.c_str());
     nlohmann::json response_json;
     try {

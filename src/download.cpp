@@ -99,15 +99,15 @@ std::string CreatePostRequest(const char* url, const char* contentType, const ch
     return readBuffer;
 }
 
-std::string SendPostRequest(const char* url, const std::string& jsonString = "{\"username\":\"bob\",\"password\":\"12345\"}")
+std::string SendPostRequest(const std::string& url, const std::string& jsonString = "{\"username\":\"bob\",\"password\":\"12345\"}")
 {
-    return CreatePostRequest(url, "Content-Type: application/json", jsonString.c_str());
+    return CreatePostRequest(url.c_str(), "Content-Type: application/json", jsonString.c_str());
 }
 
-std::string SendPostZip(const char* url, const std::string& jsonString = "{\"username\":\"bob\",\"password\":\"12345\"}", const char* fileData = NULL, size_t fileSize = 0)
+std::string SendPostZip(const std::string& url, const std::string& jsonString = "{\"username\":\"bob\",\"password\":\"12345\"}", const char* fileData = NULL, size_t fileSize = 0)
 {
-    auto ret = CreatePostRequest(url, "Content-Type: application/json", jsonString.c_str());
-    auto ret2 = CreatePostRequest(url, "Content-Type: application/zip", fileData, fileSize);
+    auto ret = CreatePostRequest(url.c_str(), "Content-Type: application/json", jsonString.c_str());
+    auto ret2 = CreatePostRequest(url.c_str(), "Content-Type: application/zip", fileData, fileSize);
     return ret2;
 }
 
