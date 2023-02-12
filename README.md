@@ -1,8 +1,8 @@
-# <img src="https://raw.githubusercontent.com/DEgITx/cpk/master/resources/cpk_logo.png" width="60px" align="center" alt="Spectron icon"> CPK Package Manager
+# <img src="https://raw.githubusercontent.com/DEgITx/cpk/master/resources/cpk_logo.png" width="60px" align="center" alt="Cpk Package manager"> CPK Package Manager
 
 <p align="center"><a href="https://github.com/DEgiTx/cpk"><img src="https://raw.githubusercontent.com/DEgITx/cpk/master/resources/cpk.png"></a></p>
 
-<p align="center"><a href="https://cpkpkg.com">https://cpkpkg.com - official repository site (search, download, information about packages)</a></p>
+<b><p align="center"><a href="https://cpkpkg.com">https://cpkpkg.com - official repository site (search, download, information about packages)</a></p></b>
 
 ## CPK Package Manager
 
@@ -11,6 +11,10 @@ Very light and easy and fast native package manager to install **C/C++ (priority
 Main purpose of this package manager to have simple C/C++ manager with possibility to post packages like **npm**, and also provide functionality to support same algorithms and code base for different programming languages, so if someone wanna **quicksort** package in their project on Python - they will get it, and if need the same one for C++ he will get it with simillar command.
 
 Cross-platform. Implemented on C/C++ and provided for Linux, Mac OS, Windows arch.
+
+## Download/install
+
+Download last available version on [CPK at download page](https://github.com/DEgITx/cpk/releases). CPK is console based utility, so extact archive and add CPK utility to PATH of the system.
 
 ## Usage
 
@@ -28,6 +32,8 @@ Publish your own package (inside directory of project):
 ```sh
 cpk publish
 ```
+
+After command execution the package must become published/updated on https://cpkpkg.com 
 
 ### List of available packages
 List of available packages for install:
