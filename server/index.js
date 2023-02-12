@@ -389,10 +389,11 @@ app.get('/:package', async (req, res) => {
   const searchValidate = ajv.compile(searchSchema);
 
   app.post('/search', async function (req, res) {
-    const ip = req.headers['x-forwarded-for'] || req.socket.remoteAddress 
     const request = req.body;
+    console.log(request)
     if (!searchValidate(request)) {
         const errorString = ajv.errorsText(searchValidate.errors)
+        logT('search', 'bad request:', errorString)
         res.send({
             error: true,
             errorCode: 1,
