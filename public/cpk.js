@@ -1,4 +1,5 @@
 $(document).ready(function () {
+	let timeSearch;
 	const search = () => {
 		$.ajax({
 			type: "POST",
@@ -21,7 +22,12 @@ $(document).ready(function () {
 					$('#searchResults').html(html);
 					$('#searchResults').show();
 				} else {
-					$('#searchResults').hide();
+					$('#searchResults').html(`
+						<a class="column searchResultRow">
+							<div class="name">Nothing found :(</div>
+						</a>
+					`);
+					$('#searchResults').show();
 				}
 			},
 		});
@@ -35,7 +41,6 @@ $(document).ready(function () {
 		  return false;
 		}
 	});
-	let timeSearch;
 	$('.search input').on('input', function(){
 		if (timeSearch) {
 			clearTimeout(timeSearch);
@@ -47,6 +52,10 @@ $(document).ready(function () {
 		// Check if the target element of the click event is not a particular subelement
 		if (!$(event.target).is('#searchResults')) {
 			$('#searchResults').hide();
+			if (timeSearch) {
+				clearTimeout(timeSearch);
+				timeSearch = null;
+			}
 		}
 	});
 });
