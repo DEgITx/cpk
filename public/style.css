@@ -272,7 +272,7 @@ nav a {
   }
 }
 
-@media only screen and (max-width: 380px) 
+@media only screen and (max-width: 395px) 
 { 
   .packageInfo .rightPanel {
     min-width: 230px;
