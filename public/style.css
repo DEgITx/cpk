@@ -223,3 +223,58 @@ nav a {
 .searchResults .searchResultRow:hover {
   cursor: pointer;
 }
+
+@media only screen and (max-width: 1020px) 
+{ 
+  .searchBox {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .searchBox div {
+    margin: 4px 0px;
+  }
+
+  .searchBar {
+    width: 75%;
+  }
+
+  .searchBox .searchButton { 
+    margin-top: 4px;
+  }
+
+  .search {
+    width: 100%;
+  }
+}
+
+@media only screen and (max-width: 730px) 
+{ 
+  .packageInfo {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .searchBar {
+    width: 85%;
+  }
+  
+  .leftPanel {
+    width: 80%;
+  }
+
+  .rightPanel {
+    margin-top: 40px;
+  }
+
+  .descriptionDetails {
+    text-align: center;
+  }
+}
+
+@media only screen and (max-width: 380px) 
+{ 
+  .packageInfo .rightPanel {
+    min-width: 230px;
+  }
+}

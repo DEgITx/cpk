@@ -70,17 +70,19 @@
 			<div class="leftPanel column">
 				<div class="packageName">${package.package}</div>
 				<div class="details split"><span>${package.version}</span><span>${publishDate} days ago</span></div>
-				<%
-					if (typeof readme != 'undefined' && readme) {
-				%>
-					${readme}
-				<%
-					} else if (package.description) {
-				%>
-					${package.description}
-				<%
-					}
-				%>
+				<div class="descriptionDetails center w100p">
+					<%
+						if (typeof readme != 'undefined' && readme) {
+					%>
+						${readme}
+					<%
+						} else if (package.description) {
+					%>
+						${package.description}
+					<%
+						}
+					%>
+				</div>
 			</div>
 			<div class="rightPanel column">
 				<div class="w100p">Install:</div>
