@@ -7,11 +7,11 @@
 	<meta name="mobile-web-app-capable" content="yes" />
 
 	<!-- Title -->
-	<title>CPK Package Manager</title>
+	<title><% if (typeof package != 'undefined') { %>${package.package} | CPK Package Manager<% } else { %>CPK Package Manager<% } %></title>
 	<meta name="description"
 		content="CPK Package Manager packages" />
 	<meta name="keywords"
-		content="cpk, c++, packages, manager, c, rust, npm, pip" />
+		content="cpk<% if (typeof package != 'undefined') { %>, ${package.package}<% } %>, c++, packages, manager, c, rust, npm, pip" />
 
 	<link rel="preconnect" href="https://fonts.googleapis.com" />
 	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin  />
