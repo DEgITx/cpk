@@ -112,12 +112,12 @@ bool IsExists(const std::string& path)
     return (stat (path.c_str(), &buffer) == 0);
 }
 
-void EXE(const std::string& command)
+bool EXE(const std::string& command)
 {
-    system(command.c_str());
+    return (system(command.c_str()) == 0);
 }
 
-void EXES(const std::string& command)
+bool EXES(const std::string& command)
 {
     std::string silentCommand;
 #ifdef CPK_OS_WIN
@@ -125,7 +125,7 @@ void EXES(const std::string& command)
 #else
     silentCommand = command + " > /dev/null 2>&1";
 #endif
-    system(silentCommand.c_str());
+    return (system(silentCommand.c_str()) == 0);
 }
 
 void EXEWithPrint(const std::string& command, std::function<void(const std::string& line)> callback)

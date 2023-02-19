@@ -179,7 +179,11 @@ void InstallPackages(const std::vector<CPKPackage>& packages)
 #else
                         std::string cmake_build_type = "";
 #endif
-                        EXES("cd \"" + packageDir + "\" && cmake -B \"build\" " + cmake_build_type + " -DCMAKE_BUILD_TYPE=RelWithDebInfo");
+                        if (!EXES("cd \"" + packageDir + "\" && cmake -B \"build\" " + cmake_build_type + " -DCMAKE_BUILD_TYPE=RelWithDebInfo"))
+                        {
+                            DX_ERROR("install", "failed to prepare project for build");
+                            return;
+                        }
                         RenderProgress(25, true, "Initialize package build");
                         DX_DEBUG("install", "build");
                         EXEWithPrint("cd \"" + packageDir + "\" && cmake --build \"build\" -j" + std::to_string(processor_count), [&](const std::string& line){
