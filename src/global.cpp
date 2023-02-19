@@ -117,6 +117,21 @@ void EXE(const std::string& command)
     system(command.c_str());
 }
 
+void EXEWithPrint(const std::string& command, std::function<void(const std::string& line)> callback)
+{
+    FILE* pipe = popen(command.c_str(), "r");
+    if (!pipe)
+    {
+        DX_ERROR("exe", "cannot start command: %s", command.c_str());
+        return;
+    }
+    char buffer[4096];
+    while (fgets(buffer, sizeof(buffer), pipe) != NULL) {
+        callback(buffer);
+    }
+    pclose(pipe);
+}
+
 std::vector<std::string> AllFiles(const std::string& ext)
 {
     // collect all the filenames into a std::list<std::string>

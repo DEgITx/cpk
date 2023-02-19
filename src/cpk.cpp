@@ -145,7 +145,14 @@ void InstallPackages(const std::vector<CPKPackage>& packages)
 #endif
                         EXE("cd \"" + packageDir + "\" && cmake -B \"build\" " + cmake_build_type + " -DCMAKE_BUILD_TYPE=RelWithDebInfo");
                         DX_DEBUG("install", "build");
-                        EXE("cd \"" + packageDir + "\" && cmake --build \"build\" -j" + std::to_string(processor_count));
+                        EXEWithPrint("cd \"" + packageDir + "\" && cmake --build \"build\" -j" + std::to_string(processor_count), [](const std::string& line){
+                            printf("%s", line.c_str());
+                            // std::regex re("\[[0-9]+\%\]");
+                            // std::smatch match;
+                            // if (std::regex_search(str, match, re)) {
+
+                            // }
+                        });
                     }
                     break;
                 default:
