@@ -135,6 +135,7 @@ void InstallPackages(const std::vector<CPKPackage>& packages)
 
             if (installedFileSave["packages"].contains(package_name))
             {
+                need_install_deps_map_ready[package_name] = true;
                 DX_INFO("install", "%s package installed. Skip.", package_name.c_str());
                 return;
             }
