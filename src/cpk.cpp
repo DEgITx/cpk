@@ -5,6 +5,7 @@
 #include <json.hpp>
 #include <vector>
 #include <fstream>
+#include <regex>
 
 #include "cpk_structs.h"
 #include "download.h"
@@ -15,6 +16,7 @@
 #include "os.h"
 #include "tools.h"
 #include "version.h"
+#include "display.h"
 
 namespace cpk
 {
@@ -74,6 +76,12 @@ void InstallPackages(const std::vector<CPKPackage>& packages)
     if (!IsDir(cpkDir))
         MkDir(cpkDir);
 
+    std::vector<int> packages_percent;
+    std::mutex packages_percent_lock;
+    std::vector<std::string> packages_names;
+    packages_percent.resize(response_json["packages"].size());
+    packages_names.resize(response_json["packages"].size());
+
     thread_pool pool;
     const int processor_count = std::thread::hardware_concurrency();
     pool.start(processor_count);
@@ -81,14 +89,33 @@ void InstallPackages(const std::vector<CPKPackage>& packages)
     std::mutex wait_install_mutex;
     std::unordered_map<std::string, std::condition_variable> need_install_deps_conditions;
     std::unordered_map<std::string, bool> need_install_deps_map_ready;
+    int package_index = -1;
     for(const auto& package : response_json["packages"])
     {
-        pool.queue([package, cpkDir, processor_count, &wait_install_mutex, &need_install_deps_conditions, &need_install_deps_map_ready]() 
+        package_index++;
+        packages_names[package_index] = package["package"];
+        pool.queue([package, 
+            cpkDir, 
+            processor_count,
+            package_index,
+            &packages_percent,
+            &packages_names,
+            &packages_percent_lock,
+            &wait_install_mutex, 
+            &need_install_deps_conditions, 
+            &need_install_deps_map_ready
+        ]() 
         {
             std::string package_name = package["package"];
             std::string package_url = package["url"];
             std::string build_type = package["buildType"];
             std::string package_language = package["language"];
+
+            auto RenderProgress = [&](int percent){
+                std::lock_guard<std::mutex> lock(packages_percent_lock);
+                packages_percent[package_index] = percent;
+                RenderProgressBars(packages_names, packages_percent);
+            };
 
             nlohmann::json installedFileSave;
             if (IsExists(cpkDir + "/packages.json"))
@@ -120,15 +147,19 @@ void InstallPackages(const std::vector<CPKPackage>& packages)
                 }
             }
 
+            RenderProgress(5);
+
             DX_DEBUG("pkg", "install package %s", package_name.c_str());
             DX_DEBUG("install", "download package %s", package_url.c_str());
             std::string zipFile = cpkDir + "/" + package_name + ".zip";
             DownloadFile(package_url.c_str(), zipFile.c_str());
             DX_DEBUG("install", "downloaded %s as %s", package_url.c_str(), zipFile.c_str());
+            RenderProgress(15);
             std::string packageDir = cpkDir + "/" + package_name;
             if (!IsExists(packageDir))
                 MkDir(packageDir);
             UnZip(zipFile, packageDir);
+            RenderProgress(20);
             DX_DEBUG("install", "Prepared package, start building...");
             switch(CpkBuildTypes[build_type])
             {
@@ -144,15 +175,20 @@ void InstallPackages(const std::vector<CPKPackage>& packages)
                         std::string cmake_build_type = "";
 #endif
                         EXE("cd \"" + packageDir + "\" && cmake -B \"build\" " + cmake_build_type + " -DCMAKE_BUILD_TYPE=RelWithDebInfo");
+                        RenderProgress(25);
                         DX_DEBUG("install", "build");
-                        EXEWithPrint("cd \"" + packageDir + "\" && cmake --build \"build\" -j" + std::to_string(processor_count), [](const std::string& line){
-                            printf("%s", line.c_str());
-                            // std::regex re("\[[0-9]+\%\]");
-                            // std::smatch match;
-                            // if (std::regex_search(str, match, re)) {
-
-                            // }
+                        EXEWithPrint("cd \"" + packageDir + "\" && cmake --build \"build\" -j" + std::to_string(processor_count), [&](const std::string& line){
+                            // printf("%s", line.c_str());
+                            std::regex re("\\[\\s+([0-9]+)\\%\\]");
+                            std::smatch match;
+                            if (std::regex_search(line, match, re))
+                            {
+                                int percent = std::stoi(match[1].str());
+                                percent = 25 + ((float)percent / 100 * 75);
+                                RenderProgress(percent);
+                            }
                         });
+                        RenderProgress(100);
                     }
                     break;
                 default:

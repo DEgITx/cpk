@@ -9,6 +9,9 @@ void RenderProgressBars(const std::vector<std::string>& names, const std::vector
 
     for (int i = 0; i < progresses.size(); ++i)
     {
+        if (names[i].empty())
+            continue;
+
         float percent = (float)progresses[i] / 100.0;
         int pos = barWidth * percent;
 
