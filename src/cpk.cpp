@@ -79,8 +79,10 @@ void InstallPackages(const std::vector<CPKPackage>& packages)
     std::vector<int> packages_percent;
     std::mutex packages_percent_lock;
     std::vector<std::string> packages_names;
+    std::vector<std::string> progress_messages;
     packages_percent.resize(response_json["packages"].size());
     packages_names.resize(response_json["packages"].size());
+    progress_messages.resize(response_json["packages"].size());
 
     thread_pool pool;
     const int processor_count = std::thread::hardware_concurrency();
@@ -101,6 +103,7 @@ void InstallPackages(const std::vector<CPKPackage>& packages)
             package_index,
             &packages_percent,
             &packages_names,
+            &progress_messages,
             &packages_percent_lock,
             &wait_install_mutex, 
             &need_install_deps_conditions, 
@@ -112,10 +115,11 @@ void InstallPackages(const std::vector<CPKPackage>& packages)
             std::string build_type = package["buildType"];
             std::string package_language = package["language"];
 
-            auto RenderProgress = [&](int percent, bool force = false){
+            auto RenderProgress = [&](int percent, bool force = false, const std::string& message = std::string()){
                 std::lock_guard<std::mutex> lock(packages_percent_lock);
                 packages_percent[package_index] = percent;
-                RenderProgressBars(packages_names, packages_percent, force);
+                progress_messages[package_index] = message;
+                RenderProgressBars(packages_names, packages_percent, force, progress_messages);
             };
 
             nlohmann::json installedFileSave;
@@ -148,19 +152,19 @@ void InstallPackages(const std::vector<CPKPackage>& packages)
                 }
             }
 
-            RenderProgress(5);
+            RenderProgress(5, true, "Download package...");
 
             DX_DEBUG("pkg", "install package %s", package_name.c_str());
             DX_DEBUG("install", "download package %s", package_url.c_str());
             std::string zipFile = cpkDir + "/" + package_name + ".zip";
             DownloadFile(package_url.c_str(), zipFile.c_str());
             DX_DEBUG("install", "downloaded %s as %s", package_url.c_str(), zipFile.c_str());
-            RenderProgress(15);
+            RenderProgress(15, true, "Unpack...");
             std::string packageDir = cpkDir + "/" + package_name;
             if (!IsExists(packageDir))
                 MkDir(packageDir);
             UnZip(zipFile, packageDir);
-            RenderProgress(20);
+            RenderProgress(20, true, "Configure package...");
             DX_DEBUG("install", "Prepared package, start building...");
             switch(CpkBuildTypes[build_type])
             {
@@ -176,7 +180,7 @@ void InstallPackages(const std::vector<CPKPackage>& packages)
                         std::string cmake_build_type = "";
 #endif
                         EXES("cd \"" + packageDir + "\" && cmake -B \"build\" " + cmake_build_type + " -DCMAKE_BUILD_TYPE=RelWithDebInfo");
-                        RenderProgress(25);
+                        RenderProgress(25, true, "Initialize package build");
                         DX_DEBUG("install", "build");
                         EXEWithPrint("cd \"" + packageDir + "\" && cmake --build \"build\" -j" + std::to_string(processor_count), [&](const std::string& line){
                             // printf("%s", line.c_str());
@@ -186,10 +190,10 @@ void InstallPackages(const std::vector<CPKPackage>& packages)
                             {
                                 int percent = std::stoi(match[1].str());
                                 percent = 25 + ((float)percent / 100 * 75);
-                                RenderProgress(percent);
+                                RenderProgress(percent, false, "Building package...");
                             }
                         });
-                        RenderProgress(100, true);
+                        RenderProgress(100, true, "                    ");
                     }
                     break;
                 default:

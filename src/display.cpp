@@ -15,7 +15,7 @@ void InitRenderProgressBars(int size)
 
 uint64_t renderBarTime = 0;
 
-void RenderProgressBars(const std::vector<std::string>& names, const std::vector<int>& progresses, bool force)
+void RenderProgressBars(const std::vector<std::string>& names, const std::vector<int>& progresses, bool force, const std::vector<std::string>& messages)
 {
     int barWidth = 70;
 
@@ -40,7 +40,10 @@ void RenderProgressBars(const std::vector<std::string>& names, const std::vector
             else if (j == pos) printf(">");
             else printf(" ");
         }
-        printf("] %d %\n\r", (int)progresses[i]);
+        if (messages.size() <= i || messages[i].empty())
+            printf("] %d %%\n\r", (int)progresses[i]);
+        else
+            printf("] %d %% %s\n\r", (int)progresses[i], messages[i].c_str());
     }
 }
 
