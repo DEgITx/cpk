@@ -78,10 +78,10 @@ void InstallPackages(const std::vector<CPKPackage>& packages)
 
     std::vector<int> packages_percent;
     std::mutex packages_percent_lock;
-    std::vector<std::string> packages_names;
+    std::vector<std::string> packages_names_with_version;
     std::vector<std::string> progress_messages;
     packages_percent.resize(response_json["packages"].size());
-    packages_names.resize(response_json["packages"].size());
+    packages_names_with_version.resize(response_json["packages"].size());
     progress_messages.resize(response_json["packages"].size());
 
     thread_pool pool;
@@ -96,13 +96,13 @@ void InstallPackages(const std::vector<CPKPackage>& packages)
     for(const auto& package : response_json["packages"])
     {
         package_index++;
-        packages_names[package_index] = package["package"];
+        packages_names_with_version[package_index] = std::string(package["package"]) + " " + std::string(package["version"]);
         pool.queue([package, 
             cpkDir, 
             processor_count,
             package_index,
             &packages_percent,
-            &packages_names,
+            &packages_names_with_version,
             &progress_messages,
             &packages_percent_lock,
             &wait_install_mutex, 
@@ -119,7 +119,7 @@ void InstallPackages(const std::vector<CPKPackage>& packages)
                 std::lock_guard<std::mutex> lock(packages_percent_lock);
                 packages_percent[package_index] = percent;
                 progress_messages[package_index] = message;
-                RenderProgressBars(packages_names, packages_percent, force, progress_messages);
+                RenderProgressBars(packages_names_with_version, packages_percent, force, progress_messages);
             };
 
             nlohmann::json installedFileSave;
@@ -186,7 +186,7 @@ void InstallPackages(const std::vector<CPKPackage>& packages)
                         }
                         RenderProgress(25, true, "Initialize package build");
                         DX_DEBUG("install", "build");
-                        EXEWithPrint("cd \"" + packageDir + "\" && cmake --build \"build\" -j" + std::to_string(processor_count), [&](const std::string& line){
+                        if(!EXEWithPrint("cd \"" + packageDir + "\" && cmake --build \"build\" -j" + std::to_string(processor_count), [&](const std::string& line){
                             // printf("%s", line.c_str());
                             std::regex re("\\[\\s+([0-9]+)\\%\\]");
                             std::smatch match;
@@ -196,7 +196,11 @@ void InstallPackages(const std::vector<CPKPackage>& packages)
                                 percent = 25 + ((float)percent / 100 * 75);
                                 RenderProgress(percent, false, "Building package...");
                             }
-                        });
+                        }))
+                        {
+                            DX_ERROR("install", "failed to build package");
+                            return;
+                        }
                         RenderProgress(100, true, " ");
                     }
                     break;
@@ -228,6 +232,47 @@ void InstallPackages(const std::vector<CPKPackage>& packages)
         });
     }
     pool.stop();
+
+    bool some_package_failed = false;
+    bool some_package_success = false;
+    printf("Succefully installed: ");
+    int installed_index = -1;
+    for(const auto& package : response_json["packages"])
+    {
+        installed_index++;
+        if (need_install_deps_map_ready[package["package"]])
+        {
+            some_package_success = true;
+            if (response_json["packages"].size() - 1 != installed_index)
+                printf("%s, ", std::string(package["package"]).c_str());
+            else
+                printf("%s\n", std::string(package["package"]).c_str());
+        }
+        else
+        {
+            some_package_failed = true;
+        }
+    }
+    if (!some_package_success)
+    {
+        printf("(none)\n");
+    }
+    if (some_package_failed)
+    {
+        installed_index = -1;
+        printf("Failed to install: ");
+        for(const auto& package : response_json["packages"])
+        {
+            installed_index++;
+            if (!need_install_deps_map_ready[package["package"]])
+            {
+                if (response_json["packages"].size() - 1 != installed_index)
+                    printf("%s, ", std::string(package["package"]).c_str());
+                else
+                    printf("%s\n", std::string(package["package"]).c_str());
+            }
+        }
+    }
 }
 
 void PublishPacket()

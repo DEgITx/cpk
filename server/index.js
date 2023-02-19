@@ -350,7 +350,7 @@ app.post('/install', async function (req, res) {
     for(const package of packages)
     {
         packagesToInstall.push(Object.assign(package, {
-            url: `http://${PRODUCTION ? '143.244.189.114' : 'localhost'}:9988/packages/` + package.package + "/" + 'package.zip',
+            url: `${PRODUCTION ? 'https' : 'http'}://${PRODUCTION ? 'cpkpkg.com' : 'localhost'}${PRODUCTION ? '' : ':9988'}/packages/` + package.package + "/" + 'package.zip',
         }));
     }
 

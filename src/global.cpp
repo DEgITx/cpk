@@ -128,19 +128,20 @@ bool EXES(const std::string& command)
     return (system(silentCommand.c_str()) == 0);
 }
 
-void EXEWithPrint(const std::string& command, std::function<void(const std::string& line)> callback)
+bool EXEWithPrint(const std::string& command, std::function<void(const std::string& line)> callback)
 {
     FILE* pipe = popen(command.c_str(), "r");
     if (!pipe)
     {
         DX_ERROR("exe", "cannot start command: %s", command.c_str());
-        return;
+        return false;
     }
     char buffer[4096];
     while (fgets(buffer, sizeof(buffer), pipe) != NULL) {
         callback(buffer);
     }
-    pclose(pipe);
+    auto ret = pclose(pipe);
+    return ret == 0;
 }
 
 std::vector<std::string> AllFiles(const std::string& ext)
