@@ -21,7 +21,7 @@ void UnZip(const std::string& path, const std::string& outFile = "")
         DX_ERROR("zip", "error openning archive\n");
         return;
     }
-    DX_INFO("zip", "opened archive %s", path.c_str());
+    DX_DEBUG("zip", "opened archive %s", path.c_str());
 
     int i, n = zip_get_num_entries(z, 0);
     for (i = 0; i < n; ++i) {
@@ -49,7 +49,7 @@ void UnZip(const std::string& path, const std::string& outFile = "")
         fwrite (buffer, sizeof(char), st.size, saveFile);
         fclose (saveFile);
         delete[] buffer;
-        DX_INFO("zip", "unpacked %s", file_name);
+        DX_DEBUG("zip", "unpacked %s", file_name);
     }
     //And close the archive
     zip_close(z);

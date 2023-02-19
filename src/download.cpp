@@ -46,7 +46,7 @@ void DownloadFile(const char* url, const char* output_file)
         }
         else
         {
-            DX_INFO("curl", "downloaded %s", output_file);
+            DX_DEBUG("curl", "downloaded %s", output_file);
         }
 
         /* always cleanup */

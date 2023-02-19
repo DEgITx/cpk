@@ -8,6 +8,17 @@
 
 #define DX_COLORFUL 1
 
+#ifdef CPK
+extern int dx_print_level;
+#else
+static int dx_print_level = 2;
+#endif
+
+static void DX_SET_DEBUG_LEVEL(int level = 2)
+{
+  dx_print_level = level;
+}
+
 #ifdef DX_COLORFUL
 
 inline int DX_STRING_HASH(const char* str)
@@ -24,6 +35,8 @@ inline int DX_STRING_HASH(const char* str)
   timeval curTime;\
   time_t rawtime;\
   char timebuffer[28];\
+  if (level <= dx_print_level)\
+  {\
   gettimeofday(&curTime, NULL);\
   rawtime = curTime.tv_sec;\
   strftime(timebuffer, 28, "%H:%M:%S", localtime(&rawtime));\
@@ -43,6 +56,7 @@ inline int DX_STRING_HASH(const char* str)
     sprintf(text_clear, "\x1b[0m");\
   }\
   fprintf(out, "[%s:%03ld] %s[%s]%s %s" msg "%s\n", timebuffer, curTime.tv_usec / 1000, color, tag, color_clear, text_color, ##__VA_ARGS__, text_clear);\
+  }\
 }
 
 #define DX_ERROR(tag, ...) DX_PRINTF(stderr, tag, 0, ##__VA_ARGS__)
@@ -133,3 +147,4 @@ static uint64_t DXGetMiliTime()
   } else { \
     DX_INFO("%s%f ns ["#dx_nano_timer_tag"]", diff_benchmarks_##dx_nano_timer_tag > 0 ? "-" : "+", diff_benchmarks_##dx_nano_timer_tag); \
   }
+

@@ -1,3 +1,4 @@
+#include "degxlog.h"
 #include <stdio.h>
 #include <string.h>
 #include <string>
@@ -12,7 +13,6 @@
 #include "archive.h"
 #include "global.h"
 #include "thread_pool.h"
-#include "degxlog.h"
 #include "os.h"
 #include "tools.h"
 #include "version.h"
@@ -197,7 +197,7 @@ void InstallPackages(const std::vector<CPKPackage>& packages)
                                 RenderProgress(percent, false, "Building package...");
                             }
                         });
-                        RenderProgress(100, true, "                    ");
+                        RenderProgress(100, true, " ");
                     }
                     break;
                 default:
@@ -404,9 +404,15 @@ char* getCmdOption(char ** begin, char ** end, const std::string & option)
     return 0;
 }
 
-bool cmdOptionExists(char** begin, char** end, const std::string& option)
+bool cmdOptionExists(char** begin, char** end, const std::string& option, bool clear = false)
 {
-    return std::find(begin, end, option) != end;
+    char ** itr = std::find(begin, end, option);
+    bool found = (itr != end);
+    if (clear && found)
+    {
+        (*itr)[0] = '\0';
+    }
+    return found;
 }
 
 void printHelp()
@@ -426,7 +432,19 @@ int cpk_main(int argc, char *argv[]) {
         return 0;
     }
 
-    if (cmdOptionExists(argv, argv+argc, "--release")) {
+#ifdef CPK_RELEASE
+    if (cmdOptionExists(argv, argv+argc, "--debug", true) || cmdOptionExists(argv, argv+argc, "-d", true))
+    {
+        DX_SET_DEBUG_LEVEL(3);
+    }
+#else
+    if (!cmdOptionExists(argv, argv+argc, "-nd", true))
+    {
+        DX_SET_DEBUG_LEVEL(3);
+    }
+#endif
+
+    if (cmdOptionExists(argv, argv+argc, "--release", true)) {
         EnableRemoteBackend();
     }
 
@@ -446,6 +464,8 @@ int cpk_main(int argc, char *argv[]) {
             for (int i = 2; i < argc; i++)
             {
                 CPKPackage package;
+                if (strlen(argv[i]) == 0)
+                    continue;
                 auto packageVer = Split(argv[i], "@");
                 package.package = packageVer[0];
                 if (packageVer.size() == 2)
