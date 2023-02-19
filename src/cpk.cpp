@@ -430,7 +430,7 @@ int cpk_main(int argc, char *argv[]) {
         return 0;
     }
 
-    DX_DEBUG("cpk", "%s %s [os: %s %s]", version, revision, cpk::GetOSType().c_str(), cpk::GetOSArch().c_str());
+    DX_INFO("cpk", "%s %s [os: %s %s]", version, revision, cpk::GetOSType().c_str(), cpk::GetOSArch().c_str());
 
     if(argc >= 2) {
         if (strcmp(argv[1], "install") == 0) {

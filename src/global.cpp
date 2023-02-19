@@ -121,9 +121,9 @@ void EXES(const std::string& command)
 {
     std::string silentCommand;
 #ifdef CPK_OS_WIN
-    silentCommand = command + " > nul";
+    silentCommand = command + " > nul 2>&1";
 #else
-    silentCommand = command + " > /dev/null";
+    silentCommand = command + " > /dev/null 2>&1";
 #endif
     system(silentCommand.c_str());
 }
