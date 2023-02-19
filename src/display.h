@@ -5,6 +5,7 @@
 namespace cpk
 {
 
-void RenderProgressBars(const std::vector<std::string>& names, const std::vector<int>& progresses);
+void InitRenderProgressBars(int size);
+void RenderProgressBars(const std::vector<std::string>& names, const std::vector<int>& progresses, bool force = false);
 
 }

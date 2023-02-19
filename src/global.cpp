@@ -117,6 +117,17 @@ void EXE(const std::string& command)
     system(command.c_str());
 }
 
+void EXES(const std::string& command)
+{
+    std::string silentCommand;
+#ifdef CPK_OS_WIN
+    silentCommand = command + " > nul";
+#else
+    silentCommand = command + " > /dev/null";
+#endif
+    system(silentCommand.c_str());
+}
+
 void EXEWithPrint(const std::string& command, std::function<void(const std::string& line)> callback)
 {
     FILE* pipe = popen(command.c_str(), "r");

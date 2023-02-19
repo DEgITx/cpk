@@ -25,6 +25,7 @@ int MkDirP(const std::string& path);
 bool IsDir(const std::string& path);
 bool IsExists(const std::string& path);
 void EXE(const std::string& command);
+void EXES(const std::string& command);
 void EXEWithPrint(const std::string& command, std::function<void(const std::string& line)> callback);
 std::vector<std::string> AllFiles(const std::string& ext = "");
 void Remove(const std::string& file);

@@ -1,11 +1,29 @@
 #include "display.h"
+#include "degxlog.h"
 
 namespace cpk
 {
 
-void RenderProgressBars(const std::vector<std::string>& names, const std::vector<int>& progresses)
+void InitRenderProgressBars(int size)
+{
+    for (int i = 0; i < size; ++i)
+    {
+        printf("\n");
+    }
+    printf("\033[%dA", size);
+}
+
+uint64_t renderBarTime = 0;
+
+void RenderProgressBars(const std::vector<std::string>& names, const std::vector<int>& progresses, bool force)
 {
     int barWidth = 70;
+
+    if (DXGetMiliTime() - renderBarTime < 40 && !force) {
+        return;
+    }
+    renderBarTime = DXGetMiliTime();
+    printf("\033[%dA", progresses.size());
 
     for (int i = 0; i < progresses.size(); ++i)
     {
@@ -24,8 +42,6 @@ void RenderProgressBars(const std::vector<std::string>& names, const std::vector
         }
         printf("] %d %\n\r", (int)progresses[i]);
     }
-    
-    printf("\033[%dA", progresses.size());
 }
 
 }

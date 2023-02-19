@@ -90,6 +90,7 @@ void InstallPackages(const std::vector<CPKPackage>& packages)
     std::unordered_map<std::string, std::condition_variable> need_install_deps_conditions;
     std::unordered_map<std::string, bool> need_install_deps_map_ready;
     int package_index = -1;
+    InitRenderProgressBars(response_json["packages"].size());
     for(const auto& package : response_json["packages"])
     {
         package_index++;
@@ -111,10 +112,10 @@ void InstallPackages(const std::vector<CPKPackage>& packages)
             std::string build_type = package["buildType"];
             std::string package_language = package["language"];
 
-            auto RenderProgress = [&](int percent){
+            auto RenderProgress = [&](int percent, bool force = false){
                 std::lock_guard<std::mutex> lock(packages_percent_lock);
                 packages_percent[package_index] = percent;
-                RenderProgressBars(packages_names, packages_percent);
+                RenderProgressBars(packages_names, packages_percent, force);
             };
 
             nlohmann::json installedFileSave;
@@ -174,7 +175,7 @@ void InstallPackages(const std::vector<CPKPackage>& packages)
 #else
                         std::string cmake_build_type = "";
 #endif
-                        EXE("cd \"" + packageDir + "\" && cmake -B \"build\" " + cmake_build_type + " -DCMAKE_BUILD_TYPE=RelWithDebInfo");
+                        EXES("cd \"" + packageDir + "\" && cmake -B \"build\" " + cmake_build_type + " -DCMAKE_BUILD_TYPE=RelWithDebInfo");
                         RenderProgress(25);
                         DX_DEBUG("install", "build");
                         EXEWithPrint("cd \"" + packageDir + "\" && cmake --build \"build\" -j" + std::to_string(processor_count), [&](const std::string& line){
@@ -188,7 +189,7 @@ void InstallPackages(const std::vector<CPKPackage>& packages)
                                 RenderProgress(percent);
                             }
                         });
-                        RenderProgress(100);
+                        RenderProgress(100, true);
                     }
                     break;
                 default:
