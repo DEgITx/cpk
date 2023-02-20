@@ -117,6 +117,8 @@ void InstallPackages(const std::vector<CPKPackage>& packages)
 
             auto RenderProgress = [&](int percent, bool force = false, const std::string& message = std::string()){
                 std::lock_guard<std::mutex> lock(packages_percent_lock);
+                if (DX_DEBUG_LEVEL() == DX_LEVEL_DEBUG)
+                    return; // don't draw progress in debug mode
                 packages_percent[package_index] = percent;
                 progress_messages[package_index] = message;
                 RenderProgressBars(packages_names_with_version, packages_percent, force, progress_messages);
@@ -180,7 +182,9 @@ void InstallPackages(const std::vector<CPKPackage>& packages)
 #else
                         std::string cmake_build_type = "";
 #endif
-                        if (!EXES("cd \"" + packageDir + "\" && cmake -B \"build\" " + cmake_build_type + " -DCMAKE_BUILD_TYPE=RelWithDebInfo"))
+                        std::string cmake_configure = "cd \"" + packageDir + "\" && cmake -B \"build\" " + cmake_build_type + " -DCMAKE_BUILD_TYPE=RelWithDebInfo";
+                        bool cmake_configure_result = (DX_DEBUG_LEVEL() == DX_LEVEL_DEBUG) ? EXE(cmake_configure) : EXES(cmake_configure);
+                        if (!cmake_configure_result)
                         {
                             DX_ERROR("install", "failed to prepare project for build");
                             return;
@@ -188,7 +192,11 @@ void InstallPackages(const std::vector<CPKPackage>& packages)
                         RenderProgress(25, true, "Initialize package build");
                         DX_DEBUG("install", "build");
                         if(!EXEWithPrint("cd \"" + packageDir + "\" && cmake --build \"build\" -j" + std::to_string(processor_count), [&](const std::string& line){
-                            // printf("%s", line.c_str());
+                            if (DX_DEBUG_LEVEL() == DX_LEVEL_DEBUG)
+                            {
+                                DX_DEBUG("cmake", "%s", line.c_str());
+                                return;
+                            }
                             std::regex re("\\[\\s+([0-9]+)\\%\\]");
                             std::smatch match;
                             if (std::regex_search(line, match, re))

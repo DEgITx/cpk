@@ -8,6 +8,11 @@
 
 #define DX_COLORFUL 1
 
+#define DX_LEVEL_DEBUG 3
+#define DX_LEVEL_INFO 2
+#define DX_LEVEL_WARN 1
+#define DX_LEVEL_ERROR 0
+
 #ifdef CPK
 extern int dx_print_level;
 #else
@@ -17,6 +22,11 @@ static int dx_print_level = 2;
 static void DX_SET_DEBUG_LEVEL(int level = 2)
 {
   dx_print_level = level;
+}
+
+static int DX_DEBUG_LEVEL()
+{
+ return dx_print_level;
 }
 
 #ifdef DX_COLORFUL
@@ -59,10 +69,10 @@ inline int DX_STRING_HASH(const char* str)
   }\
 }
 
-#define DX_ERROR(tag, ...) DX_PRINTF(stderr, tag, 0, ##__VA_ARGS__)
-#define DX_WARN(tag, ...) DX_PRINTF(stdout, tag, 1, ##__VA_ARGS__)
-#define DX_INFO(tag, ...) DX_PRINTF(stdout, tag, 2, ##__VA_ARGS__)
-#define DX_DEBUG(tag, ...) DX_PRINTF(stdout, tag, 3, ##__VA_ARGS__)
+#define DX_ERROR(tag, ...) DX_PRINTF(stderr, tag, DX_LEVEL_ERROR, ##__VA_ARGS__)
+#define DX_WARN(tag, ...) DX_PRINTF(stdout, tag, DX_LEVEL_WARN, ##__VA_ARGS__)
+#define DX_INFO(tag, ...) DX_PRINTF(stdout, tag, DX_LEVEL_INFO, ##__VA_ARGS__)
+#define DX_DEBUG(tag, ...) DX_PRINTF(stdout, tag, DX_LEVEL_DEBUG, ##__VA_ARGS__)
 
 #else // DX_COLORFUL
 #define __FILENAME__ (strrchr(__FILE__, '/') ? strrchr(__FILE__, '/') + 1 : __FILE__)
