@@ -386,6 +386,27 @@ app.post('/installed', async function (req, res) {
     res.send({success: true})
 });
 
+app.get('/sitemap.xml', async function(req, res, next){
+    let xml_content = [
+        '<?xml version="1.0" encoding="UTF-8"?>',
+        '<urlset xmlns="https://www.sitemaps.org/schemas/sitemap/0.9">'
+    ];
+
+    xml_content.push(`<url><loc>http://cpkpkg.com/</loc></url>`);
+
+    const packages = await redis.values("cpk:packages:*");
+    if (packages) {
+        packages.forEach(package => {
+            xml_content.push(`<url><loc>http://cpkpkg.com/${package.package}</loc></url>`);
+        });
+    }
+
+    xml_content.push('</urlset>');
+    res.set('Content-Type', 'text/xml')
+    res.send(xml_content.join('\n'))
+})
+
+
 const wind = new JSDOM('').window;
 const DOMPurify = createDOMPurify(wind);
 app.get('/:package', async (req, res) => {
@@ -442,3 +463,4 @@ app.get('/:package', async (req, res) => {
         packages
     })
 });
+
