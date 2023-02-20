@@ -45,7 +45,6 @@ void InstallBuildTools()
         case OS_TYPE::WINDOWS:
         {
             std::string toolchainUrl = BuildToolsUrl();
-            DX_DEBUG("tools", "download %s", toolchainUrl.c_str());
             std::string cpkShareDir = CpkShareDir();
             if (!IsDir(cpkShareDir))
             {
@@ -62,6 +61,7 @@ void InstallBuildTools()
             if (!IsExists((toolsPath + "/toolchain.zip").c_str()))
             {
                 DX_INFO("tools", "downloading toolchain");
+                DX_DEBUG("tools", "download %s", toolchainUrl.c_str());
                 DownloadFile(toolchainUrl.c_str(), (toolsPath + "/toolchain.zip").c_str());
             }
             std::string mingw64Path = toolsPath + "/mingw64";
@@ -89,6 +89,7 @@ void InstallBuildTools()
             if (!IsExists(cmakeZip.c_str()))
             {
                 DX_INFO("tools", "downloading build tools...");
+                DX_DEBUG("tools", "download %s", cmakeUrl.c_str());
                 DownloadFile(cmakeUrl.c_str(), cmakeZip.c_str());
             }
 

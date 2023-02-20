@@ -29,6 +29,20 @@ static int DX_DEBUG_LEVEL()
  return dx_print_level;
 }
 
+#ifdef CPK
+extern FILE *dx_log_file;
+static void DX_LOGWRITTER_START(const char* logfile)
+{
+  dx_log_file = fopen(logfile, "w");
+}
+static void DX_LOGWRITTER_END()
+{
+  fclose(dx_log_file);
+}
+#else
+static FILE *dx_log_file = NULL;
+#endif
+
 #ifdef DX_COLORFUL
 
 inline int DX_STRING_HASH(const char* str)
@@ -45,12 +59,12 @@ inline int DX_STRING_HASH(const char* str)
   timeval curTime;\
   time_t rawtime;\
   char timebuffer[28];\
-  if (level <= dx_print_level)\
-  {\
   gettimeofday(&curTime, NULL);\
   rawtime = curTime.tv_sec;\
   strftime(timebuffer, 28, "%H:%M:%S", localtime(&rawtime));\
   \
+  if (level <= dx_print_level)\
+  {\
   char color[32] = {0}; \
   short color_pick = DX_STRING_HASH(tag) % (232 - 16 + 1) + 16; \
   sprintf(color, "\x1b[38;5;%dm", color_pick); \
@@ -67,6 +81,8 @@ inline int DX_STRING_HASH(const char* str)
   }\
   fprintf(out, "[%s:%03ld] %s[%s]%s %s" msg "%s\n", timebuffer, curTime.tv_usec / 1000, color, tag, color_clear, text_color, ##__VA_ARGS__, text_clear);\
   }\
+  if (dx_log_file != NULL)\
+    fprintf(dx_log_file, "[%s:%03ld] [%s] " msg "\n", timebuffer, curTime.tv_usec / 1000, tag, ##__VA_ARGS__);\
 }
 
 #define DX_ERROR(tag, ...) DX_PRINTF(stderr, tag, DX_LEVEL_ERROR, ##__VA_ARGS__)

@@ -33,10 +33,10 @@ std::map <std::string, int> CpkLanguages = {
     {"javascript", JAVASCRIPT},
 };
 
-void InstallPackages(const std::vector<CPKPackage>& packages)
+bool InstallPackages(const std::vector<CPKPackage>& packages)
 {
     if(packages.size() == 0)
-        return;
+        return false;
 
     InstallBuildTools();
 
@@ -50,7 +50,7 @@ void InstallPackages(const std::vector<CPKPackage>& packages)
     std::string response = SendPostRequest(GetRemoteBackend() + "/install", jsonRequest.c_str());
     if (response.length() == 0) {
         DX_ERROR("json", "no respoce from server");
-        return;
+        return false;
     }
     DX_DEBUG("install", "responce: %s", response.c_str());
 
@@ -59,7 +59,7 @@ void InstallPackages(const std::vector<CPKPackage>& packages)
         response_json = nlohmann::json::parse(response);
     } catch(...) {
         DX_ERROR("json", "error parse or respoce from server");
-        return;
+        return false;
     }
     if (response_json.contains("error"))
     {
@@ -69,7 +69,7 @@ void InstallPackages(const std::vector<CPKPackage>& packages)
                 std::string errorDesc = response_json["errorDesc"];
                 DX_ERROR("install", "error install: %s", errorDesc.c_str());
         }
-        return;
+        return false;
     }
 
     std::string cpkDir = ".cpk";
@@ -207,9 +207,9 @@ void InstallPackages(const std::vector<CPKPackage>& packages)
                         RenderProgress(25, true, "Initialize package build");
                         DX_DEBUG("install", "build");
                         if(!EXEWithPrint("cd \"" + packageDir + "\" && cmake --build \"build\" -j" + std::to_string(processor_count), [&](const std::string& line){
+                            DX_DEBUG("cmake", "%s", line.c_str());
                             if (DX_DEBUG_LEVEL() == DX_LEVEL_DEBUG)
                             {
-                                DX_DEBUG("cmake", "%s", line.c_str());
                                 return;
                             }
                             std::regex re("\\[\\s+([0-9]+)\\%\\]");
@@ -306,6 +306,7 @@ void InstallPackages(const std::vector<CPKPackage>& packages)
             }
         }
     }
+    return !some_package_failed;
 }
 
 void PublishPacket()
@@ -504,6 +505,9 @@ void printHelp()
 }
 
 int cpk_main(int argc, char *argv[]) {
+    int retVal = 0;
+    DX_LOGWRITTER_START((CpkShareDir() + "/cpk.log").c_str());
+
     if(argc == 1 || cmdOptionExists(argv, argv+argc, "-h"))
     {
         printHelp();
@@ -550,7 +554,7 @@ int cpk_main(int argc, char *argv[]) {
                     package.package = packageVer[1];
                 packages.push_back(package);
             }
-            InstallPackages(packages);
+            retVal = InstallPackages(packages) ? 0 : 1;
         }
         if (strcmp(argv[1], "publish") == 0) {
                 PublishPacket();
@@ -560,8 +564,8 @@ int cpk_main(int argc, char *argv[]) {
         }
     }
 
-    //downloadFile("https://degitx.com/sitemap.xml", "sitemap.xml");
-    return 0;
+    DX_LOGWRITTER_END();
+    return retVal;
 }
 
 }
