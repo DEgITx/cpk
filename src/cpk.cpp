@@ -175,14 +175,28 @@ void InstallPackages(const std::vector<CPKPackage>& packages)
                     {
                         DX_DEBUG("install", "build package %s with cmake", package_name.c_str());
                         std::string buildDir = packageDir + "/build";
+                        std::string installDir = AbsolutePath(buildDir + "/install");
                         MkDir(buildDir);
+                        MkDir(installDir);
                         DX_DEBUG("install", "prepare cmake build");
 #ifdef CPK_OS_WIN
                         std::string cmake_build_type = "-G \"MinGW Makefiles\"";
 #else
                         std::string cmake_build_type = "";
 #endif
-                        std::string cmake_configure = "cd \"" + packageDir + "\" && cmake -B \"build\" " + cmake_build_type + " -DCMAKE_BUILD_TYPE=RelWithDebInfo";
+                        std::string cmake_deps_dirs = "";
+                        if (package.contains("dependencies"))
+                        {
+                            for(const auto& dep : package["dependencies"].items())
+                            {
+                                DX_DEBUG("cmake", "dep %s", dep.key().c_str());
+                                std::string depDir = cpkDir + "/" + dep.key() + "/build/install";
+                                depDir = AbsolutePath(depDir);
+                                cmake_deps_dirs += " -DCMAKE_PREFIX_PATH=\"" + depDir + "\"";
+                            }
+                        }
+
+                        std::string cmake_configure = "cd \"" + packageDir + "\" && cmake -B \"build\" " + cmake_build_type + " -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_INSTALL_PREFIX=\"" + installDir + "\"" + cmake_deps_dirs;
                         bool cmake_configure_result = (DX_DEBUG_LEVEL() == DX_LEVEL_DEBUG) ? EXE(cmake_configure) : EXES(cmake_configure);
                         if (!cmake_configure_result)
                         {
@@ -202,7 +216,7 @@ void InstallPackages(const std::vector<CPKPackage>& packages)
                             if (std::regex_search(line, match, re))
                             {
                                 int percent = std::stoi(match[1].str());
-                                percent = 25 + ((float)percent / 100 * 75);
+                                percent = 25 + ((float)percent / 100 * 70);
                                 RenderProgress(percent, false, "Building package...");
                             }
                         }))
@@ -210,6 +224,15 @@ void InstallPackages(const std::vector<CPKPackage>& packages)
                             DX_ERROR("install", "failed to build package");
                             return;
                         }
+                        RenderProgress(96, true, "Install package");
+                        std::string cmake_install = "cd \"" + packageDir + "\" && cmake --install \"build\"";
+                        bool cmake_install_result = (DX_DEBUG_LEVEL() == DX_LEVEL_DEBUG) ? EXE(cmake_install) : EXES(cmake_install);
+                        if (!cmake_install_result)
+                        {
+                            DX_ERROR("install", "failed to install package");
+                            return;
+                        }
+
                         RenderProgress(100, true, " ");
                     }
                     break;

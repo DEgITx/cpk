@@ -112,6 +112,20 @@ bool IsExists(const std::string& path)
     return (stat (path.c_str(), &buffer) == 0);
 }
 
+std::string AbsolutePath(const std::string& path)
+{
+    char resolved_path[4096] = {0};
+#ifdef CPK_OS_WIN
+    if (_fullpath(resolved_path, path.c_str(), PATH_MAX) == NULL) {
+#else
+    if (realpath(path.c_str(), resolved_path) == NULL) {
+#endif
+        DX_ERROR("path", "can't get absolute path from %s", path.c_str());
+        return std::string();
+    }
+    return std::string(resolved_path);
+}
+
 bool EXE(const std::string& command)
 {
     return (system(command.c_str()) == 0);

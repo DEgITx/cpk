@@ -20,6 +20,7 @@ extern bool m_gIsReleaseBackend;
 std::string GetRemoteBackend();
 void EnableRemoteBackend();
 size_t FileSize(const std::string& filename);
+std::string AbsolutePath(const std::string& path);
 int MkDir(const std::string& path);
 int MkDirP(const std::string& path);
 bool IsDir(const std::string& path);
