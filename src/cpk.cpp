@@ -148,6 +148,7 @@ void InstallPackages(const std::vector<CPKPackage>& packages)
                 for(const auto& dep : package["dependencies"].items())
                 {
                     DX_DEBUG("pkg", "dep %s", dep.key().c_str());
+                    RenderProgress(0, true, "Awaiting " + dep.key() + " package");
                     std::unique_lock lock_install(wait_install_mutex);
                     need_install_deps_conditions[dep.key()].wait(lock_install, [&need_install_deps_map_ready, &dep]{
                         return need_install_deps_map_ready[dep.key()];
