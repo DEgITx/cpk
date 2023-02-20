@@ -144,7 +144,17 @@ bool EXES(const std::string& command)
 
 bool EXEWithPrint(const std::string& command, std::function<void(const std::string& line)> callback)
 {
-    FILE* pipe = popen(command.c_str(), "r");
+    std::string commandNoErrors = command;
+    if (DX_DEBUG_LEVEL() != DX_LEVEL_DEBUG)
+    {
+#ifdef CPK_OS_WIN
+        commandNoErrors = commandNoErrors + " 2> nul";
+#else
+        commandNoErrors = commandNoErrors + " 2> /dev/null";
+#endif
+    }
+
+    FILE* pipe = popen(commandNoErrors.c_str(), "r");
     if (!pipe)
     {
         DX_ERROR("exe", "cannot start command: %s", command.c_str());
