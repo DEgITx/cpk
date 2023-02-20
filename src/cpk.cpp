@@ -540,6 +540,8 @@ int cpk_main(int argc, char *argv[]) {
         return 0;
     }
 
+    DX_INFO("cpk", "%s %s [os: %s %s]", version, revision, cpk::GetOSType().c_str(), cpk::GetOSArch().c_str());
+
     printLogo();
 
     if(argc == 1 || cmdOptionExists(argv, argv+argc, "-h"))
@@ -547,8 +549,6 @@ int cpk_main(int argc, char *argv[]) {
         printHelp();
         return 0;
     }
-
-    DX_INFO("cpk", "%s %s [os: %s %s]", version, revision, cpk::GetOSType().c_str(), cpk::GetOSArch().c_str());
 
     if (cmdOptionExists(argv, argv+argc, "--release", true)) {
         EnableRemoteBackend();
