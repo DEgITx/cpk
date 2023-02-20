@@ -494,6 +494,18 @@ bool cmdOptionExists(char** begin, char** end, const std::string& option, bool c
     return found;
 }
 
+void printLogo()
+{
+printf(
+"___________________ ____  __.\n"
+"\\_   ___ \\______   \\    |/ _|\n"
+"/    \\  \\/|     ___/      <  \n"
+"\\     \\___|    |   |    |  \\ \n"
+" \\______  /____|   |____|__ \\\n"
+"        \\/                 \\/\n"
+);
+}
+
 void printHelp()
 {
     printf("./cpk [command] - CPK package manage\n");
@@ -508,12 +520,6 @@ int cpk_main(int argc, char *argv[]) {
     int retVal = 0;
     DX_LOGWRITTER_START((CpkShareDir() + "/cpk.log").c_str());
 
-    if(argc == 1 || cmdOptionExists(argv, argv+argc, "-h"))
-    {
-        printHelp();
-        return 0;
-    }
-
 #ifdef CPK_RELEASE
     if (cmdOptionExists(argv, argv+argc, "--debug", true) || cmdOptionExists(argv, argv+argc, "-d", true))
     {
@@ -526,10 +532,6 @@ int cpk_main(int argc, char *argv[]) {
     }
 #endif
 
-    if (cmdOptionExists(argv, argv+argc, "--release", true)) {
-        EnableRemoteBackend();
-    }
-
     char version[] = GIT_DESCRIBE;
     char revision[] = "r" GIT_REVISION;
 
@@ -538,7 +540,19 @@ int cpk_main(int argc, char *argv[]) {
         return 0;
     }
 
+    printLogo();
+
+    if(argc == 1 || cmdOptionExists(argv, argv+argc, "-h"))
+    {
+        printHelp();
+        return 0;
+    }
+
     DX_INFO("cpk", "%s %s [os: %s %s]", version, revision, cpk::GetOSType().c_str(), cpk::GetOSArch().c_str());
+
+    if (cmdOptionExists(argv, argv+argc, "--release", true)) {
+        EnableRemoteBackend();
+    }
 
     if(argc >= 2) {
         if (strcmp(argv[1], "install") == 0) {

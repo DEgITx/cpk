@@ -13,6 +13,16 @@
 #define DX_LEVEL_WARN 1
 #define DX_LEVEL_ERROR 0
 
+#define DX_COLOR_CLEAR "\x1b[0m"
+#define DX_COLOR_BLACK "\x1b[38;5;0m"
+#define DX_COLOR_RED "\x1b[38;5;1m"
+#define DX_COLOR_GREEN "\x1b[38;5;2m"
+#define DX_COLOR_YELLOW "\x1b[38;5;3m"
+#define DX_COLOR_BLUE "\x1b[38;5;4m"
+#define DX_COLOR_MAGENTA "\x1b[38;5;5m"
+#define DX_COLOR_CYAN "\x1b[38;5;6m"
+#define DX_COLOR_WHITE "\x1b[38;5;7m"
+
 #ifdef CPK
 extern int dx_print_level;
 #else
