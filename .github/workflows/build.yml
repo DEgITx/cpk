@@ -23,7 +23,7 @@ jobs:
         run: |
           sudo apt update
           sudo apt install -y \
-            build-essential cmake ninja-build
+            build-essential cmake ninja-build git
       - name: Setup Ninja and CMake (MacOS)
         if: runner.os == 'macOS'
         run: |

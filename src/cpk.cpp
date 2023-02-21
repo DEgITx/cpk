@@ -190,9 +190,10 @@ bool InstallPackages(const std::vector<CPKPackage>& packages)
                     {
                         DX_DEBUG("install", "build package %s with cmake", package_name.c_str());
                         std::string buildDir = packageDir + "/build";
-                        std::string installDir = AbsolutePath(buildDir + "/install");
+                        std::string installDir = buildDir + "/install";
                         MkDir(buildDir);
                         MkDir(installDir);
+                        installDir = AbsolutePath(installDir);
                         DX_DEBUG("install", "prepare cmake build");
 #ifdef CPK_OS_WIN
                         std::string cmake_build_type = "-G \"MinGW Makefiles\"";
@@ -540,6 +541,8 @@ void printHelp()
 
 int cpk_main(int argc, char *argv[]) {
     int retVal = 0;
+    if (!IsExists(CpkShareDir()))
+        MkDir(CpkShareDir());
     DX_LOGWRITTER_START((CpkShareDir() + "/cpk.log").c_str());
 
 #ifdef CPK_RELEASE
