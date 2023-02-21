@@ -31,6 +31,8 @@ jobs:
           brew install \
             cmake ninja
       - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
       - name: Build CPK
         run: |
           cmake -B build -G "Ninja" -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_INSTALL_PREFIX="upload"
