@@ -78,10 +78,12 @@ bool InstallPackages(const std::vector<CPKPackage>& packages)
 
     std::vector<int> packages_percent;
     std::mutex packages_percent_lock;
-    std::vector<std::string> packages_names_with_version;
+    std::vector<std::string> packages_names;
+    std::vector<std::string> packages_versions;
     std::vector<std::string> progress_messages;
     packages_percent.resize(response_json["packages"].size());
-    packages_names_with_version.resize(response_json["packages"].size());
+    packages_names.resize(response_json["packages"].size());
+    packages_versions.resize(response_json["packages"].size());
     progress_messages.resize(response_json["packages"].size());
 
     thread_pool pool;
@@ -91,23 +93,27 @@ bool InstallPackages(const std::vector<CPKPackage>& packages)
     std::mutex wait_install_mutex;
     std::unordered_map<std::string, std::condition_variable> need_install_deps_conditions;
     std::unordered_map<std::string, bool> need_install_deps_map_ready;
+    std::unordered_map<std::string, bool> need_install_deps_map_failed;
     int package_index = -1;
     InitRenderProgressBars(response_json["packages"].size());
     for(const auto& package : response_json["packages"])
     {
         package_index++;
-        packages_names_with_version[package_index] = std::string(package["package"]) + " " + std::string(package["version"]);
+        packages_names[package_index] = package["package"];
+        packages_versions[package_index] = package["version"];
         pool.queue([package, 
             cpkDir, 
             processor_count,
             package_index,
             &packages_percent,
-            &packages_names_with_version,
+            &packages_names,
+            &packages_versions,
             &progress_messages,
             &packages_percent_lock,
             &wait_install_mutex, 
             &need_install_deps_conditions, 
-            &need_install_deps_map_ready
+            &need_install_deps_map_ready,
+            &need_install_deps_map_failed
         ]() 
         {
             std::string package_name = package["package"];
@@ -121,7 +127,15 @@ bool InstallPackages(const std::vector<CPKPackage>& packages)
                     return; // don't draw progress in debug mode
                 packages_percent[package_index] = percent;
                 progress_messages[package_index] = message;
-                RenderProgressBars(packages_names_with_version, packages_percent, force, progress_messages);
+                RenderProgressBars(
+                    packages_names,
+                    packages_versions,
+                    packages_percent, 
+                    force, 
+                    progress_messages, 
+                    need_install_deps_map_ready, 
+                    need_install_deps_map_failed
+                );
             };
 
             nlohmann::json installedFileSave;
@@ -201,6 +215,8 @@ bool InstallPackages(const std::vector<CPKPackage>& packages)
                         bool cmake_configure_result = (DX_DEBUG_LEVEL() == DX_LEVEL_DEBUG) ? EXE(cmake_configure) : EXES(cmake_configure);
                         if (!cmake_configure_result)
                         {
+                            need_install_deps_map_failed[package_name] = true;
+                            RenderProgress(99, true, "failed to conf package");
                             DX_ERROR("install", "failed to prepare project for build");
                             return;
                         }
@@ -222,6 +238,8 @@ bool InstallPackages(const std::vector<CPKPackage>& packages)
                             }
                         }))
                         {
+                            need_install_deps_map_failed[package_name] = true;
+                            RenderProgress(99, true, "failed to build package");
                             DX_ERROR("install", "failed to build package");
                             return;
                         }
@@ -230,11 +248,13 @@ bool InstallPackages(const std::vector<CPKPackage>& packages)
                         bool cmake_install_result = (DX_DEBUG_LEVEL() == DX_LEVEL_DEBUG) ? EXE(cmake_install) : EXES(cmake_install);
                         if (!cmake_install_result)
                         {
+                            need_install_deps_map_failed[package_name] = true;
+                            RenderProgress(99, true, "failed to install package");
                             DX_ERROR("install", "failed to install package");
                             return;
                         }
 
-                        RenderProgress(100, true, " ");
+                        RenderProgress(99, true, "saving package info");
                     }
                     break;
                 default:
@@ -260,6 +280,8 @@ bool InstallPackages(const std::vector<CPKPackage>& packages)
             SendPostRequest(GetRemoteBackend() + "/installed", "{\"package\": \"" + package_name + "\", \"success\": true}");
             DX_DEBUG("install", "post statistic after installation");
 
+            RenderProgress(100, true, " ");
+
             wait_install_mutex.unlock();
             need_install_deps_conditions[package_name].notify_all();
         });
@@ -268,7 +290,7 @@ bool InstallPackages(const std::vector<CPKPackage>& packages)
 
     bool some_package_failed = false;
     bool some_package_success = false;
-    printf("Succefully installed: ");
+    printf("\nSuccessfully installed: ");
     int installed_index = -1;
     for(const auto& package : response_json["packages"])
     {
@@ -277,9 +299,9 @@ bool InstallPackages(const std::vector<CPKPackage>& packages)
         {
             some_package_success = true;
             if (response_json["packages"].size() - 1 != installed_index)
-                printf("%s, ", std::string(package["package"]).c_str());
+                printf(DX_COLOR_GREEN "%s %s, " DX_COLOR_CLEAR, std::string(package["package"]).c_str(), std::string(package["version"]).c_str());
             else
-                printf("%s\n", std::string(package["package"]).c_str());
+                printf(DX_COLOR_GREEN "%s %s\n" DX_COLOR_CLEAR, std::string(package["package"]).c_str(), std::string(package["version"]).c_str());
         }
         else
         {
@@ -293,16 +315,16 @@ bool InstallPackages(const std::vector<CPKPackage>& packages)
     if (some_package_failed)
     {
         installed_index = -1;
-        printf("Failed to install: ");
+        printf("\nFailed to install: ");
         for(const auto& package : response_json["packages"])
         {
             installed_index++;
             if (!need_install_deps_map_ready[package["package"]])
             {
                 if (response_json["packages"].size() - 1 != installed_index)
-                    printf("%s, ", std::string(package["package"]).c_str());
+                    printf(DX_COLOR_RED "%s %s, " DX_COLOR_CLEAR, std::string(package["package"]).c_str(), std::string(package["version"]).c_str());
                 else
-                    printf("%s\n", std::string(package["package"]).c_str());
+                    printf(DX_COLOR_RED "%s %s\n" DX_COLOR_CLEAR, std::string(package["package"]).c_str(), std::string(package["version"]).c_str());
             }
         }
     }
