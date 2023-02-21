@@ -6,6 +6,8 @@
 
 ## CPK Package Manager
 
+<p align="center"><img src="https://github.com/DEgITx/share/blob/main/cpk/cpk_basic.gif?raw=true" /></p>
+
 Very light and easy and fast native package manager to install **C/C++ (priority), JS, Python, Rust** packages and compile sources when it needed. Same package can be in muitple form for different languages.
 
 Main purpose of this package manager to have simple C/C++ manager with possibility to post packages like **npm**, and also provide functionality to support same algorithms and code base for different programming languages, so if someone wanna **quicksort** package in their project on Python - they will get it, and if need the same one for C++ he will get it with simillar command.
