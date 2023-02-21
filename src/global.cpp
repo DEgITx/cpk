@@ -75,7 +75,7 @@ std::string Join(const std::vector<std::string> &lst, const std::string &delim)
     return ret;
 }
 
-int MkDirP(const std::string& path)
+void MkDirP(const std::string& path)
 {
     std::string normalPath = path;
     std::replace( normalPath.begin(), normalPath.end(), '\\', '/');

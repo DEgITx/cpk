@@ -15,7 +15,7 @@ bool simple_test()
 {
     UnZip("test_zip.zip", "test_zip.txt");
     char buff[255];
-    readline("test_zip.txt", buff);
+    readline((char*)"test_zip.txt", buff);
     if (strcmp("hello test 1", buff) != 0)
         return false;
 
@@ -26,12 +26,12 @@ bool dir_test()
 {
     UnZip("test_zip2.zip", "test_zip.txt");
     char buff[255];
-    readline("test_zip_1.txt", buff);
+    readline((char*)"test_zip_1.txt", buff);
     if (strcmp("hello test 1", buff) != 0)
         return false;
 
     char buff2[255];
-    readline("testdir1/2 3 аб/test_zip_2.txt", buff2);
+    readline((char*)"testdir1/2 3 аб/test_zip_2.txt", buff2);
     if (strcmp("hello test 2", buff2) != 0)
         return false;
 

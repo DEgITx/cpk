@@ -21,6 +21,7 @@ std::string BuildToolsUrl()
                     return REMOTE_TOOLS_URL "/tools/winlibs-i686-posix-dwarf-gcc-12.1.0-llvm-14.0.4-mingw-w64ucrt-10.0.0-r2.zip";
             }
     }
+    return std::string();
 }
 
 std::string CmakeUrl()
@@ -36,6 +37,7 @@ std::string CmakeUrl()
                     return REMOTE_TOOLS_URL "/tools/cmake-3.23.2-windows-i386.zip";
             }
     }
+    return std::string();
 }
 
 void InstallBuildTools()
