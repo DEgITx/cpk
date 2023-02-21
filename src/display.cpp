@@ -40,7 +40,11 @@ void RenderProgressBars(
         if (names[i].empty())
             continue;
 
-        float percent = (float)progresses[i] / 100.0;
+        bool is_success = (success.find(names[i]) != success.end() && success.at(names[i]));
+        int progress = progresses[i];
+        if (is_success)
+            progress = 100;
+        float percent = (float)progress / 100.0;
         int pos = barWidth * percent;
 
         printf("%s %s [", names[i].c_str(), versions[i].c_str());
@@ -52,7 +56,10 @@ void RenderProgressBars(
         }
         if (messages.size() <= i || messages[i].empty())
         {
-            printf("] %d %%\n\r", (int)progresses[i]);
+            if (is_success)
+                printf("] %s%d %%%s\n\r", DX_COLOR_GREEN, (int)progress, DX_COLOR_CLEAR);
+            else
+                printf("] %d %%\n\r", (int)progress);
         }
         else
         {
@@ -61,7 +68,7 @@ void RenderProgressBars(
 
             std::string fill_empty(max_render_bar_message_length - messages[i].length(), ' ');
 
-            if (success.find(names[i]) != success.end() && success.at(names[i]))
+            if (is_success)
                 printf("] %s%d %% %s%s\n\r", DX_COLOR_GREEN, (int)progresses[i], (messages[i] + fill_empty).c_str(), DX_COLOR_CLEAR);
             else if (failed.find(names[i]) != failed.end() && failed.at(names[i]))
                 printf("] %s%d %% %s%s\n\r", DX_COLOR_RED, (int)progresses[i], (messages[i] + fill_empty).c_str(), DX_COLOR_CLEAR);

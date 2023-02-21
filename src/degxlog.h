@@ -91,8 +91,10 @@ inline int DX_STRING_HASH(const char* str)
   }\
   fprintf(out, "[%s:%03ld] %s[%s]%s %s" msg "%s\n", timebuffer, curTime.tv_usec / 1000, color, tag, color_clear, text_color, ##__VA_ARGS__, text_clear);\
   }\
-  if (dx_log_file != NULL)\
+  if (dx_log_file != NULL) {\
     fprintf(dx_log_file, "[%s:%03ld] [%s] " msg "\n", timebuffer, curTime.tv_usec / 1000, tag, ##__VA_ARGS__);\
+    fflush(dx_log_file);\
+  }\
 }
 
 #define DX_ERROR(tag, ...) DX_PRINTF(stderr, tag, DX_LEVEL_ERROR, ##__VA_ARGS__)

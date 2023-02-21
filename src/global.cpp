@@ -9,6 +9,7 @@
 #include <algorithm>
 #include <stdio.h>
 #include <random>
+#include <filesystem>
 #ifdef CPK_OS_MACOS
 #include <pwd.h>
 #endif
@@ -187,6 +188,11 @@ std::vector<std::string> AllFiles(const std::string& ext)
 
 void Remove(const std::string& file)
 {
+   if (IsDir(file)) {
+    std::filesystem::remove_all(file);
+    return;
+   }
+
    int ret = remove(file.c_str());
    if(ret != 0) {
     DX_ERROR("file", "can't remove %s", file.c_str());

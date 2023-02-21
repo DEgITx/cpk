@@ -117,6 +117,7 @@ bool InstallPackages(const std::vector<CPKPackage>& packages)
         ]() 
         {
             std::string package_name = package["package"];
+            std::string package_version = package["version"];
             std::string package_url = package["url"];
             std::string build_type = package["buildType"];
             std::string package_language = package["language"];
@@ -149,11 +150,25 @@ bool InstallPackages(const std::vector<CPKPackage>& packages)
                 installedFileSave["packages"] = {};
             }
 
+            bool is_update = false;
+
             if (installedFileSave["packages"].contains(package_name))
             {
-                need_install_deps_map_ready[package_name] = true;
-                DX_INFO("install", "%s package installed. Skip.", package_name.c_str());
-                return;
+                if (installedFileSave["packages"][package_name]["version"] == package_version)
+                {
+                    need_install_deps_map_ready[package_name] = true;
+                    DX_DEBUG("install", "%s package installed. Skip.", package_name.c_str());
+                    return;   
+                }
+                else
+                {
+                    DX_DEBUG("install", "%s package version %s != %s. Update.", 
+                        package_name.c_str(), 
+                        std::string(installedFileSave["packages"][package_name]["version"]).c_str(), 
+                        package_version.c_str()
+                    );
+                    is_update = true;
+                }
             }
 
             DX_DEBUG("pkg", "wait deps install for package %s", package_name.c_str());
@@ -179,6 +194,10 @@ bool InstallPackages(const std::vector<CPKPackage>& packages)
             DX_DEBUG("install", "downloaded %s as %s", package_url.c_str(), zipFile.c_str());
             RenderProgress(15, true, "Unpack...");
             std::string packageDir = cpkDir + "/" + package_name;
+            if (is_update)
+            {
+                Remove(packageDir);
+            }
             if (!IsExists(packageDir))
                 MkDir(packageDir);
             UnZip(zipFile, packageDir);
@@ -600,6 +619,31 @@ int cpk_main(int argc, char *argv[]) {
         }
         if (strcmp(argv[1], "packages") == 0) {
                 PackagesList();
+        }
+
+        if (strcmp(argv[1], "update") == 0) {
+            nlohmann::json installedFileSave;
+            std::string cpkDir = ".cpk";
+            if (IsExists(cpkDir + "/packages.json"))
+            {
+                std::ifstream ifs(cpkDir + "/packages.json");
+                installedFileSave = nlohmann::json::parse(ifs);
+                std::vector<CPKPackage> packages;
+                for(const auto& package : installedFileSave["packages"])
+                {
+                    CPKPackage pkg;
+                    pkg.package = package["package"];
+                    packages.push_back(pkg);
+                }
+                if (packages.size() > 0)
+                {
+                    retVal = InstallPackages(packages) ? 0 : 1;
+                }
+            }
+            else
+            {
+                DX_INFO("update", "nothing to update");
+            }
         }
     }
 
