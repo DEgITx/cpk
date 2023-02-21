@@ -77,7 +77,7 @@ bool InstallPackages(const std::vector<CPKPackage>& packages)
         MkDir(cpkDir);
 
     std::vector<int> packages_percent;
-    std::mutex packages_percent_lock;
+    std::mutex packages_status_lock;
     std::vector<std::string> packages_names;
     std::vector<std::string> packages_versions;
     std::vector<std::string> progress_messages;
@@ -109,7 +109,7 @@ bool InstallPackages(const std::vector<CPKPackage>& packages)
             &packages_names,
             &packages_versions,
             &progress_messages,
-            &packages_percent_lock,
+            &packages_status_lock,
             &wait_install_mutex, 
             &need_install_deps_conditions, 
             &need_install_deps_map_ready,
@@ -123,9 +123,9 @@ bool InstallPackages(const std::vector<CPKPackage>& packages)
             std::string package_language = package["language"];
 
             auto RenderProgress = [&](int percent, bool force = false, const std::string& message = std::string()){
-                std::lock_guard<std::mutex> lock(packages_percent_lock);
                 if (DX_DEBUG_LEVEL() == DX_LEVEL_DEBUG)
                     return; // don't draw progress in debug mode
+                std::lock_guard<std::mutex> lock(packages_status_lock);
                 packages_percent[package_index] = percent;
                 progress_messages[package_index] = message;
                 RenderProgressBars(
@@ -156,6 +156,7 @@ bool InstallPackages(const std::vector<CPKPackage>& packages)
             {
                 if (installedFileSave["packages"][package_name]["version"] == package_version)
                 {
+                    std::lock_guard<std::mutex> lock(packages_status_lock);
                     need_install_deps_map_ready[package_name] = true;
                     DX_DEBUG("install", "%s package installed. Skip.", package_name.c_str());
                     return;   
@@ -179,7 +180,8 @@ bool InstallPackages(const std::vector<CPKPackage>& packages)
                     DX_DEBUG("pkg", "dep %s", dep.key().c_str());
                     RenderProgress(0, true, "Awaiting " + dep.key() + " package");
                     std::unique_lock lock_install(wait_install_mutex);
-                    need_install_deps_conditions[dep.key()].wait(lock_install, [&need_install_deps_map_ready, &dep]{
+                    need_install_deps_conditions[dep.key()].wait(lock_install, [&need_install_deps_map_ready, &dep, &packages_status_lock]{
+                        std::lock_guard<std::mutex> lock(packages_status_lock);
                         return need_install_deps_map_ready[dep.key()];
                     });
                 }
@@ -235,7 +237,9 @@ bool InstallPackages(const std::vector<CPKPackage>& packages)
                         bool cmake_configure_result = (DX_DEBUG_LEVEL() == DX_LEVEL_DEBUG) ? EXE(cmake_configure) : EXES(cmake_configure);
                         if (!cmake_configure_result)
                         {
+                            packages_status_lock.lock();
                             need_install_deps_map_failed[package_name] = true;
+                            packages_status_lock.unlock();
                             RenderProgress(99, true, "failed to conf package");
                             DX_ERROR("install", "failed to prepare project for build");
                             return;
@@ -258,7 +262,9 @@ bool InstallPackages(const std::vector<CPKPackage>& packages)
                             }
                         }))
                         {
+                            packages_status_lock.lock();
                             need_install_deps_map_failed[package_name] = true;
+                            packages_status_lock.unlock();
                             RenderProgress(99, true, "failed to build package");
                             DX_ERROR("install", "failed to build package");
                             return;
@@ -268,7 +274,9 @@ bool InstallPackages(const std::vector<CPKPackage>& packages)
                         bool cmake_install_result = (DX_DEBUG_LEVEL() == DX_LEVEL_DEBUG) ? EXE(cmake_install) : EXES(cmake_install);
                         if (!cmake_install_result)
                         {
+                            packages_status_lock.lock();
                             need_install_deps_map_failed[package_name] = true;
+                            packages_status_lock.unlock();
                             RenderProgress(99, true, "failed to install package");
                             DX_ERROR("install", "failed to install package");
                             return;
@@ -282,7 +290,9 @@ bool InstallPackages(const std::vector<CPKPackage>& packages)
             }
             wait_install_mutex.lock();
 
+            packages_status_lock.lock();
             need_install_deps_map_ready[package_name] = true;
+            packages_status_lock.unlock();
 
             if (IsExists(cpkDir + "/packages.json"))
             {
