@@ -15,13 +15,13 @@ Main purpose of this package manager to have simple C/C++ manager with possibili
 Cross-platform. Implemented on C/C++ and provided for Linux, Mac OS, Windows arch.
 
 ## Features
-* Lightweight, witten on C/C++
-* Cross-platform. Prebuilded packages for popular systems (like Windows, Linux, MacOSX), just download and ready to use. (recomended add to path var)
-* Publishing your own package imidiatly with "cpk publish" command inside project directory. Package ready to be used on other side right after with "cpk install". (no intermidiate moderation and etс...)
-* Everyone can publish own package library or binary with one simple command.
+* Lightweight, written on C/C++
+* Cross-platform. Prebuilds packages for popular systems (like Windows, Linux, macOS), just download and ready to use. (Recommended add to path var)
+* Publishing your own package immediately with "cpk publish" command inside project directory. Package ready to be used on other side right after with "cpk install". (no intermediate moderation etc...)
+* Everyone can publish the own package library or binary with one simple command.
 * Keep installation & popularity statistic to recommend most popular packages and libs (can be yours).
 * Using external effective build managers: like cmake, mingw32.
-* Easy to use configuration for packages: json based package config (very simillar to npm).
+* Easy to use configuration for packages: json based package config (very similar to npm).
 
 ## Download/install
 
