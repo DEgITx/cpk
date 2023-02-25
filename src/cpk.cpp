@@ -231,7 +231,7 @@ bool InstallPackages(const std::vector<CPKPackage>& packages)
                                 DX_DEBUG("cmake", "dep %s", dep.key().c_str());
                                 std::string depDir = cpkDir + "/" + dep.key() + "/build/install";
                                 depDir = AbsolutePath(depDir);
-                                cmake_deps_dirs += (idx == 0) ? depDir : ":" + depDir;
+                                cmake_deps_dirs += (idx == 0) ? depDir : ";" + depDir;
                                 idx++;
                             }
                             cmake_deps_dirs += "\"";
@@ -685,7 +685,7 @@ int cpk_main(int argc, char *argv[]) {
                 int idx = 0;
                 for(const auto& package : installedFileSave["packages"])
                 {
-                    libPath += (idx == 0) ? (cpkDir + "/") : (":" + cpkDir + "/");
+                    libPath += (idx == 0) ? (cpkDir + "/") : (";" + cpkDir + "/");
                     libPath += std::string(package["package"]);
                     libPath += "/build/install";
                     idx++;
