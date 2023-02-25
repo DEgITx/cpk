@@ -655,35 +655,48 @@ int cpk_main(int argc, char *argv[]) {
                 DX_INFO("update", "nothing to update");
             }
         } else {
-            std::string cpkDir = ".cpk";
+            std::string cpkDir = AbsolutePath(".");
+
+            bool stop = false;
+            while (!stop && !IsExists(cpkDir + "/.cpk/packages.json"))
+            {
+                std::string oldDir = cpkDir;
+                cpkDir = DirName(cpkDir); // parent dir
+                if (oldDir == cpkDir)
+                    stop = true;
+            }
+            if (stop)
+            {
+                DX_ERROR("cpk", "can't find .cpk dir to execute given command for dir %s", cpkDir.c_str());
+                return 1;
+            }
+            cpkDir += "/.cpk";
 
             nlohmann::json installedFileSave;
-            if (IsExists(cpkDir + "/packages.json"))
+            std::ifstream ifs(cpkDir + "/packages.json");
+            installedFileSave = nlohmann::json::parse(ifs);
+
+            if (strcmp(argv[1], "cmake") == 0)
             {
-                std::ifstream ifs(cpkDir + "/packages.json");
-                installedFileSave = nlohmann::json::parse(ifs);
-
-                if (strcmp(argv[1], "cmake") == 0)
+                DX_INFO("cmake", "handle cmake command, adding args");
+                std::vector<std::string> args(argv + 1, argv + 1 + (argc - 1));
+                
+                std::string libPath = "-DCMAKE_PREFIX_PATH=\"";
+                int idx = 0;
+                for(const auto& package : installedFileSave["packages"])
                 {
-                    DX_INFO("cmake", "handle cmake command, adding args");
-                    std::vector<std::string> args(argv + 1, argv + 1 + (argc - 1));
-                    
-                    std::string libPath = "-DCMAKE_PREFIX_PATH=\"";
-                    int idx = 0;
-                    for(const auto& package : installedFileSave["packages"])
-                    {
-                        libPath += (idx == 0) ? ".cpk/" : ":.cpk/";
-                        libPath += std::string(package["package"]);
-                        libPath += "/build/install";
-                        idx++;
-                    }
-                    libPath += "\"";
-
-                    args.insert(args.begin() + 1, libPath);
-                    
-                    std::string cmakeCmd = Join(args, " ");
-                    DX_INFO("cmake", "%s", cmakeCmd.c_str());
+                    libPath += (idx == 0) ? (cpkDir + "/") : (":" + cpkDir + "/");
+                    libPath += std::string(package["package"]);
+                    libPath += "/build/install";
+                    idx++;
                 }
+                libPath += "\"";
+
+                args.insert(args.begin() + 1, libPath);
+                
+                std::string cmakeCmd = Join(args, " ");
+                DX_INFO("cmake", "%s", cmakeCmd.c_str());
+                retVal = EXE(cmakeCmd) ? 0 : 1;
             }
         }
     }

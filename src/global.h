@@ -24,6 +24,7 @@ std::string AbsolutePath(const std::string& path);
 int MkDir(const std::string& path);
 void MkDirP(const std::string& path);
 bool IsDir(const std::string& path);
+std::string DirName(const std::string& file_or_dir);
 bool IsExists(const std::string& path);
 bool EXE(const std::string& command);
 bool EXES(const std::string& command);

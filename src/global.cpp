@@ -13,6 +13,7 @@
 #ifdef CPK_OS_MACOS
 #include <pwd.h>
 #endif
+#include <libgen.h>
 
 namespace cpk
 {
@@ -311,6 +312,13 @@ std::string CpkShareDir()
     std::string app_support = home + "/Library/Application Support";
     return app_support + "/.cpk";
 #endif
+}
+
+std::string DirName(const std::string& file_or_dir)
+{
+    std::string copyString = file_or_dir;
+    char* parent_dir = dirname((char*)(copyString.c_str()));
+    return std::string(parent_dir);
 }
 
 }
