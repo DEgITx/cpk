@@ -145,8 +145,10 @@ make -j8
 * No python and pip manager is required to start work with. The cpk in binary and source form on C/C++
 * No python required to create package, configuration of packages is with simple json syntax declared in cpk.json
 * Publishing package mechanism is easy
+* Open-source backend as part of cpk
 
 ### Vcpkg
 * Don't need to build cpk like vcpkg, cpk binaries is also presented for most popular OS's. Just download archive with cpk binary and add it to path
 * Easy to start work with from the box (easy installing and publishing)
 * To start usage the package add "cpk" before cpk command is enought "cpk cmake ../" will take care for dependencies in your project.
+* Open-source backend as part of cpk
