@@ -49,16 +49,16 @@ bool InstallPackages(const std::vector<CPKPackage>& packages)
 
     std::string response = SendPostRequest(GetRemoteBackend() + "/install", jsonRequest.c_str());
     if (response.length() == 0) {
-        DX_ERROR("json", "no respoce from server");
+        DX_ERROR("json", "no response from server");
         return false;
     }
-    DX_DEBUG("install", "responce: %s", response.c_str());
+    DX_DEBUG("install", "response: %s", response.c_str());
 
     nlohmann::json response_json;
     try {
         response_json = nlohmann::json::parse(response);
     } catch(...) {
-        DX_ERROR("json", "error parse or respoce from server");
+        DX_ERROR("json", "error parse or response from server");
         return false;
     }
     if (response_json.contains("error"))
@@ -290,7 +290,7 @@ bool InstallPackages(const std::vector<CPKPackage>& packages)
                     }
                     break;
                 default:
-                    DX_ERROR("install", "no build type assotiated founded");
+                    DX_ERROR("install", "no build type associated founded");
             }
             wait_install_mutex.lock();
 
@@ -474,7 +474,7 @@ void PublishPacket()
     try {
         response_json = nlohmann::json::parse(response);
     } catch(...) {
-        DX_ERROR("json", "error parse or respoce from server");
+        DX_ERROR("json", "error parse or response from server");
         return;
     }
     
@@ -492,7 +492,7 @@ void PublishPacket()
     }
     else
     {
-        DX_INFO("publish", "publish successfull");
+        DX_INFO("publish", "publish successful");
         WriteToFile("cpk.json", jsonRequest);
     }
 }
@@ -505,7 +505,7 @@ void PackagesList()
     try {
         response_json = nlohmann::json::parse(response);
     } catch(...) {
-        DX_ERROR("json", "error parse or respoce from server");
+        DX_ERROR("json", "error parse or response from server");
         return;
     }
     if (response_json.contains("error"))
@@ -568,7 +568,7 @@ void printHelp()
     printf("commands:\n");
     printf("  install package1 [package2[@version]] - install package1, package2 and other\n");
     printf("  publish - publish current package\n");
-    printf("  packages - list avaiable packages\n");
+    printf("  packages - list available packages\n");
     printf("  update - update all installed packages for current project\n");
     printf("  [build command] - build project used installed libraries. As example you can use:\n");
     printf("                    \"cpk cmake -G Ninja ../\" instead of \"cmake -G Ninja ../\" for your project\n");

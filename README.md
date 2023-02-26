@@ -118,14 +118,15 @@ In this example it's reaply arguments using sysroot with generated cmake -DCMAKE
 
 ## Available commands
 
-Create a new application with the following options:
+Available commands and options:
 
 * `install PACKAGE` -  Install package
 * `publish` - Publish current package
 * `update` - Update tree of packages
-* `packages` - Update tree of packages
+* `packages` - List of available packages
 * `[build command]` - like `cpk cmake -G Ninja ../` to build project used installed libraries
 * `-h` - Help
+* `-v` - version of CPK
 
 ## Build CPK Client by own
 
