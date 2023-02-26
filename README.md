@@ -22,6 +22,7 @@ Cross-platform. Implemented on C/C++ and provided for Linux, Mac OS, Windows arc
 * Keep installation & popularity statistic to recommend most popular packages and libs (can be yours).
 * Using external effective build managers: like cmake, mingw32.
 * Easy to use configuration for packages: json based package config (very similar to npm).
+* Use the builded packages and libraries in your project with simple `cpk command` alias. For example: `cpk cmake -G Ninja ../` will apply all needed libraries in your project.
 
 ## Download/install
 
@@ -81,6 +82,40 @@ command to publish you own package
 
 [https://cpkpkg.com/YOUR_PACKAGE](https://cpkpkg.com/zlib) - After publishing the package, it will displayed on reposity site.
 
+## Use of installed packages in your project
+
+For example you installed zlib library that your project required
+```sh
+cpk install zlib
+```
+and you want to use it inside your project. You just need to execute cmake command for your project with cpk alias, like this:
+```sh
+# Insead of using:
+# cmake ../
+# use follow:
+cpk cmake ../
+```
+
+The package will be founded in your project:
+
+```cmake
+cmake_minimum_required(VERSION 3.1)
+project(zlib-test)
+
+# The library will be founded with cpk
+find_package(ZLIB REQUIRED)
+```
+
+It is also possible to execute with gcc, clang and other build tools (not only cmake types of project).
+
+### How does it work ?
+
+CPK will capture cmake command arguments and will add it own libraries and include pathes to cmake execution:
+
+<p align="center"><img src="https://github.com/DEgITx/share/blob/main/cpk/cpk_args.png?raw=true" /></p>
+
+In this example it's reaply arguments using sysroot with generated cmake -DCMAKE_PREFIX_PATH argument.
+
 ## Available commands
 
 Create a new application with the following options:
@@ -89,6 +124,7 @@ Create a new application with the following options:
 * `publish` - Publish current package
 * `update` - Update tree of packages
 * `packages` - Update tree of packages
+* `[build command]` - like `cpk cmake -G Ninja ../` to build project used installed libraries
 * `-h` - Help
 
 ## Build CPK Client by own

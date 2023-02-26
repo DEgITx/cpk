@@ -569,6 +569,9 @@ void printHelp()
     printf("  install package1 [package2[@version]] - install package1, package2 and other\n");
     printf("  publish - publish current package\n");
     printf("  packages - list avaiable packages\n");
+    printf("  update - update all installed packages for current project\n");
+    printf("  [build command] - build project used installed libraries. As example you can use:\n");
+    printf("                    \"cpk cmake -G Ninja ../\" instead of \"cmake -G Ninja ../\" for your project\n");
     printf("  --version / -v - version of CPK\n");
 }
 
