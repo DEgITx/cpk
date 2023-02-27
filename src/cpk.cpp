@@ -33,6 +33,102 @@ std::map <std::string, int> CpkLanguages = {
     {"javascript", JAVASCRIPT},
 };
 
+bool BuildPackage(
+    const nlohmann::json& package,
+    const std::string& cpkDir,
+    const std::function<void(int, bool, const std::string&)>& RenderProgress,
+    std::string& errorString,
+    int processor_count
+)
+{
+    std::string package_name = package["package"];
+    std::string build_type = package["buildType"];
+    std::string packageDir = cpkDir + "/" + package_name;
+
+    RenderProgress(20, true, "Configure package...");
+    DX_DEBUG("install", "Prepared package, start building...");
+    switch(CpkBuildTypes[build_type])
+    {
+        case CMAKE:
+            {
+                DX_DEBUG("install", "build package %s with cmake", package_name.c_str());
+                std::string buildDir = packageDir + "/build";
+                std::string installDir = buildDir + "/install";
+                MkDir(buildDir);
+                MkDir(installDir);
+                installDir = AbsolutePath(installDir);
+                DX_DEBUG("install", "prepare cmake build");
+#ifdef CPK_OS_WIN
+                std::string cmake_build_type = "-G \"MinGW Makefiles\"";
+#else
+                std::string cmake_build_type = "";
+#endif
+                std::string cmake_deps_dirs = "";
+                if (package.contains("dependencies"))
+                {
+                    cmake_deps_dirs += " -DCMAKE_PREFIX_PATH=\"";
+                    int idx = 0;
+                    for(const auto& dep : package["dependencies"].items())
+                    {
+                        DX_DEBUG("cmake", "dep %s", dep.key().c_str());
+                        std::string depDir = cpkDir + "/" + dep.key() + "/build/install";
+                        depDir = AbsolutePath(depDir);
+                        cmake_deps_dirs += (idx == 0) ? depDir : ";" + depDir;
+                        idx++;
+                    }
+                    cmake_deps_dirs += "\"";
+                }
+
+                std::string cmake_configure = "cd \"" + packageDir + "\" && cmake -B \"build\" " + cmake_build_type + " -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_INSTALL_PREFIX=\"" + installDir + "\"" + cmake_deps_dirs;
+                bool cmake_configure_result = (DX_DEBUG_LEVEL() == DX_LEVEL_DEBUG) ? EXE(cmake_configure) : EXES(cmake_configure);
+                if (!cmake_configure_result)
+                {
+                    errorString = "failed to conf package";
+                    DX_ERROR("install", "failed to prepare project for build");
+                    return false;
+                }
+                RenderProgress(25, true, "Initialize package build");
+                DX_DEBUG("install", "build");
+                if(!EXEWithPrint("cd \"" + packageDir + "\" && cmake --build \"build\" -j" + std::to_string(processor_count), [&](const std::string& line){
+                    DX_DEBUG("cmake", "%s", line.c_str());
+                    if (DX_DEBUG_LEVEL() == DX_LEVEL_DEBUG)
+                    {
+                        return;
+                    }
+                    std::regex re("\\[\\s+([0-9]+)\\%\\]");
+                    std::smatch match;
+                    if (std::regex_search(line, match, re))
+                    {
+                        int percent = std::stoi(match[1].str());
+                        percent = 25 + ((float)percent / 100 * 70);
+                        RenderProgress(percent, false, "Building package...");
+                    }
+                }))
+                {
+                    errorString = "failed to build package";
+                    DX_ERROR("install", "failed to build package");
+                    return false;
+                }
+                RenderProgress(96, true, "Install package");
+                std::string cmake_install = "cd \"" + packageDir + "\" && cmake --install \"build\"";
+                bool cmake_install_result = (DX_DEBUG_LEVEL() == DX_LEVEL_DEBUG) ? EXE(cmake_install) : EXES(cmake_install);
+                if (!cmake_install_result)
+                {
+                    errorString = "failed to install package";
+                    DX_ERROR("install", "failed to install package");
+                    return false;
+                }
+
+                RenderProgress(99, true, "saving package info");
+            }
+            break;
+        default:
+            DX_ERROR("install", "no build type associated founded");
+    }
+    
+    return true;
+}
+
 bool InstallPackages(const std::vector<CPKPackage>& packages)
 {
     if(packages.size() == 0)
@@ -119,7 +215,6 @@ bool InstallPackages(const std::vector<CPKPackage>& packages)
             std::string package_name = package["package"];
             std::string package_version = package["version"];
             std::string package_url = package["url"];
-            std::string build_type = package["buildType"];
             std::string package_language = package["language"];
 
             auto RenderProgress = [&](int percent, bool force = false, const std::string& message = std::string()){
@@ -180,10 +275,16 @@ bool InstallPackages(const std::vector<CPKPackage>& packages)
                     DX_DEBUG("pkg", "dep %s", dep.key().c_str());
                     RenderProgress(0, true, "Awaiting " + dep.key() + " package");
                     std::unique_lock lock_install(wait_install_mutex);
-                    need_install_deps_conditions[dep.key()].wait(lock_install, [&need_install_deps_map_ready, &dep, &packages_status_lock]{
+                    need_install_deps_conditions[dep.key()].wait(lock_install, [&need_install_deps_map_ready, &need_install_deps_map_failed, &dep, &packages_status_lock]{
                         std::lock_guard<std::mutex> lock(packages_status_lock);
-                        return need_install_deps_map_ready[dep.key()];
+                        return 
+                            need_install_deps_map_ready[dep.key()] || 
+                            (need_install_deps_map_failed.find(dep.key()) != need_install_deps_map_failed.end() && need_install_deps_map_failed[dep.key()]);
                     });
+                    std::lock_guard<std::mutex> lock(packages_status_lock);
+                    if (need_install_deps_map_failed.size() > 0) {
+                        return; // some errors in other packages - exit imidiatly
+                    }
                 }
             }
 
@@ -203,95 +304,23 @@ bool InstallPackages(const std::vector<CPKPackage>& packages)
             if (!IsExists(packageDir))
                 MkDir(packageDir);
             UnZip(zipFile, packageDir);
-            RenderProgress(20, true, "Configure package...");
-            DX_DEBUG("install", "Prepared package, start building...");
-            switch(CpkBuildTypes[build_type])
+            std::string errorString;
+            if(!BuildPackage(
+                package,
+                cpkDir,
+                RenderProgress,
+                errorString,
+                processor_count
+            ))
             {
-                case CMAKE:
-                    {
-                        DX_DEBUG("install", "build package %s with cmake", package_name.c_str());
-                        std::string buildDir = packageDir + "/build";
-                        std::string installDir = buildDir + "/install";
-                        MkDir(buildDir);
-                        MkDir(installDir);
-                        installDir = AbsolutePath(installDir);
-                        DX_DEBUG("install", "prepare cmake build");
-#ifdef CPK_OS_WIN
-                        std::string cmake_build_type = "-G \"MinGW Makefiles\"";
-#else
-                        std::string cmake_build_type = "";
-#endif
-                        std::string cmake_deps_dirs = "";
-                        if (package.contains("dependencies"))
-                        {
-                            cmake_deps_dirs += " -DCMAKE_PREFIX_PATH=\"";
-                            int idx = 0;
-                            for(const auto& dep : package["dependencies"].items())
-                            {
-                                DX_DEBUG("cmake", "dep %s", dep.key().c_str());
-                                std::string depDir = cpkDir + "/" + dep.key() + "/build/install";
-                                depDir = AbsolutePath(depDir);
-                                cmake_deps_dirs += (idx == 0) ? depDir : ";" + depDir;
-                                idx++;
-                            }
-                            cmake_deps_dirs += "\"";
-                        }
-
-                        std::string cmake_configure = "cd \"" + packageDir + "\" && cmake -B \"build\" " + cmake_build_type + " -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_INSTALL_PREFIX=\"" + installDir + "\"" + cmake_deps_dirs;
-                        bool cmake_configure_result = (DX_DEBUG_LEVEL() == DX_LEVEL_DEBUG) ? EXE(cmake_configure) : EXES(cmake_configure);
-                        if (!cmake_configure_result)
-                        {
-                            packages_status_lock.lock();
-                            need_install_deps_map_failed[package_name] = true;
-                            packages_status_lock.unlock();
-                            RenderProgress(99, true, "failed to conf package");
-                            DX_ERROR("install", "failed to prepare project for build");
-                            return;
-                        }
-                        RenderProgress(25, true, "Initialize package build");
-                        DX_DEBUG("install", "build");
-                        if(!EXEWithPrint("cd \"" + packageDir + "\" && cmake --build \"build\" -j" + std::to_string(processor_count), [&](const std::string& line){
-                            DX_DEBUG("cmake", "%s", line.c_str());
-                            if (DX_DEBUG_LEVEL() == DX_LEVEL_DEBUG)
-                            {
-                                return;
-                            }
-                            std::regex re("\\[\\s+([0-9]+)\\%\\]");
-                            std::smatch match;
-                            if (std::regex_search(line, match, re))
-                            {
-                                int percent = std::stoi(match[1].str());
-                                percent = 25 + ((float)percent / 100 * 70);
-                                RenderProgress(percent, false, "Building package...");
-                            }
-                        }))
-                        {
-                            packages_status_lock.lock();
-                            need_install_deps_map_failed[package_name] = true;
-                            packages_status_lock.unlock();
-                            RenderProgress(99, true, "failed to build package");
-                            DX_ERROR("install", "failed to build package");
-                            return;
-                        }
-                        RenderProgress(96, true, "Install package");
-                        std::string cmake_install = "cd \"" + packageDir + "\" && cmake --install \"build\"";
-                        bool cmake_install_result = (DX_DEBUG_LEVEL() == DX_LEVEL_DEBUG) ? EXE(cmake_install) : EXES(cmake_install);
-                        if (!cmake_install_result)
-                        {
-                            packages_status_lock.lock();
-                            need_install_deps_map_failed[package_name] = true;
-                            packages_status_lock.unlock();
-                            RenderProgress(99, true, "failed to install package");
-                            DX_ERROR("install", "failed to install package");
-                            return;
-                        }
-
-                        RenderProgress(99, true, "saving package info");
-                    }
-                    break;
-                default:
-                    DX_ERROR("install", "no build type associated founded");
+                packages_status_lock.lock();
+                need_install_deps_map_failed[package_name] = true;
+                packages_status_lock.unlock();
+                RenderProgress(99, true, errorString.c_str());
+                need_install_deps_conditions[package_name].notify_all();
+                return;
             }
+
             wait_install_mutex.lock();
 
             packages_status_lock.lock();
