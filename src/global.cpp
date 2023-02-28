@@ -170,7 +170,7 @@ bool EXEWithPrint(const std::string& command, std::function<void(const std::stri
     return ret == 0;
 }
 
-std::vector<std::string> AllFiles(const std::string& ext)
+std::vector<std::string> AllFiles(const std::string& ext, const std::vector<std::string>& excludePaths)
 {
     // collect all the filenames into a std::list<std::string>
     std::vector<std::string> filenames;
@@ -180,6 +180,18 @@ std::vector<std::string> AllFiles(const std::string& ext)
             continue;
 
         if(!ext.empty() && file.path().extension().string() != ext)
+            continue;
+
+        bool skip = false;
+        for (const auto& excludePath : excludePaths)
+        {
+            if (!excludePath.empty() && file.path().string().find(excludePath) != std::string::npos)
+            {
+                skip = true;
+                break;
+            }
+        }
+        if (skip)
             continue;
 
         filenames.push_back(file.path().string());

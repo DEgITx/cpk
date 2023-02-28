@@ -29,7 +29,7 @@ bool IsExists(const std::string& path);
 bool EXE(const std::string& command);
 bool EXES(const std::string& command);
 bool EXEWithPrint(const std::string& command, std::function<void(const std::string& line)> callback);
-std::vector<std::string> AllFiles(const std::string& ext = "");
+std::vector<std::string> AllFiles(const std::string& ext = "", const std::vector<std::string>& excludePaths = std::vector<std::string>());
 void Remove(const std::string& file);
 std::vector<std::string> Split (std::string s, std::string delimiter);
 std::string Join(const std::vector<std::string> &lst, const std::string &delim);

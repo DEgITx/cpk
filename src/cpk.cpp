@@ -36,6 +36,7 @@ std::map <std::string, int> CpkLanguages = {
 bool BuildPackage(
     const nlohmann::json& package,
     const std::string& cpkDir,
+    const std::string& packageDir,
     const std::function<void(int, bool, const std::string&)>& RenderProgress,
     std::string& errorString,
     int processor_count
@@ -43,7 +44,6 @@ bool BuildPackage(
 {
     std::string package_name = package["package"];
     std::string build_type = package["buildType"];
-    std::string packageDir = cpkDir + "/" + package_name;
 
     RenderProgress(20, true, "Configure package...");
     DX_DEBUG("install", "Prepared package, start building...");
@@ -308,6 +308,7 @@ bool InstallPackages(const std::vector<CPKPackage>& packages)
             if(!BuildPackage(
                 package,
                 cpkDir,
+                packageDir,
                 RenderProgress,
                 errorString,
                 processor_count
@@ -474,7 +475,26 @@ void PublishPacket()
 
     json["passkey"] = passkey;
 
-    auto all_files = AllFiles();
+    // Test build
+    std::string cpkDir = ".cpk";
+    std::string errorString;
+    const int processor_count = std::thread::hardware_concurrency();
+    if(!BuildPackage(
+        json,
+        cpkDir,
+        ".",
+        [](int percent, bool force = false, const std::string& message = std::string()){},
+        errorString,
+        processor_count
+    ))
+    {
+        DX_ERROR("publish", "build package test failed");
+        return;
+    }
+    if (IsDir("build"))
+        Remove("build");
+
+    auto all_files = AllFiles(std::string(), std::vector<std::string>{".cpk", "cpk.json", ".git/", ".svn/"});
     std::string tmpFile = GetTempDir() + "/temp.zip";
     DX_DEBUG("publish", "generation temp.zip");
     CreateZip(all_files, tmpFile);

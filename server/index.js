@@ -23,7 +23,7 @@ f();
 app.use(express.json());
 app.use(express.raw({
     inflate: true,
-    limit: '5mb',
+    limit: '50mb',
     type: 'application/zip'
 }));
 
