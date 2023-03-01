@@ -253,7 +253,7 @@ std::string trim(const std::string& str)
 {
     char strCopy[4096];
     strcpy(strCopy, str.c_str());
-    return std::string(trim((char*)&strCopy));
+    return std::string(trim(strCopy));
 }
 
 std::string ConsoleInput(const std::string& inputText, const std::string& defaultText)
