@@ -99,6 +99,9 @@ const packageShcema = {
         author: {type: "string", maxLength: 128},
         description: {type: "string", maxLength: 4096},
         passkey: {type: "string", maxLength: 128, pattern: '^[a-zA-Z0-9]+$'},
+        cmakeSettings: {type: "object", properties: {
+            options: { type: "string" }
+        }}
     },
     required: ["package", "language", "buildType", "passkey"],
     additionalProperties: false,

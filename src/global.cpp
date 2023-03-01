@@ -251,7 +251,9 @@ char* trim(char* str)
 
 std::string trim(const std::string& str)
 {
-    return std::string(trim(str.data()));
+    char strCopy[4096];
+    strcpy(strCopy, str.c_str());
+    return std::string(trim((char*)&strCopy));
 }
 
 std::string ConsoleInput(const std::string& inputText, const std::string& defaultText)

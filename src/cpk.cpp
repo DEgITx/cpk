@@ -79,7 +79,14 @@ bool BuildPackage(
                     cmake_deps_dirs += "\"";
                 }
 
-                std::string cmake_configure = "cd \"" + packageDir + "\" && cmake -B \"build\" " + cmake_build_type + " -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_INSTALL_PREFIX=\"" + installDir + "\"" + cmake_deps_dirs;
+                std::string cmakeOptions = "";
+                if (package["cmakeSettings"].is_object() && !package["cmakeSettings"]["options"].empty())
+                {
+                    cmakeOptions = package["cmakeSettings"]["options"];
+                    DX_DEBUG("cmake", "cmake options found %s", cmakeOptions.c_str());
+                }
+
+                std::string cmake_configure = "cd \"" + packageDir + "\" && cmake -B \"build\" " + cmake_build_type + " -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_INSTALL_PREFIX=\"" + installDir + "\"" + " " + cmakeOptions + cmake_deps_dirs;
                 bool cmake_configure_result = (DX_DEBUG_LEVEL() == DX_LEVEL_DEBUG) ? EXE(cmake_configure) : EXES(cmake_configure);
                 if (!cmake_configure_result)
                 {
@@ -468,6 +475,7 @@ void PublishPacket()
         json["dependencies"] = ConsoleInput("dependencies (separate by ',' symbol) ?");
         if (!std::string(json["dependencies"]).empty()) {
             auto deps = Split(json["dependencies"], ",");
+            json["dependencies"] = nlohmann::json();
             for (const auto& dep : deps)
             {
                 std::string package = trim(dep);
@@ -483,6 +491,17 @@ void PublishPacket()
     }
 
     json["passkey"] = passkey;
+
+    switch(CpkBuildTypes[json["buildType"]])
+    {
+        case CMAKE:
+            {
+                json["cmakeSettings"]["options"] = ConsoleInput("Maybe some cmake options (by default empty) ?");
+            }
+            break;
+        default:
+            return;
+    }
 
     // Test build
     std::string cpkDir = ".cpk";
