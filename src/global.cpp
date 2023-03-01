@@ -249,6 +249,11 @@ char* trim(char* str)
   return str;
 }
 
+std::string trim(const std::string& str)
+{
+    return std::string(trim(str.data()));
+}
+
 std::string ConsoleInput(const std::string& inputText, const std::string& defaultText)
 {
    char str[4096];

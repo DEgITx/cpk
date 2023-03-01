@@ -465,6 +465,15 @@ void PublishPacket()
         json["author"] = ConsoleInput("your name / nick ?");
         json["email"] = ConsoleInput("your email ?");
         json["version"] = ConsoleInput("version ?");
+        json["dependencies"] = ConsoleInput("dependencies (separate by ',' symbol) ?");
+        if (!std::string(json["dependencies"]).empty()) {
+            auto deps = Split(json["dependencies"], ",");
+            for (const auto& dep : deps)
+            {
+                std::string package = trim(dep);
+                json["dependencies"][package] = "";
+            }
+        }
     }
 
     if (!json.contains("buildType"))
@@ -493,6 +502,13 @@ void PublishPacket()
     }
     if (IsDir("build"))
         Remove("build");
+
+    std::string ask = ConsoleInput("Basically everything fine, publish the package [y/n] ?");
+    if (ask != "y")
+    {
+        DX_WARN("publish", "exit by user choise");
+        return;
+    }
 
     auto all_files = AllFiles(std::string(), std::vector<std::string>{".cpk", "cpk.json", ".git/", ".svn/"});
     std::string tmpFile = GetTempDir() + "/temp.zip";
