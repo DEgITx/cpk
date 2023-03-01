@@ -464,6 +464,12 @@ void PublishPacket()
         json["buildType"] = "cmake";
     }
 
+    if (!json.contains("buildType"))
+    {
+        DX_ERROR("publish", "build type is not detected");
+        return;
+    }
+
     // manual input
     if (!cpkConfigExists)
     {
@@ -482,26 +488,20 @@ void PublishPacket()
                 json["dependencies"][package] = "";
             }
         }
-    }
 
-    if (!json.contains("buildType"))
-    {
-        DX_ERROR("publish", "build type is not detected");
-        return;
+        switch(CpkBuildTypes[json["buildType"]])
+        {
+            case CMAKE:
+                {
+                    json["cmakeSettings"]["options"] = ConsoleInput("Maybe some cmake options (by default empty) ?");
+                }
+                break;
+            default:
+                return;
+        }
     }
 
     json["passkey"] = passkey;
-
-    switch(CpkBuildTypes[json["buildType"]])
-    {
-        case CMAKE:
-            {
-                json["cmakeSettings"]["options"] = ConsoleInput("Maybe some cmake options (by default empty) ?");
-            }
-            break;
-        default:
-            return;
-    }
 
     // Test build
     std::string cpkDir = ".cpk";
