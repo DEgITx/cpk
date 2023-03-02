@@ -80,7 +80,7 @@ bool BuildPackage(
                 }
 
                 std::string cmakeOptions = "";
-                if (package["cmakeSettings"].is_object() && !package["cmakeSettings"]["options"].empty())
+                if (package.contains("cmakeSettings") && package["cmakeSettings"].is_object() && !package["cmakeSettings"]["options"].empty())
                 {
                     cmakeOptions = package["cmakeSettings"]["options"];
                     DX_DEBUG("cmake", "cmake options found %s", cmakeOptions.c_str());
