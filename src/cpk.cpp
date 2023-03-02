@@ -487,6 +487,8 @@ void PublishPacket()
                 std::string package = trim(dep);
                 json["dependencies"][package] = "";
             }
+        } else {
+            json.erase("dependencies");
         }
 
         switch(CpkBuildTypes[json["buildType"]])
