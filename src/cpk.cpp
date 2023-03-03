@@ -7,6 +7,9 @@
 #include <vector>
 #include <fstream>
 #include <regex>
+#ifdef CPK_OS_WIN
+#include <windows.h>
+#endif
 
 #include "cpk_structs.h"
 #include "download.h"
@@ -663,6 +666,17 @@ void printHelp()
 
 int cpk_main(int argc, char *argv[]) {
     int retVal = 0;
+
+#ifdef CPK_OS_WIN
+    HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
+    if (hConsole)
+    {
+        DWORD consoleMode;
+        GetConsoleMode(hConsole, &consoleMode);
+        SetConsoleMode(hConsole, consoleMode | ENABLE_VIRTUAL_TERMINAL_PROCESSING);
+    }
+#endif
+
     if (!IsExists(CpkShareDir()))
         MkDir(CpkShareDir());
     DX_LOGWRITTER_START((CpkShareDir() + "/cpk.log").c_str());
