@@ -277,13 +277,20 @@ bool InstallPackages(const std::vector<CPKPackage>& packages)
                 }
             }
 
+            RenderProgress(5, true, "Download package...");
+            DX_DEBUG("pkg", "install package %s", package_name.c_str());
+            DX_DEBUG("install", "download package %s", package_url.c_str());
+            std::string zipFile = cpkDir + "/" + package_name + ".zip";
+            DownloadFile(package_url.c_str(), zipFile.c_str());
+            DX_DEBUG("install", "downloaded %s as %s", package_url.c_str(), zipFile.c_str());
+
             DX_DEBUG("pkg", "wait deps install for package %s", package_name.c_str());
             if (package.contains("dependencies"))
             {
                 for(const auto& dep : package["dependencies"].items())
                 {
                     DX_DEBUG("pkg", "dep %s", dep.key().c_str());
-                    RenderProgress(0, true, "Awaiting " + dep.key() + " package");
+                    RenderProgress(10, true, "Awaiting " + dep.key() + " package");
                     std::unique_lock lock_install(wait_install_mutex);
                     need_install_deps_conditions[dep.key()].wait(lock_install, [&need_install_deps_map_ready, &need_install_deps_map_failed, &dep, &packages_status_lock]{
                         std::lock_guard<std::mutex> lock(packages_status_lock);
@@ -298,13 +305,6 @@ bool InstallPackages(const std::vector<CPKPackage>& packages)
                 }
             }
 
-            RenderProgress(5, true, "Download package...");
-
-            DX_DEBUG("pkg", "install package %s", package_name.c_str());
-            DX_DEBUG("install", "download package %s", package_url.c_str());
-            std::string zipFile = cpkDir + "/" + package_name + ".zip";
-            DownloadFile(package_url.c_str(), zipFile.c_str());
-            DX_DEBUG("install", "downloaded %s as %s", package_url.c_str(), zipFile.c_str());
             RenderProgress(15, true, "Unpack...");
             std::string packageDir = cpkDir + "/" + package_name;
             if (is_update)
