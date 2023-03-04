@@ -534,7 +534,7 @@ void PublishPacket()
         return;
     }
 
-    auto all_files = AllFiles(std::string(), std::vector<std::string>{".cpk", "cpk.json", ".git/", ".svn/"});
+    auto all_files = AllFiles(std::string(), std::vector<std::string>{".cpk", "cpk.json", ".git/", ".svn/", ".git\\", ".svn\\"});
     std::string tmpFile = GetTempDir() + "/temp.zip";
     DX_DEBUG("publish", "generation temp.zip");
     CreateZip(all_files, tmpFile);
