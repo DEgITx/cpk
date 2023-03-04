@@ -284,3 +284,7 @@ nav a {
     min-width: 230px;
   }
 }
+
+code {
+  white-space: break-spaces;
+}
