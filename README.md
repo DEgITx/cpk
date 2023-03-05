@@ -2,11 +2,13 @@
 
 <p align="center"><a href="https://github.com/DEgiTx/cpk"><img src="https://raw.githubusercontent.com/DEgITx/cpk/master/resources/cpk.png"></a></p>
 
-<b><p align="center"><a href="https://cpkpkg.com">https://cpkpkg.com - official repository site (search, download, information about packages)</a></p></b>
+<p align="center">
+<a href="https://github.com/DEgITx/cpk/releases"><img src="https://github.com/DEgITx/cpk/actions/workflows/build.yml/badge.svg" /></a>
+<a href="https://github.com/DEgITx/cpk/releases"><img src="https://img.shields.io/github/release/DEgITx/cpk.svg" /></a>
+<a href="https://github.com/DEgITx/cpk/README.md"><img src="https://img.shields.io/badge/docs-faq-brightgreen.svg" /></a>
+</p>
 
-[![Build Status](https://github.com/DEgITx/cpk/actions/workflows/build.yml/badge.svg)](https://github.com/DEgITx/cpk/releases)
-[![Release](https://img.shields.io/github/release/DEgITx/cpk.svg)](https://github.com/DEgITx/cpk/releases)
-[![Documentation](https://img.shields.io/badge/docs-faq-brightgreen.svg)](https://github.com/DEgITx/cpk/README.md)
+<b><p align="center"><a href="https://cpkpkg.com">https://cpkpkg.com - official repository site (search, download, information about packages)</a></p></b>
 
 ## CPK Package Manager
 
