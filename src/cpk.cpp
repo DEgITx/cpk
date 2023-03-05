@@ -506,6 +506,9 @@ void PublishPacket()
         }
     }
 
+    DX_DEBUG("publish", "save intermidiate data to json file");
+    WriteToFile("cpk.json", json.dump(4));
+
     json["passkey"] = passkey;
 
     // Test build
