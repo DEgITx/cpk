@@ -60,6 +60,10 @@
 		</div>
 	</header>
 	<%
+		if (typeof packages != 'undefined') { 
+	%>
+		<div class="packagesList mainContainer column">
+	<%
 		typeof packages != 'undefined' && packages.forEach(package => {
 	%>
 		<div class="package flex split">
@@ -73,10 +77,14 @@
 	<%
 		});
 	%>
+		</div>
+	<%
+		}
+	%>
 	<%
 		if (typeof package != 'undefined') {
 	%>
-		<div class="packageInfo row">
+		<div class="packageInfo row mainContainer">
 			<div class="leftPanel column">
 				<div class="packageName">${package.package}</div>
 				<div class="details split"><span>${package.version}</span><span>${publishDate} days ago</span></div>

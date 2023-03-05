@@ -65,6 +65,10 @@ a:focus {
   margin: 10px 0px;
 }
 
+.mainContainer {
+  margin: 0px 3%;
+}
+
 .packageInfo img {
   max-width: 100%;
 }
