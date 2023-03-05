@@ -124,6 +124,7 @@ Available commands and options:
 * `publish` - Publish current package
 * `update` - Update tree of packages
 * `packages` - List of available packages
+* `info PACKAGE` - Recive information about package (like descriptions, downloads, version and so on)
 * `[build command]` - like `cpk cmake -G Ninja ../` to build project used installed libraries
 * `-h` - Help
 * `-v` - version of CPK

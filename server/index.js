@@ -373,6 +373,28 @@ app.post('/packages', async function (req, res) {
     })
 });
 
+app.post('/package', async function (req, res) {
+    const ip = req.headers['x-forwarded-for'] || req.socket.remoteAddress
+
+    const packageName = req.body.package;
+    logT("package", "get package info", packageName)
+    const package = await redis.get(`cpk:packages:${packageName}`);
+
+    if (!package)
+    {
+        res.send({
+            error: true,
+            errorCode: 1,
+            errorDesc: "No such package",
+        });
+        return;
+    }
+
+    res.send({
+        package
+    })
+});
+
 app.post('/installed', async function (req, res) {
     const ip = req.headers['x-forwarded-for'] || req.socket.remoteAddress 
     const request = req.body;

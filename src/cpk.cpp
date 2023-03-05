@@ -620,6 +620,40 @@ void PackagesList()
     }
 }
 
+void GetPackageInfo(const std::string& packageName)
+{
+    nlohmann::json packageRequest;
+    packageRequest["package"] = packageName;
+    std::string response = SendPostRequest(GetRemoteBackend() + "/package", packageRequest.dump(4));
+    DX_DEBUG("package", "response %s", response.c_str());
+    nlohmann::json response_json;
+    try {
+        response_json = nlohmann::json::parse(response);
+    } catch(...) {
+        DX_ERROR("json", "error parse or response from server");
+        return;
+    }
+    if (response_json.contains("error"))
+    {
+        bool error = response_json["error"];
+        switch ((int)response_json["errorCode"]) {
+            default:
+                std::string errorDesc = response_json["errorDesc"];
+                DX_ERROR("package", "error package: %s", errorDesc.c_str());
+        }
+        return;
+    }
+
+    auto package = response_json["package"];
+    printf("package: %s\n", std::string(package["package"]).c_str());
+    printf("version: %s\n", std::string(package["version"]).c_str());
+    printf("author: %s\n", std::string(package["author"]).c_str());
+    printf("email: %s\n", std::string(package["email"]).c_str());
+    printf("description: %s\n", std::string(package["description"]).c_str());
+    printf("installed times: %d\n", package["installed"].get<int>());
+    printf("source files: %d\n", package["entries"].get<int>());
+}
+
 
 char* getCmdOption(char ** begin, char ** end, const std::string & option)
 {
@@ -661,6 +695,7 @@ void printHelp()
     printf("  install package1 [package2[@version]] - install package1, package2 and other\n");
     printf("  publish - publish current package\n");
     printf("  packages - list available packages\n");
+    printf("  info package1 - information about \"package1\" package\n");
     printf("  update - update all installed packages for current project\n");
     printf("  [build command] - build project used installed libraries. As example you can use:\n");
     printf("                    \"cpk cmake -G Ninja ../\" instead of \"cmake -G Ninja ../\" for your project\n");
@@ -737,6 +772,9 @@ int cpk_main(int argc, char *argv[]) {
                 PublishPacket();
         } else if (strcmp(argv[1], "packages") == 0 || strcmp(argv[1], "list") == 0) {
                 PackagesList();
+        } else if (strcmp(argv[1], "info") == 0 && argc >= 3) {
+                std::string package = std::string(argv[2]);
+                GetPackageInfo(package);
         } else if (strcmp(argv[1], "update") == 0) {
             nlohmann::json installedFileSave;
             std::string cpkDir = ".cpk";
