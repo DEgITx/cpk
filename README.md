@@ -4,6 +4,10 @@
 
 <b><p align="center"><a href="https://cpkpkg.com">https://cpkpkg.com - official repository site (search, download, information about packages)</a></p></b>
 
+[![Build Status](https://github.com/DEgITx/cpk/actions/workflows/build.yml/badge.svg)](https://github.com/DEgITx/cpk/releases)
+[![Release](https://img.shields.io/github/release/DEgITx/cpk.svg)](https://github.com/DEgITx/cpk/releases)
+[![Documentation](https://img.shields.io/badge/docs-faq-brightgreen.svg)](https://github.com/DEgITx/cpk/README.md)
+
 ## CPK Package Manager
 
 <p align="center"><img src="https://github.com/DEgITx/share/blob/main/cpk/cpk_basic.gif?raw=true" /></p>
