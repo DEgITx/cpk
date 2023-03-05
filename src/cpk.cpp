@@ -735,7 +735,7 @@ int cpk_main(int argc, char *argv[]) {
             retVal = InstallPackages(packages) ? 0 : 1;
         } else if (strcmp(argv[1], "publish") == 0) {
                 PublishPacket();
-        } else if (strcmp(argv[1], "packages") == 0) {
+        } else if (strcmp(argv[1], "packages") == 0 || strcmp(argv[1], "list") == 0) {
                 PackagesList();
         } else if (strcmp(argv[1], "update") == 0) {
             nlohmann::json installedFileSave;
