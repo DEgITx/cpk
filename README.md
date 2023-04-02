@@ -18,6 +18,8 @@ Very light and easy and fast native package manager to install **C/C++ (priority
 
 Main purpose of this package manager to have simple C/C++ manager with possibility to post packages like **npm**, and also provide functionality to support same algorithms and code base for different programming languages, so if someone wanna **quicksort** package in their project on Python - they will get it, and if need the same one for C++ he will get it with simillar command.
 
+CPK has possibility to search and install packages using **GPT** by given description, generate example code for installed libraries using `cpk nn` command. So you can not only install libraries, but find needed and use them immediately.  
+
 Cross-platform. Implemented on C/C++ and provided for Linux, Mac OS, Windows arch.
 
 ## Features
@@ -29,6 +31,8 @@ Cross-platform. Implemented on C/C++ and provided for Linux, Mac OS, Windows arc
 * Using external effective build managers: like cmake, mingw32.
 * Easy to use configuration for packages: json based package config (very similar to npm).
 * Use the builded packages and libraries in your project with simple `cpk command` alias. For example: `cpk cmake -G Ninja ../` will apply all needed libraries in your project.
+* Use GPT to search packages by description and your needes without actual knowing of package name.
+* Generate example code using GPT to any of the libraries right after library installation.
 
 ## Download/install
 
@@ -122,6 +126,18 @@ CPK will capture cmake command arguments and will add it own libraries and inclu
 
 In this example it's reaply arguments using sysroot with generated cmake -DCMAKE_PREFIX_PATH argument.
 
+## Use ChatGPT as part of CPK
+
+### Search packages by description
+You can find any needed packages without knowing it names.
+
+Use:
+```
+cpk nn search Library to extract zip archives
+```
+
+You will suggested to install libzip packages or other alternative.
+
 ## Available commands
 
 Available commands and options:
@@ -155,9 +171,11 @@ make -j8
 * No python required to create package, configuration of packages is with simple json syntax declared in cpk.json
 * Publishing package mechanism is easy
 * Open-source backend as part of cpk
+* Neural networks features (like search/install packages without knowing package real name or generate example library code)
 
 ### Vcpkg
 * Don't need to build cpk like vcpkg, cpk binaries is also presented for most popular OS's. Just download archive with cpk binary and add it to path
 * Easy to start work with from the box (easy installing and publishing)
 * To start usage the package add "cpk" before cpk command is enought "cpk cmake ../" will take care for dependencies in your project.
 * Open-source backend as part of cpk
+* Neural networks features (like search/install packages without knowing package real name or generate example library code)
