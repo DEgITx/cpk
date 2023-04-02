@@ -496,7 +496,7 @@ app.post('/nn', async function (req, res) {
     const ret = {};
 
     const packageSearchDescription = req.body.search;
-    let textRequest = 'textRequest';
+    let textRequest;
 
     if (packageSearchDescription)
     {
@@ -509,13 +509,13 @@ app.post('/nn', async function (req, res) {
             Libraries list:
             ${(await redis.values("cpk:packages:*")).map(package => package.package).join(' ')}
             
-            Description text:
+            Description:
             ${packageSearchDescription}
         `;
         logT('nn', 'nn search', textRequest); 
     }
 
-    if (textRequest.length > 0) {
+    if (textRequest && textRequest.length > 0) {
         ret.search = await chatGPT(textRequest);
         logT('nn', 'nn search responce', ret.search); 
         res.send(ret)

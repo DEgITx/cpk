@@ -20,6 +20,7 @@
 #include "tools.h"
 #include "version.h"
 #include "display.h"
+#include "nn.h"
 
 namespace cpk
 {
@@ -798,7 +799,13 @@ int cpk_main(int argc, char *argv[]) {
             {
                 DX_INFO("update", "nothing to update");
             }
-        } else if (argc >= 3 && strcmp(argv[1], "nn") == 0 && strcmp(argv[1], "search") == 0) {
+        } else if (argc >= 4 && strcmp(argv[1], "nn") == 0 && strcmp(argv[2], "search") == 0) {
+            std::vector<std::string> searchString;
+            for (int i = 3; i < argc; i++)
+            {
+                searchString.push_back(argv[i]);
+            }
+            AISearch(Join(searchString, " "));
         } else {
             std::string cpkDir = AbsolutePath(".");
 

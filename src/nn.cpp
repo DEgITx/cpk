@@ -9,14 +9,16 @@ namespace cpk
 
 std::string AISearch(const std::string& description)
 {
-    std::string response = SendPostRequest(GetRemoteBackend() + "/nn", "{}");
+    nlohmann::json searchRequest;
+    searchRequest["search"] = description;
+    std::string response = SendPostRequest(GetRemoteBackend() + "/nn", searchRequest.dump(4));
     DX_DEBUG("packages", "response %s", response.c_str());
     nlohmann::json response_json;
     try {
         response_json = nlohmann::json::parse(response);
     } catch(...) {
         DX_ERROR("json", "error parse or response from server");
-        return;
+        return std::string();
     }
     if (response_json.contains("error"))
     {
@@ -26,10 +28,13 @@ std::string AISearch(const std::string& description)
                 std::string errorDesc = response_json["errorDesc"];
                 DX_ERROR("install", "error install: %s", errorDesc.c_str());
         }
-        return;
+        return std::string();
     }
     std::string packages = std::string(response_json["search"]);
     printf("suggested packages: %s\n", packages.c_str());
+    if (packages == "none")
+        return std::string();
+    return packages;
 }
 
 }
