@@ -798,6 +798,7 @@ int cpk_main(int argc, char *argv[]) {
             {
                 DX_INFO("update", "nothing to update");
             }
+        } else if (argc >= 3 && strcmp(argv[1], "nn") == 0 && strcmp(argv[1], "search") == 0) {
         } else {
             std::string cpkDir = AbsolutePath(".");
 

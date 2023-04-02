@@ -10,7 +10,8 @@ const moment = require('moment');
 const createDOMPurify = require('dompurify');
 const { JSDOM } = require('jsdom');
 const marked = require('marked');
-const Ajv = require("ajv")
+const Ajv = require("ajv");
+const { chatGPT } = require('./openai')
 require('tagslog')();
 let redis;
 global.PRODUCTION = (process.env.NODE_ENV == 'production');
@@ -489,3 +490,40 @@ app.get('/:package', async (req, res) => {
     })
 });
 
+app.post('/nn', async function (req, res) {
+    const ip = req.headers['x-forwarded-for'] || req.socket.remoteAddress 
+    const request = req.body;
+    const ret = {};
+
+    const packageSearchDescription = req.body.search;
+    let textRequest = 'textRequest';
+
+    if (packageSearchDescription)
+    {
+        textRequest = `
+            I will provide the list of C++ libraries with " " space separator and description text. According to the description, select one or more libraries from the Library list that match the description. 
+            Give me a list in raw format, without any additional text. Libraries must be separated by the " " space symbol. 
+            Don’t include any C++ libraries that have already been presented in clang, gcc. 
+            If nothing matches the description, than output "none" text.
+
+            Libraries list:
+            ${(await redis.values("cpk:packages:*")).map(package => package.package).join(' ')}
+            
+            Description text:
+            ${packageSearchDescription}
+        `;
+        logT('nn', 'nn search', textRequest); 
+    }
+
+    if (textRequest.length > 0) {
+        ret.search = await chatGPT(textRequest);
+        logT('nn', 'nn search responce', ret.search); 
+        res.send(ret)
+    } else {
+        res.send({
+            error: true,
+            errorCode: 1,
+            errorDesc: 'no textRequest',
+        });
+    }
+});
