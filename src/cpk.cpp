@@ -700,6 +700,7 @@ void printHelp()
     printf("  update - update all installed packages for current project\n");
     printf("  [build command] - build project used installed libraries. As example you can use:\n");
     printf("                    \"cpk cmake -G Ninja ../\" instead of \"cmake -G Ninja ../\" for your project\n");
+    printf("  nn search [description] - use to find any package/library accroding any description using ChatGPT. Like: \"library to open and extract zip files\"\n");
     printf("  --version / -v - version of CPK\n");
 }
 

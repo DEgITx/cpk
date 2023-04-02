@@ -131,6 +131,7 @@ Available commands and options:
 * `update` - Update tree of packages
 * `packages` - List of available packages
 * `info PACKAGE` - Recive information about package (like descriptions, downloads, version and so on)
+* `nn search [description]` - use to find any package/library accroding any description using ChatGPT. Like: *"library to open and extract zip files"*. It will suggess to install libzip package.
 * `[build command]` - like `cpk cmake -G Ninja ../` to build project used installed libraries
 * `-h` - Help
 * `-v` - version of CPK
