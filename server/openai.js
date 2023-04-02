@@ -1,6 +1,6 @@
-
+const homedir = require('os').homedir();
 const { Configuration, OpenAIApi } = require("openai");
-const config = require("./config.json");
+const config = require(PRODUCTION ? homedir + "/config.json" : "./config.json");
 
 const configuration = new Configuration({
   apiKey: config.CHATGPT_TOKEN,

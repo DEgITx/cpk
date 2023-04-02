@@ -11,10 +11,10 @@ const createDOMPurify = require('dompurify');
 const { JSDOM } = require('jsdom');
 const marked = require('marked');
 const Ajv = require("ajv");
-const { chatGPT } = require('./openai')
 require('tagslog')();
 let redis;
 global.PRODUCTION = (process.env.NODE_ENV == 'production');
+const { chatGPT } = require('./openai')
 
 async function f() {
     redis = await require('./redis')();
