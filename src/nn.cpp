@@ -11,6 +11,7 @@ std::string AISearch(const std::string& description)
 {
     nlohmann::json searchRequest;
     searchRequest["search"] = description;
+    printf("searching packages according description...\n");
     std::string response = SendPostRequest(GetRemoteBackend() + "/nn", searchRequest.dump(4));
     DX_DEBUG("packages", "response %s", response.c_str());
     nlohmann::json response_json;

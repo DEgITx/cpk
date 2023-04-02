@@ -805,7 +805,21 @@ int cpk_main(int argc, char *argv[]) {
             {
                 searchString.push_back(argv[i]);
             }
-            AISearch(Join(searchString, " "));
+            std::string packageNames = AISearch(Join(searchString, " "));
+            if (packageNames.size() > 0)
+            {
+                if(ConsoleInput("Do you wanna install those packages ? [y/n]") == "y")
+                {
+                    std::vector<CPKPackage> packages;
+                    for (const auto& packageName : Split(packageNames, " "))
+                    {
+                        CPKPackage package;
+                        package.package = packageName;
+                        packages.push_back(package);
+                    }
+                    retVal = InstallPackages(packages) ? 0 : 1;
+                }
+            }
         } else {
             std::string cpkDir = AbsolutePath(".");
 
