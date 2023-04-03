@@ -18,9 +18,11 @@ Very light and easy and fast native package manager to install **C/C++ (priority
 
 Main purpose of this package manager to have simple C/C++ manager with possibility to post packages like **npm**, and also provide functionality to support same algorithms and code base for different programming languages, so if someone wanna **quicksort** package in their project on Python - they will get it, and if need the same one for C++ he will get it with simillar command.
 
-CPK has possibility to search and install packages using **GPT** by given description, generate example code for installed libraries using `cpk nn` command. So you can not only install libraries, but find needed and use them immediately.  
+CPK has possibility to search and install packages using **GPT** neural network by given description, generate example code for installed libraries using `cpk nn` command. So you can not only install libraries, but find needed and use them immediately.  
 
-Cross-platform. Implemented on C/C++ and provided for Linux, Mac OS, Windows arch.
+<p align="center"><img src="https://github.com/DEgITx/share/blob/main/cpk/nn_search.gif?raw=true" /></p>
+
+Cross-platform. Implemented on C/C++ and provided for **Linux, Mac OS, Windows arch**.
 
 ## Features
 * Lightweight, written on C/C++
