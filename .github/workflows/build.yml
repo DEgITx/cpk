@@ -30,6 +30,13 @@ jobs:
           brew update > /dev/null
           brew install \
             cmake ninja
+      - name: Download and install Ninja (Windows)
+        if: runner.os == 'Windows'
+        run: |
+          $ninjaUrl = "https://github.com/ninja-build/ninja/releases/download/v1.11.1/ninja-win.zip"
+          Invoke-WebRequest -Uri $ninjaUrl -OutFile ninja-win.zip
+          Expand-Archive -Path ninja-win.zip -DestinationPath $env:USERPROFILE
+          $env:Path += ";$env:USERPROFILE"
       - uses: actions/checkout@v2
         with:
           fetch-depth: 0
