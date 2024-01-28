@@ -163,6 +163,15 @@ cmake -DCMAKE_BUILD_TYPE=Release ../
 make -j8
 ```
 
+We recomend to build cpk using ninja + mingw:
+
+```sh
+mkdir build
+cd build
+cmake -G Ninja -DCMAKE_BUILD_TYPE=Release ../
+ninja
+```
+
 ## License
 [MIT](https://github.com/DEgiTx/cpk/blob/master/LICENSE)
 
