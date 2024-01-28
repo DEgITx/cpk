@@ -16,9 +16,9 @@ std::string BuildToolsUrl()
             switch(os_arch_mapping[GetOSArch()])
             {
                 case X86_64:
-                    return REMOTE_TOOLS_URL "/tools/winlibs-x86_64-posix-seh-gcc-12.1.0-llvm-14.0.4-mingw-w64ucrt-10.0.0-r2.zip";
+                    return REMOTE_TOOLS_URL "/tools/winlibs-i686-posix-dwarf-gcc-13.2.0-llvm-17.0.6-mingw-w64ucrt-11.0.1-r4.zip";
                 case X86:
-                    return REMOTE_TOOLS_URL "/tools/winlibs-i686-posix-dwarf-gcc-12.1.0-llvm-14.0.4-mingw-w64ucrt-10.0.0-r2.zip";
+                    return REMOTE_TOOLS_URL "/tools/winlibs-x86_64-posix-seh-gcc-13.2.0-llvm-17.0.6-mingw-w64ucrt-11.0.1-r4.zip";
             }
     }
     return std::string();
