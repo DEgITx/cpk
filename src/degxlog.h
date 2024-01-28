@@ -5,6 +5,7 @@
 #include <iostream>
 #include <string.h>
 #include <sys/time.h>
+#include <cstdint>
 
 #define DX_COLORFUL 1
 
